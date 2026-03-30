@@ -165,6 +165,37 @@
   .stat-row { display: flex; gap: 16px; flex-wrap: wrap; margin: 16px 0; }
   .stat { flex: 1; min-width: 100px; background: var(--bg2);
     border-radius: var(--radius-sm); padding: 12px 14px; }
+
+  /* ===== MAPA NEURAL ===== */
+  #mapa { background:#0d1117; }
+  #mapa.active { display:flex!important; flex-direction:column; height:calc(100vh - 52px); overflow:hidden; padding:0; }
+  .mapa-hdr { padding:13px 22px 10px; border-bottom:1px solid #21262d; flex-shrink:0; }
+  .mapa-hdr-row { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+  .mapa-ttl { font-size:16px; font-weight:700; color:#e6edf3; margin-bottom:2px; }
+  .mapa-sub { font-size:11px; color:#8b949e; }
+  .mapa-leg { display:flex; flex-wrap:wrap; gap:10px; }
+  .mapa-leg span { display:flex; align-items:center; gap:4px; font-size:10px; color:#8b949e; }
+  .mapa-leg i { width:8px; height:8px; border-radius:50%; flex-shrink:0; display:inline-block; }
+  .mapa-body { display:flex; flex:1; min-height:0; overflow:hidden; }
+  .mapa-cvs { flex:1; overflow-x:auto; overflow-y:hidden; position:relative; }
+  #neural-svg { display:block; cursor:default; }
+  .mapa-pnl { width:295px; background:#161b22; border-left:1px solid #21262d; overflow-y:auto; flex-shrink:0; }
+  .mapa-pnl-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#8b949e; text-align:center; padding:28px; gap:10px; }
+  .mapa-pnl-inner { padding:18px 16px; color:#e6edf3; }
+  .mapa-pnl-inner h3 { font-size:14px; font-weight:700; color:#e6edf3; margin-bottom:5px; line-height:1.3; }
+  .mapa-badge { display:inline-block; padding:2px 9px; border-radius:99px; font-size:10px; font-weight:600; margin-bottom:9px; }
+  .mapa-pdesc { font-size:12px; color:#8b949e; line-height:1.6; margin-bottom:0; }
+  .mapa-sec { font-size:10px; font-weight:700; text-transform:uppercase; color:#6e7681; letter-spacing:0.6px; margin:13px 0 6px; }
+  .mapa-lnk { display:flex; align-items:flex-start; gap:7px; padding:8px 10px; background:#0d1117; border-radius:6px; margin-bottom:4px; text-decoration:none; color:#e6edf3; font-size:11px; border:1px solid #30363d; transition:border-color .15s; line-height:1.4; }
+  .mapa-lnk:hover { border-color:#58a6ff; color:#58a6ff; }
+  .mapa-lnk .li { font-size:12px; flex-shrink:0; margin-top:1px; }
+  .mapa-cmds { background:#0d1117; border-radius:6px; padding:9px 11px; border:1px solid #30363d; }
+  .mapa-cmd { font-family:monospace; font-size:10.5px; color:#58a6ff; padding:2px 0; border-bottom:1px solid #21262d; }
+  .mapa-cmd:last-child { border-bottom:none; }
+  @media (max-width:700px) {
+    .mapa-body { flex-direction:column; }
+    .mapa-pnl { width:100%; max-height:240px; border-left:none; border-top:1px solid #21262d; }
+  }
 </style>
 </head>
 <body>
@@ -186,6 +217,8 @@
     <button class="nav-tab" onclick="show('automacao')" style="color:var(--amber)">⚙️ Automação</button>
     <button class="nav-tab" onclick="show('rl')" style="color:var(--coral)">🧠 Aprendizado por Reforço</button>
     <button class="nav-tab" onclick="show('treinamento')" style="color:var(--green)">🔬 Treinamento de Modelos</button>
+    <span style="width:1px;background:var(--border2);margin:10px 6px;flex-shrink:0"></span>
+    <button class="nav-tab" onclick="show('mapa')" style="color:#58a6ff">🕸 Mapa Neural</button>
   </div>
 </div>
 
@@ -2245,13 +2278,435 @@
 
 </div><!-- /container -->
 
+<!-- ===== MAPA NEURAL ===== -->
+<div id="mapa" class="section">
+  <div class="mapa-hdr">
+    <div class="mapa-hdr-row">
+      <div>
+        <div class="mapa-ttl">🕸 Mapa Neural de Conhecimento</div>
+        <div class="mapa-sub">Trilha cronológica — clique em qualquer nó para ver materiais, links e comandos</div>
+      </div>
+      <div class="mapa-leg">
+        <span><i style="background:#1D9E75"></i>Fundação</span>
+        <span><i style="background:#58a6ff"></i>Ferramentas</span>
+        <span><i style="background:#d2a8ff"></i>IA &amp; ML</span>
+        <span><i style="background:#f78166"></i>Avançado</span>
+        <span><i style="background:#ffa657"></i>Carreira</span>
+      </div>
+    </div>
+  </div>
+  <div class="mapa-body">
+    <div class="mapa-cvs" id="mapa-cvs">
+      <svg id="neural-svg"></svg>
+    </div>
+    <div class="mapa-pnl" id="mapa-pnl">
+      <div class="mapa-pnl-empty">
+        <div style="font-size:38px">🧠</div>
+        <div style="font-size:12px;line-height:1.6">Clique em qualquer nó<br>para ver detalhes,<br>materiais e comandos</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 function show(id) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   event.target.classList.add('active');
-  window.scrollTo(0, 0);
+  if (id === 'mapa') { setTimeout(initMapa, 30); } else { window.scrollTo(0, 0); }
+}
+
+// ========== MAPA NEURAL ==========
+const MN = [
+  {id:'root',   lbl:'TRILHA\nCOMPLETA',        ly:0, c:'#1D9E75', bg:'rgba(29,158,117,0.18)',
+   desc:'Trilha completa de IA, ML, DevOps e carreira internacional. Siga da esquerda para a direita — cada coluna é uma fase cronológica da sua jornada.',
+   lnks:[], cmds:[]},
+
+  {id:'math',   lbl:'MATEMÁTICA',               ly:1, c:'#58a6ff', bg:'rgba(88,166,255,0.12)',
+   desc:'Álgebra linear, cálculo diferencial, probabilidade e estatística. A linguagem de ML — sem isso você usa ferramentas sem entender o que acontece por baixo.',
+   lnks:[
+     {i:'▶',t:'3Blue1Brown — Essence of Linear Algebra',u:'https://www.youtube.com/playlist?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab'},
+     {i:'▶',t:'StatQuest — Statistics & Machine Learning (YouTube)',u:'https://www.youtube.com/c/joshstarmer'},
+     {i:'📖',t:'Mathematics for Machine Learning — livro gratuito',u:'https://mml-book.github.io/'}
+   ], cmds:[]},
+
+  {id:'linux',  lbl:'LINUX &\nTERMINAL',       ly:1, c:'#ffa657', bg:'rgba(255,166,87,0.12)',
+   desc:'Shell bash, comandos essenciais, scripts, processos, permissões, SSH. Todo servidor de ML roda Linux.',
+   lnks:[
+     {i:'🌐',t:'The Missing Semester — MIT (gratuito)',u:'https://missing.csail.mit.edu/'},
+     {i:'▶',t:'Linux for Hackers — NetworkChuck (YouTube)',u:'https://www.youtube.com/playlist?list=PLIhvC56v63IJIujb5cyE13oLuyORZpdkL'}
+   ], cmds:['ls -la  /  cd  /  pwd  /  mkdir -p','cp  /  mv  /  rm -rf  /  find . -name','grep -r "padrão" . --include="*.py"','chmod +x script.sh  /  chown user:group','ps aux | grep python  /  kill -9 PID','ssh user@servidor  /  scp file srv:/path','tmux new -s treino  /  tmux attach -t treino','nohup python train.py > log.txt 2>&1 &']},
+
+  {id:'prog',   lbl:'LÓGICA &\nALGORITMOS',   ly:1, c:'#d2a8ff', bg:'rgba(210,168,255,0.12)',
+   desc:'Pensamento algorítmico, recursão, complexidade O(n). A base que transfere para qualquer linguagem. CS50 é o melhor curso de intro existente.',
+   lnks:[
+     {i:'🌐',t:'CS50 — Harvard (gratuito, legendas PT-BR)',u:'https://cs50.harvard.edu/x/'},
+     {i:'▶',t:'Algoritmos — Abdul Bari (YouTube)',u:'https://www.youtube.com/c/Abdul-Bari'}
+   ], cmds:[]},
+
+  {id:'python', lbl:'PYTHON',                   ly:2, c:'#58a6ff', bg:'rgba(88,166,255,0.12)',
+   desc:'Python avançado: OOP, generators, decorators, async/await, type hints, testes com pytest. Linguagem padrão de ML e ciência de dados.',
+   lnks:[
+     {i:'🌐',t:'Kaggle — Python Course (gratuito, interativo)',u:'https://www.kaggle.com/learn/python'},
+     {i:'📖',t:'Fluent Python 2ª ed. — Luciano Ramalho',u:'https://www.oreilly.com/library/view/fluent-python-2nd/9781492056348/'},
+     {i:'▶',t:'Python Full Course — freeCodeCamp (YouTube)',u:'https://www.youtube.com/watch?v=rfscVS0vtbw'}
+   ], cmds:['python -m venv env && source env/bin/activate','pip install -r requirements.txt','pip freeze > requirements.txt','python -m pytest tests/ -v','python -m cProfile -s cumtime script.py','python -c "import sys; print(sys.version)"']},
+
+  {id:'git',    lbl:'GIT &\nGITHUB',            ly:2, c:'#f78166', bg:'rgba(247,129,102,0.12)',
+   desc:'Controle de versão profissional: branches, merge, rebase, pull requests, GitHub Actions, versionamento semântico.',
+   lnks:[
+     {i:'📖',t:'Pro Git Book — gratuito em PT-BR',u:'https://git-scm.com/book/pt-br/v2'},
+     {i:'🌐',t:'GitHub Actions — Documentação oficial',u:'https://docs.github.com/en/actions'},
+     {i:'▶',t:'Git & GitHub do zero — Traversy Media',u:'https://www.youtube.com/watch?v=SWYqp7iY_Tc'}
+   ], cmds:['git init  /  git clone <url>','git add .  /  git add -p  (interativo)','git commit -m "feat: descrição"','git push origin main  /  git pull --rebase','git checkout -b feature/nome','git merge branch  /  git rebase -i HEAD~3','git stash  /  git stash pop','git log --oneline --graph --all','git diff HEAD~1  /  git reset --soft HEAD~1','git tag v1.0.0  /  git cherry-pick <hash>','gh pr create --title "feat: título"','gh release create v1.0.0 --generate-notes']},
+
+  {id:'sql',    lbl:'SQL &\nBANCO DE DADOS',    ly:2, c:'#7ee787', bg:'rgba(126,231,135,0.12)',
+   desc:'SQL para análise: JOINs, window functions, subqueries, índices, PostgreSQL. Muito cobrado em entrevistas ML.',
+   lnks:[
+     {i:'🌐',t:'Mode SQL Tutorial — interativo e gratuito',u:'https://mode.com/sql-tutorial/'},
+     {i:'🌐',t:'SQLZoo — prática interativa',u:'https://sqlzoo.net/'},
+     {i:'▶',t:'SQL Full Course — freeCodeCamp',u:'https://www.youtube.com/watch?v=HXV3zeQKqGY'}
+   ], cmds:['SELECT col FROM tabela WHERE cond','JOIN (INNER / LEFT / RIGHT / FULL OUTER)','GROUP BY col HAVING COUNT(*) > 1','ROW_NUMBER() OVER (PARTITION BY col ORDER BY val)','CREATE INDEX ON tabela(coluna)','EXPLAIN ANALYZE SELECT ...','psql -U user -d banco -h host -p 5432']},
+
+  {id:'dsa',    lbl:'ESTRUTURAS\nDE DADOS',     ly:2, c:'#d2a8ff', bg:'rgba(210,168,255,0.12)',
+   desc:'Arrays, linked lists, árvores, grafos, heaps, hash maps, complexidade temporal e espacial. Essencial para entrevistas FAANG.',
+   lnks:[
+     {i:'🌐',t:'NeetCode — Roadmap + soluções comentadas',u:'https://neetcode.io/roadmap'},
+     {i:'▶',t:'Data Structures Easy to Advanced — CS Dojo',u:'https://www.youtube.com/watch?v=RBSGKlAvoiM'},
+     {i:'🌐',t:'LeetCode — prática de algoritmos',u:'https://leetcode.com/'}
+   ], cmds:[]},
+
+  {id:'numpy',  lbl:'NUMPY &\nPANDAS',          ly:3, c:'#58a6ff', bg:'rgba(88,166,255,0.12)',
+   desc:'NumPy para arrays multidimensionais e operações vetorizadas. Pandas para DataFrames. Pilares de toda pipeline de dados.',
+   lnks:[
+     {i:'🌐',t:'Kaggle — Pandas Course (gratuito)',u:'https://www.kaggle.com/learn/pandas'},
+     {i:'📖',t:'Python Data Science Handbook — gratuito online',u:'https://jakevdp.github.io/PythonDataScienceHandbook/'},
+     {i:'▶',t:'Pandas Tutorial — Corey Schafer (YouTube)',u:'https://www.youtube.com/playlist?list=PL-osiE80TeTsWmV9i9c58mdDCSskIFdDS'}
+   ], cmds:[]},
+
+  {id:'stats',  lbl:'ESTATÍSTICA\nAPLICADA',    ly:3, c:'#ffa657', bg:'rgba(255,166,87,0.12)',
+   desc:'Distribuições, testes de hipótese, p-value, correlação, inferência bayesiana, A/B testing. Base do raciocínio em ML.',
+   lnks:[
+     {i:'▶',t:'StatQuest — Josh Starmer (YouTube)',u:'https://www.youtube.com/c/joshstarmer'},
+     {i:'📖',t:'Think Stats — Allen Downey (gratuito)',u:'https://greenteapress.com/thinkstats2/'},
+     {i:'🌐',t:'Khan Academy — Estatística e Probabilidade',u:'https://pt.khanacademy.org/math/statistics-probability'}
+   ], cmds:[]},
+
+  {id:'viz',    lbl:'VISUALIZAÇÃO\nDE DADOS',   ly:3, c:'#7ee787', bg:'rgba(126,231,135,0.12)',
+   desc:'Matplotlib, Seaborn, Plotly. Storytelling com dados é uma habilidade subestimada que diferencia candidatos nas entrevistas.',
+   lnks:[
+     {i:'🌐',t:'Matplotlib Tutorials — documentação oficial',u:'https://matplotlib.org/stable/tutorials/'},
+     {i:'🌐',t:'Seaborn Gallery & Tutorial',u:'https://seaborn.pydata.org/tutorial.html'},
+     {i:'🌐',t:'Plotly Express Docs',u:'https://plotly.com/python/plotly-express/'}
+   ], cmds:[]},
+
+  {id:'ml',     lbl:'MACHINE\nLEARNING',        ly:4, c:'#1D9E75', bg:'rgba(29,158,117,0.15)',
+   desc:'Regressão, classificação, clustering, SVM, Random Forest, XGBoost, validação cruzada, métricas (AUC, F1, RMSE).',
+   lnks:[
+     {i:'🌐',t:'Andrew Ng — ML Specialization (Coursera)',u:'https://www.coursera.org/specializations/machine-learning-introduction'},
+     {i:'🌐',t:'Scikit-learn — User Guide',u:'https://scikit-learn.org/stable/user_guide.html'},
+     {i:'📖',t:'Hands-On ML — Aurélien Géron',u:'https://www.oreilly.com/library/view/hands-on-machine-learning/9781492032632/'},
+     {i:'🌐',t:'Kaggle — Intro to Machine Learning (gratuito)',u:'https://www.kaggle.com/learn/intro-to-machine-learning'}
+   ], cmds:[]},
+
+  {id:'feat',   lbl:'FEATURE\nENGINEERING',     ly:4, c:'#f78166', bg:'rgba(247,129,102,0.12)',
+   desc:'Normalização, encoding categórico, seleção de features, feature importance, missing values, outliers.',
+   lnks:[
+     {i:'🌐',t:'Kaggle — Feature Engineering Course',u:'https://www.kaggle.com/learn/feature-engineering'},
+     {i:'▶',t:'Feature Engineering — Krish Naik (YouTube)',u:'https://www.youtube.com/playlist?list=PLZoTAELRMXVPwYGE2PXD3x0bfKnR0cJjN'}
+   ], cmds:[]},
+
+  {id:'dl',     lbl:'DEEP\nLEARNING',           ly:5, c:'#d2a8ff', bg:'rgba(210,168,255,0.15)',
+   desc:'Redes neurais, backpropagation, otimizadores (Adam/SGD), regularização (dropout, L2), batch norm, learning rate scheduling.',
+   lnks:[
+     {i:'🌐',t:'fast.ai — Practical Deep Learning for Coders',u:'https://course.fast.ai/'},
+     {i:'🌐',t:'Deep Learning Specialization — Andrew Ng',u:'https://www.coursera.org/specializations/deep-learning'},
+     {i:'▶',t:'Neural Networks: Zero to Hero — Karpathy',u:'https://www.youtube.com/playlist?list=PLAqhIrjkxbuWI23v9cThsA9GvCAUhRvKZ'},
+     {i:'📖',t:'Deep Learning Book — Goodfellow (gratuito)',u:'https://www.deeplearningbook.org/'}
+   ], cmds:[]},
+
+  {id:'pytorch',lbl:'PYTORCH',                  ly:5, c:'#f78166', bg:'rgba(247,129,102,0.12)',
+   desc:'Tensors, autograd, nn.Module, datasets, dataloaders, training loops, GPU acceleration, model checkpointing.',
+   lnks:[
+     {i:'🌐',t:'PyTorch Official Tutorials',u:'https://pytorch.org/tutorials/'},
+     {i:'▶',t:'PyTorch Full Course — freeCodeCamp',u:'https://www.youtube.com/watch?v=V_xro1bcAuA'},
+     {i:'▶',t:'PyTorch Deep Learning — Daniel Bourke',u:'https://www.youtube.com/watch?v=Z_ikDlimN6A'}
+   ], cmds:['import torch; import torch.nn as nn','x = torch.randn(batch, features).to("cuda")','model = MyNet().to(device)','loss = criterion(output, target)','loss.backward(); optimizer.step(); optimizer.zero_grad()','torch.save(model.state_dict(), "ckpt.pt")','model.load_state_dict(torch.load("ckpt.pt"))','with torch.no_grad():  # inferência']},
+
+  {id:'cnn',    lbl:'CNNs &\nVISÃO COMP.',      ly:6, c:'#58a6ff', bg:'rgba(88,166,255,0.12)',
+   desc:'Redes convolucionais, object detection, segmentação, YOLO, ResNet, EfficientNet, transfer learning para visão.',
+   lnks:[
+     {i:'🌐',t:'CS231n — Stanford Computer Vision (gratuito)',u:'http://cs231n.stanford.edu/'},
+     {i:'🌐',t:'YOLO / Ultralytics Docs',u:'https://docs.ultralytics.com/'},
+     {i:'▶',t:'OpenCV & Deep Learning — Sentdex',u:'https://www.youtube.com/c/sentdex'}
+   ], cmds:[]},
+
+  {id:'transf', lbl:'TRANSFORMERS\n& ATTENTION', ly:6, c:'#d2a8ff', bg:'rgba(210,168,255,0.15)',
+   desc:'Arquitetura Transformer, self-attention, multi-head attention, positional encoding, BERT, GPT, ViT. Arquitetura dominante desde 2017.',
+   lnks:[
+     {i:'📄',t:'Attention Is All You Need — paper original (2017)',u:'https://arxiv.org/abs/1706.03762'},
+     {i:'🌐',t:'The Illustrated Transformer — Jay Alammar',u:'https://jalammar.github.io/illustrated-transformer/'},
+     {i:'🌐',t:'HuggingFace NLP Course (gratuito)',u:'https://huggingface.co/learn/nlp-course'},
+     {i:'▶',t:"Let's build GPT from scratch — Karpathy",u:'https://www.youtube.com/watch?v=kCc8FmEb1nY'}
+   ], cmds:[]},
+
+  {id:'rl',     lbl:'APRENDIZADO\nPOR REFORÇO', ly:6, c:'#7ee787', bg:'rgba(126,231,135,0.12)',
+   desc:'Q-Learning, Policy Gradient, PPO, RLHF. Usado no treinamento do ChatGPT. Fundamento de robótica e jogos.',
+   lnks:[
+     {i:'🌐',t:'Spinning Up in Deep RL — OpenAI',u:'https://spinningup.openai.com/'},
+     {i:'🌐',t:'Deep RL Course — HuggingFace (gratuito)',u:'https://huggingface.co/learn/deep-rl-course'},
+     {i:'▶',t:'RL Course by David Silver — DeepMind',u:'https://www.youtube.com/playlist?list=PLqYmG7hTraZDM-OYHWgPebj2MfCFzFObQ'}
+   ], cmds:[]},
+
+  {id:'nlp',    lbl:'NLP &\nLLMs',              ly:7, c:'#1D9E75', bg:'rgba(29,158,117,0.15)',
+   desc:'Tokenização, embeddings, RAG, prompt engineering, LangChain, agentes de IA. LLMs: GPT, LLaMA, Mistral, Gemini.',
+   lnks:[
+     {i:'🌐',t:'CS224N — Stanford NLP (Deep Learning)',u:'http://web.stanford.edu/class/cs224n/'},
+     {i:'🌐',t:'LangChain Docs',u:'https://docs.langchain.com/'},
+     {i:'▶',t:'LLM Bootcamp — Full Stack Deep Learning',u:'https://fullstackdeeplearning.com/llm-bootcamp/'},
+     {i:'🌐',t:'Prompt Engineering Guide',u:'https://www.promptingguide.ai/'}
+   ], cmds:[]},
+
+  {id:'finetun',lbl:'FINE-TUNING\n& RLHF',      ly:7, c:'#d2a8ff', bg:'rgba(210,168,255,0.15)',
+   desc:'LoRA, QLoRA, DPO, RLHF, PEFT. Como adaptar LLMs para tarefas específicas com pouca GPU.',
+   lnks:[
+     {i:'🌐',t:'HuggingFace TRL Docs',u:'https://huggingface.co/docs/trl/index'},
+     {i:'🌐',t:'Unsloth — Fine-tuning 2-5x mais rápido',u:'https://github.com/unslothai/unsloth'},
+     {i:'▶',t:'Fine-tune LLaMA 3 — Maxime Labonne',u:'https://www.youtube.com/watch?v=SH6bWNsHUxY'}
+   ], cmds:['from unsloth import FastLanguageModel','model, tokenizer = FastLanguageModel.from_pretrained(...)','trainer = SFTTrainer(model, dataset, ...)','trainer.train()','model.save_pretrained("./meu_modelo")','model.push_to_hub("usuario/meu_modelo")']},
+
+  {id:'mlops',  lbl:'MLOPS &\nEXP. TRACKING',  ly:8, c:'#f78166', bg:'rgba(247,129,102,0.12)',
+   desc:'Experiment tracking (W&B / MLflow), model registry, CI/CD para ML, monitoramento de drift, reprodutibilidade.',
+   lnks:[
+     {i:'🌐',t:'MLOps Zoomcamp — DataTalks (gratuito)',u:'https://github.com/DataTalksClub/mlops-zoomcamp'},
+     {i:'🌐',t:'Weights & Biases Docs',u:'https://docs.wandb.ai/'},
+     {i:'📖',t:'Designing ML Systems — Chip Huyen',u:'https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/'}
+   ], cmds:['wandb init && wandb login','wandb.log({"loss": loss, "acc": acc, "epoch": e})','wandb.watch(model, log="all")','mlflow.start_run()','mlflow.log_param("lr", 0.001)','mlflow.log_metric("f1", 0.94)','mlflow.log_artifact("model.pkl")']},
+
+  {id:'docker', lbl:'DOCKER &\nDEPLOY',         ly:8, c:'#58a6ff', bg:'rgba(88,166,255,0.12)',
+   desc:'Containerização Docker, FastAPI para servir modelos, Kubernetes básico, CI/CD com GitHub Actions, cloud (AWS / GCP / Azure).',
+   lnks:[
+     {i:'🌐',t:'Docker Official Docs — Get Started',u:'https://docs.docker.com/get-started/'},
+     {i:'🌐',t:'FastAPI Docs',u:'https://fastapi.tiangolo.com/'},
+     {i:'▶',t:'FastAPI Full Course — freeCodeCamp',u:'https://www.youtube.com/watch?v=0sOvCWFmrtA'}
+   ], cmds:['docker build -t modelo:v1 .','docker run -p 8000:8000 --gpus all modelo:v1','docker-compose up -d','docker logs container_id -f --tail 100','kubectl apply -f deployment.yaml','kubectl get pods && kubectl logs pod_name','uvicorn app:app --host 0.0.0.0 --port 8000 --workers 4']},
+
+  {id:'portf',  lbl:'PORTFÓLIO\nGITHUB',        ly:9, c:'#1D9E75', bg:'rgba(29,158,117,0.15)',
+   desc:'5+ projetos reais, README profissional, modelos no HuggingFace Hub, artigos técnicos no Medium/LinkedIn.',
+   lnks:[
+     {i:'🌐',t:'HuggingFace Hub — publicar modelos',u:'https://huggingface.co/'},
+     {i:'🌐',t:'GitHub Pages — site do portfólio',u:'https://pages.github.com/'},
+     {i:'📖',t:'Make a README — como escrever bons READMEs',u:'https://www.makeareadme.com/'}
+   ], cmds:['gh repo create meu_projeto --public','git push -u origin main','gh pr create --title "feat: add model"','gh release create v1.0.0 --generate-notes']},
+
+  {id:'leet',   lbl:'LEETCODE &\nENTREVISTAS',  ly:9, c:'#ffa657', bg:'rgba(255,166,87,0.12)',
+   desc:'500+ problemas LeetCode, system design, behavioral interviews. Necessário para FAANG e empresas internacionais.',
+   lnks:[
+     {i:'🌐',t:'LeetCode',u:'https://leetcode.com/'},
+     {i:'🌐',t:'NeetCode 150 — roteiro definitivo',u:'https://neetcode.io/practice'},
+     {i:'📖',t:'Cracking the Coding Interview',u:'https://www.crackingthecodinginterview.com/'},
+     {i:'🌐',t:'System Design Primer — GitHub',u:'https://github.com/donnemartin/system-design-primer'}
+   ], cmds:[]},
+
+  {id:'mercado',lbl:'MERCADO\nINTERNACIONAL',   ly:9, c:'#d2a8ff', bg:'rgba(210,168,255,0.15)',
+   desc:'LinkedIn otimizado, networking internacional, aplicações em USD/EUR, entrevistas em inglês, salary negotiation.',
+   lnks:[
+     {i:'🌐',t:'Levels.fyi — salários em tech por empresa',u:'https://www.levels.fyi/'},
+     {i:'🌐',t:'Remote.co — vagas remotas dev/ML',u:'https://remote.co/remote-jobs/developer/'},
+     {i:'🌐',t:'Glassdoor — pesquisa de salários e empresas',u:'https://www.glassdoor.com/'}
+   ], cmds:[]},
+];
+
+const ME = [
+  ['root','math'],['root','linux'],['root','prog'],
+  ['math','python'],['math','stats'],
+  ['linux','git'],['linux','docker'],
+  ['prog','python'],['prog','dsa'],
+  ['python','numpy'],['python','ml'],
+  ['git','dsa'],['git','portf'],
+  ['sql','numpy'],['sql','stats'],
+  ['numpy','stats'],['numpy','ml'],['numpy','viz'],
+  ['stats','ml'],['stats','feat'],
+  ['viz','ml'],
+  ['dsa','ml'],['dsa','leet'],
+  ['ml','dl'],['ml','feat'],
+  ['feat','dl'],
+  ['dl','pytorch'],['dl','transf'],
+  ['pytorch','cnn'],['pytorch','transf'],['pytorch','rl'],
+  ['cnn','nlp'],
+  ['transf','nlp'],['transf','finetun'],
+  ['rl','finetun'],['rl','nlp'],
+  ['nlp','mlops'],['nlp','portf'],
+  ['finetun','mlops'],['finetun','portf'],
+  ['mlops','docker'],
+  ['docker','portf'],['docker','mercado'],
+  ['portf','mercado'],['leet','mercado'],
+];
+
+let _mapaInit = false, _selNode = null;
+
+function initMapa() {
+  if (_mapaInit) return;
+  _mapaInit = true;
+  const cvs = document.getElementById('mapa-cvs');
+  if (!cvs) return;
+  const H = Math.max(cvs.clientHeight || 500, 420);
+  const W = 1900;
+  const svg = document.getElementById('neural-svg');
+  svg.setAttribute('width', W);
+  svg.setAttribute('height', H);
+
+  // Layer grouping
+  const byLy = {};
+  MN.forEach(n => { (byLy[n.ly] = byLy[n.ly]||[]).push(n); });
+  const nLy = Object.keys(byLy).length;
+  const xPad = 80, yPad = 55;
+  const xStep = (W - xPad*2) / (nLy - 1);
+
+  MN.forEach(n => {
+    const grp = byLy[n.ly], idx = grp.indexOf(n), cnt = grp.length;
+    n.x = Math.round(xPad + n.ly * xStep);
+    const span = Math.min(H - yPad*2, (cnt-1)*130);
+    const y0 = (H - span) / 2;
+    n.y = cnt===1 ? H/2 : Math.round(y0 + idx*(span/Math.max(cnt-1,1)));
+  });
+
+  const ns = 'http://www.w3.org/2000/svg';
+  const mk = t => document.createElementNS(ns, t);
+
+  // defs: glow filter
+  const defs = mk('defs');
+  const flt = mk('filter'); flt.id = 'ng';
+  flt.innerHTML = '<feGaussianBlur stdDeviation="3.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>';
+  defs.appendChild(flt); svg.appendChild(defs);
+
+  // BG
+  const bg = mk('rect');
+  bg.setAttribute('width',W); bg.setAttribute('height',H); bg.setAttribute('fill','#0d1117');
+  svg.appendChild(bg);
+
+  // Stars
+  for (let i=0;i<160;i++) {
+    const s=mk('circle');
+    s.setAttribute('cx',(Math.random()*W).toFixed(0));
+    s.setAttribute('cy',(Math.random()*H).toFixed(0));
+    s.setAttribute('r',(Math.random()*1.4).toFixed(1));
+    s.setAttribute('fill','rgba(255,255,255,'+(0.06+Math.random()*0.4).toFixed(2)+')');
+    svg.appendChild(s);
+  }
+
+  // Vertical guide lines
+  Object.keys(byLy).forEach(ly => {
+    const x = byLy[ly][0].x;
+    const vl=mk('line');
+    vl.setAttribute('x1',x);vl.setAttribute('y1',14);vl.setAttribute('x2',x);vl.setAttribute('y2',H-30);
+    vl.setAttribute('stroke','#161b22');vl.setAttribute('stroke-width','1');vl.setAttribute('stroke-dasharray','3,7');
+    svg.appendChild(vl);
+  });
+
+  // Layer labels
+  const lyNames=['Início','Bases','Ferramentas','Dados','ML','Deep Learning','Arquiteturas','LLMs','MLOps','Carreira'];
+  Object.keys(byLy).forEach(ly => {
+    const x = byLy[ly][0].x;
+    const t=mk('text');
+    t.setAttribute('x',x); t.setAttribute('y',H-10);
+    t.setAttribute('text-anchor','middle');
+    t.setAttribute('fill','#30363d');
+    t.setAttribute('font-size','8.5');
+    t.setAttribute('font-weight','700');
+    t.setAttribute('font-family','-apple-system,BlinkMacSystemFont,sans-serif');
+    t.setAttribute('letter-spacing','0.8');
+    t.textContent=(lyNames[+ly]||'').toUpperCase();
+    svg.appendChild(t);
+  });
+
+  // Edges
+  const eG=mk('g'); eG.id='ne-layer'; svg.appendChild(eG);
+  ME.forEach(([a,b])=>{
+    const na=MN.find(n=>n.id===a), nb=MN.find(n=>n.id===b);
+    if(!na||!nb) return;
+    const p=mk('path');
+    const cx=(na.x+nb.x)/2;
+    p.setAttribute('d',`M${na.x},${na.y} C${cx},${na.y} ${cx},${nb.y} ${nb.x},${nb.y}`);
+    p.setAttribute('fill','none');
+    p.setAttribute('stroke',na.c+'30');
+    p.setAttribute('stroke-width','1.5');
+    p.setAttribute('class',`ne ea-${a} ea-${b}`);
+    p.dataset.base=na.c+'30';
+    eG.appendChild(p);
+  });
+
+  // Nodes
+  const nG=mk('g'); nG.id='nn-layer'; svg.appendChild(nG);
+  MN.forEach(n=>{
+    const g=mk('g');
+    g.setAttribute('class','nn'); g.dataset.id=n.id; g.style.cursor='pointer';
+    const r=n.ly===0?42:33;
+
+    const pulse=mk('circle');
+    pulse.setAttribute('cx',n.x); pulse.setAttribute('cy',n.y); pulse.setAttribute('r',r+10);
+    pulse.setAttribute('fill',n.c+'10'); pulse.setAttribute('class','npls');
+    g.appendChild(pulse);
+
+    const circ=mk('circle');
+    circ.setAttribute('cx',n.x); circ.setAttribute('cy',n.y); circ.setAttribute('r',r);
+    circ.setAttribute('fill',n.bg); circ.setAttribute('stroke',n.c); circ.setAttribute('stroke-width','1.5');
+    circ.setAttribute('filter','url(#ng)');
+    g.appendChild(circ);
+
+    const lines=n.lbl.split('\n');
+    const lh=11.5, th=lines.length*lh;
+    lines.forEach((ln,i)=>{
+      const t=mk('text');
+      t.setAttribute('x',n.x); t.setAttribute('y',n.y-th/2+i*lh+lh*0.8);
+      t.setAttribute('text-anchor','middle'); t.setAttribute('fill',n.c);
+      t.setAttribute('font-size',n.ly===0?'9.5':'8'); t.setAttribute('font-weight','800');
+      t.setAttribute('font-family','-apple-system,BlinkMacSystemFont,sans-serif');
+      t.setAttribute('letter-spacing','0.5'); t.setAttribute('pointer-events','none');
+      t.textContent=ln; g.appendChild(t);
+    });
+
+    g.addEventListener('click',()=>{
+      if(_selNode){
+        const pg=nG.querySelector(`[data-id="${_selNode}"]`);
+        if(pg) pg.querySelector('circle').setAttribute('stroke-width','1.5');
+        document.querySelectorAll('.ne').forEach(e=>{e.setAttribute('stroke',e.dataset.base);e.setAttribute('stroke-width','1.5');});
+      }
+      _selNode=n.id;
+      circ.setAttribute('stroke-width','3');
+      document.querySelectorAll(`.ea-${n.id}`).forEach(e=>{
+        e.setAttribute('stroke',n.c+'aa'); e.setAttribute('stroke-width','2.5');
+      });
+      _renderMapaPanel(n);
+    });
+
+    g.addEventListener('mouseenter',()=>{ if(_selNode!==n.id) pulse.setAttribute('r',r+18); });
+    g.addEventListener('mouseleave',()=>{ if(_selNode!==n.id) pulse.setAttribute('r',r+10); });
+    nG.appendChild(g);
+  });
+}
+
+function _renderMapaPanel(n){
+  const pnl=document.getElementById('mapa-pnl'); if(!pnl) return;
+  const lyNames=['Início','Bases','Ferramentas','Dados','ML','Deep Learning','Arquiteturas','LLMs','MLOps','Carreira'];
+  let h=`<div class="mapa-pnl-inner">
+    <h3>${n.lbl.replace('\n',' ')}</h3>
+    <span class="mapa-badge" style="background:${n.bg};color:${n.c}">${lyNames[n.ly]||'Fase '+n.ly}</span>
+    <p class="mapa-pdesc">${n.desc}</p>`;
+  if(n.lnks.length){
+    h+=`<div class="mapa-sec">📚 Materiais & Links</div>`;
+    n.lnks.forEach(l=>{
+      h+=`<a class="mapa-lnk" href="${l.u}" target="_blank" rel="noopener"><span class="li">${l.i}</span><span>${l.t}</span></a>`;
+    });
+  }
+  if(n.cmds.length){
+    h+=`<div class="mapa-sec">⌨️ Comandos Essenciais</div><div class="mapa-cmds">`;
+    n.cmds.forEach(c=>{ h+=`<div class="mapa-cmd">${c}</div>`; });
+    h+=`</div>`;
+  }
+  h+=`</div>`;
+  pnl.innerHTML=h;
 }
 </script>
 </body>
