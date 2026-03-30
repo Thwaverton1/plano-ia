@@ -1,0 +1,2258 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plano 730 Dias — IA Internacional</title>
+<style>
+  :root {
+    --bg: #ffffff; --bg2: #f8f7f4; --bg3: #f1efe8;
+    --text: #1a1a18; --text2: #5f5e5a; --text3: #888780;
+    --border: rgba(0,0,0,0.1); --border2: rgba(0,0,0,0.15);
+    --teal: #0F6E56; --teal-bg: #E1F5EE; --teal-mid: #1D9E75;
+    --purple: #534AB7; --purple-bg: #EEEDFE;
+    --coral: #993C1D; --coral-bg: #FAECE7;
+    --amber: #854F0B; --amber-bg: #FAEEDA;
+    --blue: #185FA5; --blue-bg: #E6F1FB;
+    --gray: #5F5E5A; --gray-bg: #F1EFE8;
+    --green: #3B6D11; --green-bg: #EAF3DE;
+    --pink: #993556; --pink-bg: #FBEAF0;
+    --radius: 10px; --radius-sm: 6px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    background: var(--bg3); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+  /* NAV */
+  .topnav { background: var(--bg); border-bottom: 1px solid var(--border2);
+    padding: 0 24px; display: flex; align-items: center; gap: 0;
+    position: sticky; top: 0; z-index: 100; height: 52px; }
+  .topnav h1 { font-size: 15px; font-weight: 600; color: var(--text); margin-right: 32px; white-space: nowrap; }
+  .nav-tabs { display: flex; gap: 2px; overflow-x: auto; }
+  .nav-tab { padding: 6px 14px; border-radius: var(--radius-sm); border: none;
+    background: transparent; color: var(--text2); cursor: pointer; font-size: 13px;
+    font-weight: 500; white-space: nowrap; transition: all .15s; }
+  .nav-tab:hover { background: var(--bg2); color: var(--text); }
+  .nav-tab.active { background: var(--text); color: white; }
+
+  /* LAYOUT */
+  .container { max-width: 960px; margin: 0 auto; padding: 28px 20px 60px; }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* CARDS */
+  .card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 20px 24px; margin-bottom: 16px; }
+  .card-sm { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 14px 16px; }
+
+  /* PHASE HEADERS */
+  .phase-header { border-radius: var(--radius); padding: 18px 22px; margin-bottom: 20px; }
+  .phase-teal { background: var(--teal-bg); border-left: 4px solid var(--teal-mid); }
+  .phase-purple { background: var(--purple-bg); border-left: 4px solid var(--purple); }
+  .phase-coral { background: var(--coral-bg); border-left: 4px solid var(--coral); }
+  .phase-blue { background: var(--blue-bg); border-left: 4px solid var(--blue); }
+  .phase-green { background: var(--green-bg); border-left: 4px solid var(--green); }
+  .phase-amber2 { background: var(--amber-bg); border-left: 4px solid #EF9F27; }
+  .phase-pink { background: var(--pink-bg); border-left: 4px solid var(--pink); }
+  .phase-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .phase-sub { font-size: 13px; color: var(--text2); }
+
+  /* WEEK BLOCKS */
+  .week-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  @media (max-width: 600px) { .week-grid { grid-template-columns: 1fr; } }
+
+  .week-card { background: var(--bg); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); overflow: hidden; }
+  .week-head { padding: 10px 14px; font-weight: 600; font-size: 13px;
+    display: flex; justify-content: space-between; align-items: center; }
+  .week-body { padding: 10px 14px; }
+  .week-teal .week-head { background: var(--teal-bg); color: var(--teal); }
+  .week-purple .week-head { background: var(--purple-bg); color: var(--purple); }
+  .week-coral .week-head { background: var(--coral-bg); color: var(--coral); }
+  .week-amber .week-head { background: var(--amber-bg); color: var(--amber); }
+  .week-blue .week-head { background: var(--blue-bg); color: var(--blue); }
+  .week-gray .week-head { background: var(--gray-bg); color: var(--gray); }
+  .week-green .week-head { background: var(--green-bg); color: var(--green); }
+
+  /* DAILY SCHEDULE */
+  .day-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin: 12px 0; }
+  .day-block { border-radius: var(--radius-sm); padding: 8px 6px; text-align: center; font-size: 11px; }
+  .day-name { font-weight: 700; margin-bottom: 4px; font-size: 10px; text-transform: uppercase; }
+  .day-main { font-weight: 600; font-size: 11px; margin-bottom: 2px; }
+  .day-sub { font-size: 10px; color: var(--text2); line-height: 1.3; }
+  .day-teal { background: var(--teal-bg); }
+  .day-purple { background: var(--purple-bg); }
+  .day-coral { background: var(--coral-bg); }
+  .day-amber { background: var(--amber-bg); }
+  .day-blue { background: var(--blue-bg); }
+  .day-gray { background: var(--gray-bg); }
+  .day-rest { background: #f1efe8; }
+
+  /* MILESTONE */
+  .milestone { display: flex; gap: 14px; align-items: flex-start; padding: 12px 0;
+    border-bottom: 1px solid var(--border); }
+  .milestone:last-child { border-bottom: none; }
+  .ms-dot { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; }
+  .ms-teal { background: var(--teal-bg); color: var(--teal); }
+  .ms-purple { background: var(--purple-bg); color: var(--purple); }
+  .ms-coral { background: var(--coral-bg); color: var(--coral); }
+  .ms-blue { background: var(--blue-bg); color: var(--blue); }
+  .ms-content h4 { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+  .ms-content p { font-size: 12px; color: var(--text2); line-height: 1.5; }
+
+  /* RESOURCE TABLE */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; padding: 8px 12px; background: var(--bg2);
+    font-weight: 600; border-bottom: 2px solid var(--border2); }
+  td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--bg2); }
+
+  /* TAGS */
+  .tag { display: inline-block; padding: 2px 9px; border-radius: 99px;
+    font-size: 11px; font-weight: 500; margin: 2px; }
+  .tag-teal { background: var(--teal-bg); color: var(--teal); }
+  .tag-purple { background: var(--purple-bg); color: var(--purple); }
+  .tag-coral { background: var(--coral-bg); color: var(--coral); }
+  .tag-amber { background: var(--amber-bg); color: var(--amber); }
+  .tag-blue { background: var(--blue-bg); color: var(--blue); }
+  .tag-gray { background: var(--gray-bg); color: var(--gray); }
+  .tag-green { background: var(--green-bg); color: var(--green); }
+
+  /* ALERT */
+  .alert { border-radius: var(--radius-sm); padding: 12px 16px; margin: 12px 0; font-size: 13px; }
+  .alert-amber { background: var(--amber-bg); border-left: 3px solid #EF9F27; color: var(--amber); }
+  .alert-teal { background: var(--teal-bg); border-left: 3px solid var(--teal-mid); color: var(--teal); }
+  .alert-coral { background: var(--coral-bg); border-left: 3px solid var(--coral); color: var(--coral); }
+
+  /* CHECKLIST */
+  .checklist { list-style: none; }
+  .checklist li { padding: 7px 0; border-bottom: 1px solid var(--border);
+    display: flex; gap: 10px; align-items: flex-start; font-size: 13px; }
+  .checklist li:last-child { border-bottom: none; }
+  .check-box { width: 16px; height: 16px; border: 1.5px solid var(--border2);
+    border-radius: 3px; flex-shrink: 0; margin-top: 1px; }
+
+  /* SECTION TITLE */
+  .sec-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .sec-sub { font-size: 14px; color: var(--text2); margin-bottom: 24px; line-height: 1.5; }
+
+  h2 { font-size: 17px; font-weight: 700; margin: 20px 0 12px; }
+  h3 { font-size: 15px; font-weight: 600; margin: 16px 0 8px; }
+  p { margin-bottom: 8px; }
+  ul, ol { padding-left: 20px; margin-bottom: 8px; }
+  li { margin-bottom: 4px; }
+
+  .divider { height: 1px; background: var(--border); margin: 24px 0; }
+
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 99px;
+    font-size: 11px; font-weight: 600; }
+  .badge-hard { background: var(--coral-bg); color: var(--coral); }
+  .badge-med { background: var(--amber-bg); color: var(--amber); }
+  .badge-ok { background: var(--teal-bg); color: var(--teal); }
+
+  .progress-bar { height: 6px; background: var(--bg3); border-radius: 3px; margin: 8px 0; }
+  .progress-fill { height: 100%; border-radius: 3px; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
+
+  .number-big { font-size: 32px; font-weight: 700; line-height: 1; }
+  .number-label { font-size: 12px; color: var(--text2); margin-top: 2px; }
+
+  .stat-row { display: flex; gap: 16px; flex-wrap: wrap; margin: 16px 0; }
+  .stat { flex: 1; min-width: 100px; background: var(--bg2);
+    border-radius: var(--radius-sm); padding: 12px 14px; }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <h1>🎯 Plano 730 Dias — IA Internacional</h1>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="show('visao')">Visão Geral</button>
+    <button class="nav-tab" onclick="show('fase1')">Fase 1 · Fundação</button>
+    <button class="nav-tab" onclick="show('fase2')">Fase 2 · Especialização</button>
+    <button class="nav-tab" onclick="show('fase3')">Fase 3 · Mercado</button>
+    <button class="nav-tab" onclick="show('rotina')">Rotina Diária</button>
+    <button class="nav-tab" onclick="show('recursos')">Recursos</button>
+    <button class="nav-tab" onclick="show('marcos')">Marcos & Alertas</button>
+    <span style="width:1px;background:var(--border2);margin:10px 6px;flex-shrink:0"></span>
+    <button class="nav-tab" onclick="show('visao-comp')" style="color:var(--purple)">👁 Visão Computacional</button>
+    <button class="nav-tab" onclick="show('robotica')" style="color:var(--teal)">🤖 Robótica</button>
+    <button class="nav-tab" onclick="show('drone')" style="color:var(--blue)">🚁 Drone</button>
+    <button class="nav-tab" onclick="show('automacao')" style="color:var(--amber)">⚙️ Automação</button>
+    <button class="nav-tab" onclick="show('rl')" style="color:var(--coral)">🧠 Aprendizado por Reforço</button>
+    <button class="nav-tab" onclick="show('treinamento')" style="color:var(--green)">🔬 Treinamento de Modelos</button>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ===== VISÃO GERAL ===== -->
+<div id="visao" class="section active">
+  <div class="sec-title">Plano de 730 dias para o mercado internacional de IA</div>
+  <div class="sec-sub">Estruturado para quem tem 2-3 anos até a formatura, quer trabalho remoto em USD/EUR,<br>e entende que consistência diária bate intensidade esporádica.</div>
+
+  <div class="stat-row">
+    <div class="stat"><div class="number-big" style="color:var(--teal)">730</div><div class="number-label">dias de plano</div></div>
+    <div class="stat"><div class="number-big" style="color:var(--purple)">4</div><div class="number-label">fases principais</div></div>
+    <div class="stat"><div class="number-big" style="color:var(--coral)">24</div><div class="number-label">marcos mensais</div></div>
+    <div class="stat"><div class="number-big" style="color:var(--amber)">500+</div><div class="number-label">LeetCode problems</div></div>
+    <div class="stat"><div class="number-big" style="color:var(--blue)">5+</div><div class="number-label">projetos no GitHub</div></div>
+  </div>
+
+  <div class="card">
+    <h2>A lógica do plano</h2>
+    <p>Este plano não é uma lista de 730 tarefas fixas. É um <strong>sistema de blocos temáticos semanais</strong> dentro de fases mensais, com <strong>uma rotina diária consistente</strong> que se adapta ao ritmo da faculdade.</p>
+    <p>A estrutura diária é sempre a mesma. O <em>conteúdo</em> muda conforme a fase.</p>
+    <div class="alert alert-amber"><strong>Regra de ouro:</strong> 2 horas focadas por dia valem mais que 10 horas no fim de semana. Seu cérebro consolida habilidades durante o sono — estudo distribuído é superior ao concentrado.</div>
+  </div>
+
+  <div class="card">
+    <h2>Estrutura das 4 fases</h2>
+
+    <div class="milestone">
+      <div class="ms-dot ms-teal">1</div>
+      <div class="ms-content">
+        <h4>Fase 1 — Fundação técnica (Dias 1–180 · 6 meses)</h4>
+        <p>Python avançado, ML clássico, estruturas de dados, SQL. Primeiro projeto real no GitHub. Início do LeetCode.</p>
+        <div style="margin-top:6px"><span class="tag tag-teal">Python</span><span class="tag tag-teal">Pandas</span><span class="tag tag-teal">Sklearn</span><span class="tag tag-teal">SQL</span><span class="tag tag-teal">Git</span><span class="tag tag-teal">LeetCode Easy</span></div>
+      </div>
+    </div>
+
+    <div class="milestone">
+      <div class="ms-dot ms-purple">2</div>
+      <div class="ms-content">
+        <h4>Fase 2 — Especialização profunda (Dias 181–420 · 8 meses)</h4>
+        <p>Deep Learning, Transformers, NLP/LLMs, Visão Computacional, Engenharia de Dados. Portfólio em construção. LeetCode Medium.</p>
+        <div style="margin-top:6px"><span class="tag tag-purple">PyTorch</span><span class="tag tag-purple">HuggingFace</span><span class="tag tag-purple">LLMs</span><span class="tag tag-purple">RAG</span><span class="tag tag-purple">FastAPI</span><span class="tag tag-purple">Docker</span></div>
+      </div>
+    </div>
+
+    <div class="milestone">
+      <div class="ms-dot ms-coral">3</div>
+      <div class="ms-content">
+        <h4>Fase 3 — Entrada no mercado (Dias 421–600 · 6 meses)</h4>
+        <p>Projetos completos deployados, Kaggle, primeiros freelances, preparação intensa para entrevistas. LeetCode Medium/Hard.</p>
+        <div style="margin-top:6px"><span class="tag tag-coral">Deploy</span><span class="tag tag-coral">MLflow</span><span class="tag tag-coral">Cloud AWS/GCP</span><span class="tag tag-coral">Kaggle</span><span class="tag tag-coral">Freelance</span></div>
+      </div>
+    </div>
+
+    <div class="milestone">
+      <div class="ms-dot ms-blue">4</div>
+      <div class="ms-content">
+        <h4>Fase 4 — Posicionamento internacional (Dias 601–730 · 4 meses)</h4>
+        <p>Mock interviews, aplicações Turing/Andela/Remote, LinkedIn em inglês otimizado, entrevistas reais.</p>
+        <div style="margin-top:6px"><span class="tag tag-blue">Turing</span><span class="tag tag-blue">Andela</span><span class="tag tag-blue">Mock interviews</span><span class="tag tag-blue">System Design</span><span class="tag tag-blue">Inglês técnico</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>O que você vai construir ao longo dos 730 dias</h2>
+    <div class="two-col">
+      <div>
+        <h3>Projetos obrigatórios (GitHub público)</h3>
+        <ul>
+          <li><strong>Mês 3:</strong> Classificador de texto com ML clássico</li>
+          <li><strong>Mês 5:</strong> API de ML deployada com FastAPI</li>
+          <li><strong>Mês 8:</strong> Sistema RAG com LLM (domínio de nicho)</li>
+          <li><strong>Mês 11:</strong> Projeto de visão computacional end-to-end</li>
+          <li><strong>Mês 14:</strong> Pipeline de dados com Airflow + dbt</li>
+          <li><strong>Mês 18:</strong> Projeto integrador (escolha do nicho final)</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Habilidades transversais contínuas</h3>
+        <ul>
+          <li><strong>LeetCode:</strong> 1 problema/dia (Easy → Medium → Hard)</li>
+          <li><strong>Inglês técnico:</strong> 30 min/dia desde o dia 1</li>
+          <li><strong>GitHub:</strong> commits 4-5x/semana</li>
+          <li><strong>Kaggle:</strong> 1 competição por trimestre (a partir do mês 7)</li>
+          <li><strong>LinkedIn:</strong> 1 post técnico por semana (em inglês, a partir do mês 6)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FASE 1 ===== -->
+<div id="fase1" class="section">
+  <div class="phase-header phase-teal">
+    <div class="phase-title">Fase 1 — Fundação técnica</div>
+    <div class="phase-sub">Dias 1 a 180 · 6 meses · Base sólida em Python, ML clássico, dados e algoritmos</div>
+  </div>
+
+  <div class="alert alert-teal">Objetivo da fase: terminar o mês 6 com 1 projeto funcional no GitHub e 60+ problemas LeetCode resolvidos.</div>
+
+  <!-- MÊS 1 -->
+  <h2>Mês 1 (Dias 1–30) — Python como profissional</h2>
+  <div class="week-grid">
+    <div class="week-card week-teal">
+      <div class="week-head">Semana 1 (Dias 1–7) <span class="badge badge-ok">Fundação</span></div>
+      <div class="week-body">
+        <p><strong>Foco:</strong> Ambiente de desenvolvimento profissional</p>
+        <ul>
+          <li>Configurar: VS Code, pyenv, virtualenv, Git</li>
+          <li>GitHub: criar conta, primeiro repositório, README template</li>
+          <li>Python: tipos, funções, list comprehensions, lambdas</li>
+          <li>LeetCode: criar conta, resolver 3 problemas Easy (Two Sum, Palindrome, Reverse String)</li>
+          <li>Inglês: começar Anki com 10 termos técnicos/dia</li>
+        </ul>
+        <div class="alert alert-amber" style="margin-top:8px;font-size:12px">Entrega: repositório "learning-python" no GitHub com pelo menos 5 commits</div>
+      </div>
+    </div>
+    <div class="week-card week-teal">
+      <div class="week-head">Semana 2 (Dias 8–14)</div>
+      <div class="week-body">
+        <p><strong>Foco:</strong> Python orientado a objetos + NumPy</p>
+        <ul>
+          <li>OOP: classes, herança, dunder methods, decorators</li>
+          <li>NumPy: arrays, broadcasting, operações vetoriais</li>
+          <li>LeetCode: 5 problemas Easy (Valid Anagram, Contains Duplicate, Best Time to Buy Stock)</li>
+          <li>Inglês: shadowing de vídeos técnicos no YouTube (15 min/dia)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="week-card week-teal">
+      <div class="week-head">Semana 3 (Dias 15–21)</div>
+      <div class="week-body">
+        <p><strong>Foco:</strong> Pandas — manipulação de dados real</p>
+        <ul>
+          <li>DataFrames: criação, filtro, groupby, merge, pivot</li>
+          <li>Limpeza de dados: valores nulos, outliers, encoding</li>
+          <li>Praticar com dataset real (Kaggle Titanic ou similar)</li>
+          <li>LeetCode: 5 problemas Easy</li>
+        </ul>
+      </div>
+    </div>
+    <div class="week-card week-teal">
+      <div class="week-head">Semana 4 (Dias 22–30)</div>
+      <div class="week-body">
+        <p><strong>Foco:</strong> Matplotlib/Seaborn + revisão</p>
+        <ul>
+          <li>Visualizações: histogramas, scatter, heatmap de correlação</li>
+          <li>Análise exploratória (EDA) completa de um dataset</li>
+          <li>Criar notebook de EDA bem documentado → subir no GitHub</li>
+          <li>LeetCode: 5 problemas Easy (revisar os que errou)</li>
+          <li>Inglês: escrever README do projeto em inglês</li>
+        </ul>
+        <div class="alert alert-amber" style="margin-top:8px;font-size:12px">Marco do mês 1: 1 EDA completa no GitHub, 18+ LeetCode Easy resolvidos</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MÊS 2 -->
+  <h2>Mês 2 (Dias 31–60) — Machine Learning clássico</h2>
+  <div class="week-grid">
+    <div class="week-card week-teal">
+      <div class="week-head">Semana 5 (Dias 31–37)</div>
+      <div class="week-body">
+        <p><strong>Foco:</strong> Fundamentos de ML + regressão</p>
+        <ul>
+          <li>Conceitos: supervised vs unsupervised, bias-variance tradeoff</li>
+          <li>Regressão linear e logística do zero (sem sklearn primeiro)</li>
+          <li>Métricas: MSE, RMSE, MAE, R², accuracy, precision, recall, F1</li>
+          <li>LeetCode: 6 problemas (começar Hashing e Two Pointers)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="week-card week-teal">
+      <div class="week-head">Semana 6 (Dias 38–44)</div>
+      <div class="week-body">
+        <p><strong>Foco:</strong> Sklearn na prática</p>
+        <ul>
+          <li>Decision Trees, Random Forest, SVM, KNN</li>
+          <li>Cross-validation: k-fold, stratified k-fold (correto!)</li>
+          <li>Pipelines do sklearn para evitar data leakage</li>
+          <li>Feature engineering: encoding, scaling, feature selection</li>
+          <li>LeetCode: 6 problemas (Sliding Window)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="week-card week-teal">
+      <div class="week-head">Semana 7 (Dias 45–51)</div>
+      <div class="week-body">
+        <p><strong>Foco:</strong> XGBoost, LightGBM e tuning</p>
+        <ul>
+          <li>Gradient boosting: conceito, hiperparâmetros, quando usar</li>
+          <li>Hyperparameter tuning: GridSearch, RandomSearch, Optuna</li>
+          <li>Análise de feature importance</li>
+          <li>LeetCode: 6 problemas (Binary Search)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="week-card week-teal">
+      <div class="week-head">Semana 8 (Dias 52–60) <span class="badge badge-ok">1º Projeto</span></div>
+      <div class="week-body">
+        <p><strong>Foco:</strong> Construção do 1º projeto real</p>
+        <ul>
+          <li>Escolher problema: classificação ou regressão em dataset real</li>
+          <li>Pipeline completo: EDA → feature eng → modelos → avaliação</li>
+          <li>README em inglês explicando o projeto e resultados</li>
+          <li>Subir no GitHub com estrutura profissional de pastas</li>
+          <li>LeetCode: 5 problemas + revisão dos erros</li>
+        </ul>
+        <div class="alert alert-teal" style="margin-top:8px;font-size:12px">Marco do mês 2: 1º projeto ML completo no GitHub. 36+ problemas LeetCode.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MÊS 3 -->
+  <h2>Mês 3 (Dias 61–90) — SQL + Estruturas de Dados</h2>
+  <div class="week-grid">
+    <div class="week-card week-gray">
+      <div class="week-head">Semana 9 (Dias 61–67)</div>
+      <div class="week-body">
+        <p><strong>Foco:</strong> SQL intermediário a avançado</p>
+        <ul>
+          <li>JOINs (INNER, LEFT, RIGHT, FULL), subqueries, CTEs</li>
+          <li>Window functions: ROW_NUMBER, RANK, LAG, LEAD, SUM OVER</li>
+          <li>Agregar e filtrar dados complexos</li>
+          <li>Praticar no Mode Analytics ou SQLZoo</li>
+          <li>LeetCode: 6 problemas SQL + 4 algoritmos (Linked Lists)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="week-card week-gray">
+      <div class="week-head">Semana 10 (Dias 68–74)</div>
+      <div class="week-body">
+        <p><strong>Foco:</strong> Estruturas de dados — Stacks, Queues, Hashmaps</p>
+        <ul>
+          <li>Implementar do zero: stack, queue, hashmap</li>
+          <li>Quando usar cada uma — raciocínio para entrevista</li>
+          <li>LeetCode: 8 problemas focados nessas estruturas</li>
+          <li>Inglês: começar a assistir entrevistas técnicas no YouTube com transcrição</li>
+        </ul>
+      </div>
+    </div>
+    <div class="week-card week-gray">
+      <div class="week-head">Semana 11 (Dias 75–81)</div>
+      <div class="week-body">
+        <p><strong>Foco:</strong> Árvores e Grafos (fundação)</p>
+        <ul>
+          <li>Binary trees: traversal (inorder, preorder, postorder)</li>
+          <li>BFS e DFS: implementar e entender quando usar cada um</li>
+          <li>LeetCode: 8 problemas de árvores e grafos Easy</li>
+        </ul>
+      </div>
+    </div>
+    <div class="week-card week-gray">
+      <div class="week-head">Semana 12 (Dias 82–90)</div>
+      <div class="week-body">
+        <p><strong>Foco:</strong> Projeto com SQL + revisão</p>
+        <ul>
+          <li>Análise de dados com SQL + Python integrados</li>
+          <li>Dashboard simples com Streamlit ou Gradio</li>
+          <li>Revisar todos os problemas LeetCode com erro</li>
+          <li>LeetCode: 6 problemas + revisão</li>
+        </ul>
+        <div class="alert alert-amber" style="margin-top:8px;font-size:12px">Marco mês 3: 60+ LeetCode. SQL avançado. 2 projetos no GitHub.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MÊS 4-5-6 RESUMO -->
+  <h2>Meses 4–6 (Dias 91–180) — Deep Learning e transição</h2>
+  <div class="card">
+    <h3>Mês 4 (Dias 91–120) — Redes Neurais e PyTorch</h3>
+    <ul>
+      <li><strong>Semana 13:</strong> Perceptron, feedforward networks, backpropagation do zero em NumPy</li>
+      <li><strong>Semana 14:</strong> PyTorch: tensors, autograd, Dataset, DataLoader, training loop</li>
+      <li><strong>Semana 15:</strong> CNNs para classificação de imagem (CIFAR-10)</li>
+      <li><strong>Semana 16:</strong> Regularização: dropout, batch norm, early stopping. LeetCode Medium: começa aqui.</li>
+    </ul>
+    <div class="alert alert-amber">LeetCode Medium começa no mês 4. Espere travar mais — isso é normal. Dedique 45 min por problema antes de ver a solução.</div>
+  </div>
+
+  <div class="card">
+    <h3>Mês 5 (Dias 121–150) — NLP e deploy</h3>
+    <ul>
+      <li><strong>Semana 17:</strong> NLP clássico: tokenização, TF-IDF, word2vec, embeddings</li>
+      <li><strong>Semana 18:</strong> Hugging Face: usar modelos pré-treinados (BERT, DistilBERT)</li>
+      <li><strong>Semana 19:</strong> FastAPI: criar API para servir um modelo ML</li>
+      <li><strong>Semana 20:</strong> Docker: containerizar a API. Deploy no Railway ou Render (grátis)</li>
+    </ul>
+    <div class="alert alert-teal">Entrega obrigatória: API deployada com URL pública. Adicionar ao GitHub e LinkedIn.</div>
+  </div>
+
+  <div class="card">
+    <h3>Mês 6 (Dias 151–180) — Consolidação e inglês técnico</h3>
+    <ul>
+      <li><strong>Semana 21:</strong> Revisar todos os conceitos de ML — preparar para explicar em inglês</li>
+      <li><strong>Semana 22:</strong> Criar 1 post técnico em inglês (Medium ou LinkedIn) explicando um projeto</li>
+      <li><strong>Semana 23:</strong> Kaggle: entrar na primeira competição (não para ganhar — para aprender)</li>
+      <li><strong>Semana 24:</strong> Revisão geral, refactor dos projetos, otimizar GitHub profile</li>
+    </ul>
+    <div class="alert alert-teal"><strong>Marco fim da Fase 1:</strong> 120+ LeetCode (mix Easy/Medium). 3 projetos no GitHub com README em inglês. 1 API deployada. Inglês técnico básico funcional.</div>
+  </div>
+</div>
+
+<!-- ===== FASE 2 ===== -->
+<div id="fase2" class="section">
+  <div class="phase-header phase-purple">
+    <div class="phase-title">Fase 2 — Especialização profunda</div>
+    <div class="phase-sub">Dias 181 a 420 · 8 meses · LLMs, RAG, Visão Computacional, Engenharia de Dados</div>
+  </div>
+
+  <div class="alert alert-teal">Esta é a fase mais intensa e a mais importante. Aqui você se torna alguém específico, não mais um estudante genérico de IA.</div>
+
+  <div class="card">
+    <h2>Meses 7–8 (Dias 181–240) — Transformers e LLMs em profundidade</h2>
+    <div class="week-grid">
+      <div class="week-card week-purple">
+        <div class="week-head">Semana 25–26 (Dias 181–194)</div>
+        <div class="week-body">
+          <p><strong>Foco:</strong> Arquitetura Transformer do zero</p>
+          <ul>
+            <li>Attention mechanism: scaled dot-product, multi-head attention</li>
+            <li>Positional encoding, layer norm, feed-forward layers</li>
+            <li>Implementar Transformer simples em PyTorch</li>
+            <li>Paper: "Attention is All You Need" — ler e anotar</li>
+            <li>LeetCode: 10 problemas Medium (grafos e DP)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-purple">
+        <div class="week-head">Semana 27–28 (Dias 195–208)</div>
+        <div class="week-body">
+          <p><strong>Foco:</strong> Hugging Face e fine-tuning</p>
+          <ul>
+            <li>HuggingFace Transformers: pipelines, AutoModel, Trainer API</li>
+            <li>Fine-tuning BERT para classificação de texto (dataset em português)</li>
+            <li>LoRA e QLoRA: fine-tuning eficiente de LLMs grandes</li>
+            <li>Projeto: fine-tuning de modelo para problema real (ex: análise de sentimento em tweets BR)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-purple">
+        <div class="week-head">Semana 29–30 (Dias 209–222)</div>
+        <div class="week-body">
+          <p><strong>Foco:</strong> RAG — Retrieval-Augmented Generation</p>
+          <ul>
+            <li>Vector databases: Pinecone, Weaviate, ChromaDB</li>
+            <li>Embeddings: criação, indexação, busca por similaridade</li>
+            <li>LangChain ou LlamaIndex: construção de pipeline RAG</li>
+            <li>Projeto obrigatório: chatbot RAG sobre documentos (README em inglês)</li>
+          </ul>
+          <div class="alert alert-coral" style="margin-top:8px;font-size:12px">RAG é uma das habilidades mais pedidas em 2026. Esse projeto no GitHub vale ouro.</div>
+        </div>
+      </div>
+      <div class="week-card week-purple">
+        <div class="week-head">Semana 31–32 (Dias 223–240)</div>
+        <div class="week-body">
+          <p><strong>Foco:</strong> Deployment de LLMs</p>
+          <ul>
+            <li>Servir modelos com Ollama (local) e via API (OpenAI/Anthropic)</li>
+            <li>Otimização: quantização, batching, caching de inferência</li>
+            <li>Construir uma aplicação completa: frontend (Gradio/Streamlit) + backend + LLM</li>
+            <li>LeetCode: 12 problemas Medium — foco em DP e Backtracking</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Meses 9–10 (Dias 241–300) — Visão Computacional</h2>
+    <div class="week-grid">
+      <div class="week-card week-purple">
+        <div class="week-head">Semana 33–34 (Dias 241–254)</div>
+        <div class="week-body">
+          <p><strong>Foco:</strong> CNNs avançadas e transfer learning</p>
+          <ul>
+            <li>Arquiteturas: ResNet, EfficientNet, VGG — quando usar cada uma</li>
+            <li>Transfer learning: congelar camadas, fine-tuning progressivo</li>
+            <li>Data augmentation avançada: albumentations, torchvision transforms</li>
+            <li>Projeto: classificador de imagem em domínio real (agro, saúde, ou indústria)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-purple">
+        <div class="week-head">Semana 35–36 (Dias 255–268)</div>
+        <div class="week-body">
+          <p><strong>Foco:</strong> Detecção de objetos</p>
+          <ul>
+            <li>YOLO (v8/v11): treinamento, avaliação, deploy</li>
+            <li>Métricas: mAP, IoU, precision-recall para object detection</li>
+            <li>Anotação de dados: Roboflow ou LabelImg</li>
+            <li>Projeto: detecção de objetos em imagens do mundo real</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-purple">
+        <div class="week-head">Semana 37–40 (Dias 269–300)</div>
+        <div class="week-body">
+          <p><strong>Foco:</strong> Vision + LLM (multimodal)</p>
+          <ul>
+            <li>Vision-Language Models: CLIP, LLaVA, GPT-4V</li>
+            <li>Aplicações: image captioning, visual Q&A, OCR com IA</li>
+            <li>Projeto integrador: sistema multimodal (ex: análise de laudos médicos ou inspeção de lavoura)</li>
+            <li>LeetCode: 14 problemas Medium/Hard</li>
+          </ul>
+          <div class="alert alert-amber" style="margin-top:8px;font-size:12px">Marco mês 10: 220+ LeetCode. Projeto RAG + projeto Visão Computacional no GitHub.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Meses 11–12 (Dias 301–360) — Engenharia de Dados</h2>
+    <div class="week-grid">
+      <div class="week-card week-amber">
+        <div class="week-head">Semana 41–42 (Dias 301–314)</div>
+        <div class="week-body">
+          <p><strong>Foco:</strong> Pipelines de dados modernos</p>
+          <ul>
+            <li>Apache Airflow: DAGs, operadores, scheduling</li>
+            <li>dbt: transformações em SQL, testes, documentação</li>
+            <li>Ingestão: APIs REST → banco de dados → camada de transformação</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-amber">
+        <div class="week-head">Semana 43–44 (Dias 315–328)</div>
+        <div class="week-body">
+          <p><strong>Foco:</strong> Cloud e big data</p>
+          <ul>
+            <li>AWS free tier: S3, EC2, Lambda, SageMaker básico</li>
+            <li>Spark (PySpark): processamento distribuído, quando é necessário</li>
+            <li>Data lakehouse: conceito Delta Lake ou Apache Iceberg</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-amber">
+        <div class="week-head">Semana 45–48 (Dias 329–360)</div>
+        <div class="week-body">
+          <p><strong>Foco:</strong> MLOps básico</p>
+          <ul>
+            <li>MLflow: tracking de experimentos, model registry</li>
+            <li>Weights & Biases (W&B): logging, sweeps, visualizações</li>
+            <li>CI/CD para ML: GitHub Actions para testar e deployar modelos</li>
+            <li>Monitoramento: data drift, model drift (Evidently AI)</li>
+            <li>Projeto: pipeline completo Airflow + dbt + modelo + MLflow</li>
+          </ul>
+          <div class="alert alert-teal" style="margin-top:8px;font-size:12px">Marco mês 12: 300+ LeetCode. 5 projetos no GitHub. Cloud em uso. MLflow configurado.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Meses 13–14 (Dias 361–420) — Nicho e consolidação</h2>
+    <p>Esta é a semana de <strong>escolher seu nicho definitivo</strong> para o mercado internacional. Olhe para seus projetos e decida: onde você quer ser especialista?</p>
+    <div class="two-col" style="margin-top:12px">
+      <div class="card-sm">
+        <strong>Opção A: IA Aplicada ao Agronegócio</strong><br>
+        <span style="font-size:12px;color:var(--text2)">Forte no Brasil e crescendo globalmente. Precision agriculture, visão computacional em lavouras, modelos de previsão de safra.</span>
+        <div style="margin-top:6px"><span class="tag tag-green">Visão Computacional</span><span class="tag tag-green">Séries temporais</span></div>
+      </div>
+      <div class="card-sm">
+        <strong>Opção B: NLP para Negócios / LLMs</strong><br>
+        <span style="font-size:12px;color:var(--text2)">O caminho mais demandado internacionalmente. RAG, fine-tuning, agentes de IA, análise de documentos.</span>
+        <div style="margin-top:6px"><span class="tag tag-purple">LLMs</span><span class="tag tag-purple">RAG</span><span class="tag tag-purple">Agentes</span></div>
+      </div>
+      <div class="card-sm">
+        <strong>Opção C: IA para Saúde (Health AI)</strong><br>
+        <span style="font-size:12px;color:var(--text2)">Alta demanda, salários premium. Exige domínio de dados médicos (DICOM, HL7). Muito bem pago nos EUA/Europa.</span>
+        <div style="margin-top:6px"><span class="tag tag-coral">Medical imaging</span><span class="tag tag-coral">Regulatório</span></div>
+      </div>
+      <div class="card-sm">
+        <strong>Opção D: MLOps / AI Engineering</strong><br>
+        <span style="font-size:12px;color:var(--text2)">O "DevOps da IA". Menos glamour, mais emprego. Toda empresa que usa IA precisa de alguém que mantém os modelos funcionando.</span>
+        <div style="margin-top:6px"><span class="tag tag-amber">MLOps</span><span class="tag tag-amber">Cloud</span><span class="tag tag-amber">Kubernetes</span></div>
+      </div>
+    </div>
+    <div class="alert alert-amber" style="margin-top:12px">Marco fim Fase 2: Nicho escolhido. 350+ LeetCode. 5-6 projetos. 1 post técnico em inglês por semana no LinkedIn. Primeiro contato com Kaggle (top 40%).</div>
+  </div>
+</div>
+
+<!-- ===== FASE 3 ===== -->
+<div id="fase3" class="section">
+  <div class="phase-header phase-coral">
+    <div class="phase-title">Fase 3 — Entrada no mercado + Fase 4 — Internacional</div>
+    <div class="phase-sub">Dias 421–730 · 10 meses · Aplicações reais, entrevistas, Turing/Andela, emprego</div>
+  </div>
+
+  <div class="card">
+    <h2>Meses 15–17 (Dias 421–510) — Aplicações e primeiros clientes</h2>
+    <div class="week-grid">
+      <div class="week-card week-coral">
+        <div class="week-head">Semana 61–64 (Dias 421–448)</div>
+        <div class="week-body">
+          <p><strong>Foco:</strong> Projeto integrador + Kaggle sério</p>
+          <ul>
+            <li>Projeto completo do nicho escolhido: do problema ao deploy com monitoramento</li>
+            <li>Documentação profissional: README, docs, Jupyter com explicações</li>
+            <li>Kaggle: competição com foco em top 20% — analisar notebooks top 10</li>
+            <li>LeetCode: 14 problemas Medium/Hard por semana</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-coral">
+        <div class="week-head">Semana 65–68 (Dias 449–476)</div>
+        <div class="week-body">
+          <p><strong>Foco:</strong> Certificações e freelance inicial</p>
+          <ul>
+            <li>AWS ML Specialty ou Google Professional ML Engineer — estudar para certificação</li>
+            <li>Upwork: criar perfil, propor projetos pequenos de ML (USD 50-200) para ter reviews</li>
+            <li>LinkedIn: otimizar perfil completo em inglês, conectar com recrutadores internacionais</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-coral">
+        <div class="week-head">Semana 69–72 (Dias 477–510)</div>
+        <div class="week-body">
+          <p><strong>Foco:</strong> ML System Design — começar a aprender</p>
+          <ul>
+            <li>Framework de ML System Design: problema → dados → features → modelo → métricas → deploy → monitoramento</li>
+            <li>Estudar: "Designing Machine Learning Systems" (Chip Huyen)</li>
+            <li>Praticar: resolver 2 system design problems por semana em voz alta em inglês</li>
+            <li>Exemplos: "Projete recomendação de produtos", "Projete detecção de fraude"</li>
+          </ul>
+          <div class="alert alert-amber" style="margin-top:8px;font-size:12px">Marco mês 17: Certificação em andamento. 450+ LeetCode. 1 freelance concluído. System design sendo praticado.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Meses 18–20 (Dias 511–600) — Preparação intensa para entrevistas</h2>
+    <div class="week-grid">
+      <div class="week-card week-blue">
+        <div class="week-head">Semana 73–76 (Dias 511–538)</div>
+        <div class="week-body">
+          <p><strong>Foco:</strong> LeetCode Hard e Mock interviews</p>
+          <ul>
+            <li>LeetCode Hard: 3-4 por semana (grafos, DP complexo)</li>
+            <li>Mock interviews: interviewing.io ou pramp.com — 2x por semana</li>
+            <li>Gravar suas respostas e assistir para identificar pontos fracos</li>
+            <li>Behavioral: 5 histórias STAR polidas em inglês</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-blue">
+        <div class="week-head">Semana 77–80 (Dias 539–566)</div>
+        <div class="week-body">
+          <p><strong>Foco:</strong> Aplicações — Turing e plataformas</p>
+          <ul>
+            <li>Turing.com: cadastro, assessment técnico, live interview</li>
+            <li>Andela: processo seletivo</li>
+            <li>Wellfound (AngelList): aplicar diretamente para startups</li>
+            <li>Remote.com e We Work Remotely: vagas abertas</li>
+            <li>Continuar aplicando mesmo enquanto prepara — feedback é dado</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-blue">
+        <div class="week-head">Semana 81–84 (Dias 567–600)</div>
+        <div class="week-body">
+          <p><strong>Foco:</strong> Sistema de aplicações em escala</p>
+          <ul>
+            <li>Aplicar para 10-15 posições por semana (mix de tamanho e nível)</li>
+            <li>Customizar cada aplicação: 80% base + 20% customização para a vaga</li>
+            <li>Follow-up estratégico no LinkedIn com recrutadores e engenheiros</li>
+            <li>Continuar LeetCode: mínimo 5 por semana para manter o ritmo</li>
+          </ul>
+          <div class="alert alert-teal" style="margin-top:8px;font-size:12px">Marco mês 20: 500+ LeetCode. Turing assessment feito. 10+ aplicações enviadas. 2+ entrevistas realizadas (mesmo que não aprovadas).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Meses 21–24 (Dias 601–730) — Posicionamento e chegada</h2>
+
+    <div class="milestone">
+      <div class="ms-dot ms-blue">21</div>
+      <div class="ms-content">
+        <h4>Mês 21-22 (Dias 601–660) — Intensificação de entrevistas</h4>
+        <p>Tratar as entrevistas como dados: cada rejeição revela um gap. Anotar tudo que foi perguntado. Corrigir os gaps da semana seguinte. Estudar empresas-alvo: blog de engenharia, tech stack, casos de uso de ML.</p>
+      </div>
+    </div>
+
+    <div class="milestone">
+      <div class="ms-dot ms-blue">23</div>
+      <div class="ms-content">
+        <h4>Mês 23 (Dias 661–690) — Negociação e escolha</h4>
+        <p>Quando ofertas chegarem: não aceitar a primeira. Pesquisar salários no Glassdoor, Levels.fyi e LinkedIn Salary. Para trabalho remoto em USD, benchmark é USD 3k-6k/mês para sênior junior / pleno. Não revelar salário atual (em BRL) nas negociações.</p>
+      </div>
+    </div>
+
+    <div class="milestone">
+      <div class="ms-dot ms-blue">24</div>
+      <div class="ms-content">
+        <h4>Mês 24 (Dias 691–730) — Dia 730</h4>
+        <p>Independente do resultado: você terá 500+ LeetCode, 6+ projetos deployados, inglês técnico fluente, experiência em entrevistas internacionais reais, e um portfólio que a maioria dos formandos brasileiros não tem. Isso é o piso — não o teto.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ROTINA DIÁRIA ===== -->
+<div id="rotina" class="section">
+  <div class="sec-title">Rotina diária — o sistema que sustenta os 730 dias</div>
+  <div class="sec-sub">A rotina é a mesma todos os dias. O conteúdo muda conforme a fase. Dois tipos de dia: dia de semana e fim de semana.</div>
+
+  <div class="card">
+    <h2>Dia de semana (Segunda a Sexta) — 2h30 distribuídas</h2>
+    <div class="day-grid">
+      <div class="day-block day-teal">
+        <div class="day-name">Bloco 1</div>
+        <div class="day-main">LeetCode</div>
+        <div class="day-sub">30 min<br>1 problema<br>sem pular</div>
+      </div>
+      <div class="day-block day-purple">
+        <div class="day-name">Bloco 2</div>
+        <div class="day-main">Conteúdo técnico</div>
+        <div class="day-sub">60 min<br>vídeo/livro/<br>curso da fase</div>
+      </div>
+      <div class="day-block day-coral">
+        <div class="day-name">Bloco 3</div>
+        <div class="day-main">Projeto</div>
+        <div class="day-sub">45 min<br>código no<br>projeto ativo</div>
+      </div>
+      <div class="day-block day-amber">
+        <div class="day-name">Bloco 4</div>
+        <div class="day-main">Inglês técnico</div>
+        <div class="day-sub">15 min<br>Anki + 1 vídeo<br>ou reading</div>
+      </div>
+      <div class="day-block day-blue">
+        <div class="day-name">Commit</div>
+        <div class="day-main">GitHub</div>
+        <div class="day-sub">Sempre<br>commitar<br>o progresso</div>
+      </div>
+    </div>
+    <div class="alert alert-teal">Esses blocos não precisam ser contínuos. 30 min de manhã + 60 min no almoço + 45 min à noite funciona.</div>
+  </div>
+
+  <div class="card">
+    <h2>Sábado — Dia de projeto e revisão (3-4 horas)</h2>
+    <ul>
+      <li><strong>2 horas:</strong> Trabalho intenso no projeto ativo da semana (codar, testar, documentar)</li>
+      <li><strong>1 hora:</strong> Revisar erros da semana no LeetCode — refazer os que travou</li>
+      <li><strong>30-60 min:</strong> Consumo técnico livre (paper interessante, blog, podcast em inglês)</li>
+      <li>Se na Fase 3-4: usar parte do sábado para mock interviews ou aplicações</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Domingo — Descanso intencional</h2>
+    <p>Descanso não é fraqueza — é parte do sistema. Seu cérebro consolida memória durante o descanso.</p>
+    <ul>
+      <li>Opcional: 20-30 min de leitura técnica leve (sem código)</li>
+      <li>Planejar os objetivos da semana seguinte (5 min)</li>
+      <li>Revisar o que foi entregue na semana (GitHub contributions)</li>
+      <li><strong>Não abrir LeetCode. Não abrir o projeto.</strong></li>
+    </ul>
+    <div class="alert alert-amber">Semanas com provas ou eventos importantes: reduza para 1 hora/dia. Nunca pare completamente — 30 min de LeetCode mantém o ritmo.</div>
+  </div>
+
+  <div class="card">
+    <h2>Rotina de inglês técnico (diária, integrada)</h2>
+    <table>
+      <tr><th>Atividade</th><th>Tempo</th><th>Ferramenta</th><th>Objetivo</th></tr>
+      <tr><td>Anki — vocabulário técnico</td><td>10 min</td><td>Anki app (gratuito)</td><td>500 termos técnicos em 6 meses</td></tr>
+      <tr><td>Vídeo técnico em inglês</td><td>15 min</td><td>YouTube (Andrej Karpathy, sentdex, 3Blue1Brown)</td><td>Compreensão oral técnica</td></tr>
+      <tr><td>Leitura técnica</td><td>10 min/dia</td><td>Papers with Code, Towards Data Science</td><td>Leitura de documentação</td></tr>
+      <tr><td>Escrita (a partir mês 6)</td><td>20 min/semana</td><td>LinkedIn, Medium</td><td>Produção em inglês técnico</td></tr>
+      <tr><td>Speaking (a partir mês 9)</td><td>30 min/semana</td><td>iTalki, HelloTalk, mock interviews</td><td>Fluência oral para entrevistas</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Controle de progresso semanal (5 min toda sexta)</h2>
+    <p>Responda estas 5 perguntas toda sexta antes de fechar o computador:</p>
+    <ul class="checklist">
+      <li><span class="check-box"></span>Quantos problemas LeetCode resolvi essa semana? (meta: 5-7)</li>
+      <li><span class="check-box"></span>Fiz commits no GitHub todos os dias úteis?</li>
+      <li><span class="check-box"></span>Avancei no conteúdo técnico da fase atual?</li>
+      <li><span class="check-box"></span>Pratiquei inglês técnico todos os dias?</li>
+      <li><span class="check-box"></span>O que eu evitaria fazer diferente na próxima semana?</li>
+    </ul>
+    <div class="alert alert-amber">Se 3 ou mais respostas forem "não": é sinal de que a semana foi excepcionalmente difícil (ok, acontece) ou que há um problema de sistema que precisa ser corrigido (mude a rotina, não desista do plano).</div>
+  </div>
+</div>
+
+<!-- ===== RECURSOS ===== -->
+<div id="recursos" class="section">
+  <div class="sec-title">Recursos por fase — o que usar e quando</div>
+  <div class="sec-sub">Selecionados por custo-benefício. Gratuitos primeiro, pagos quando necessário.</div>
+
+  <div class="card">
+    <h2>LeetCode e Algoritmos</h2>
+    <table>
+      <tr><th>Recurso</th><th>Custo</th><th>Quando usar</th><th>Por que</th></tr>
+      <tr><td><strong>NeetCode.io</strong> (neetcode.io)</td><td>Gratuito</td><td>Do dia 1</td><td>Melhor roadmap estruturado de LeetCode. 150 problemas curados com vídeo-solução.</td></tr>
+      <tr><td><strong>LeetCode</strong></td><td>Grátis / USD 35/mês</td><td>Mês 1 em diante</td><td>Plataforma principal. O plano gratuito é suficiente até o mês 12.</td></tr>
+      <tr><td><strong>AlgoExpert</strong></td><td>USD 99/ano</td><td>Opcional, mês 10+</td><td>Vídeo-explicações de alta qualidade. Não é necessário se usar NeetCode bem.</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Machine Learning e Deep Learning</h2>
+    <table>
+      <tr><th>Recurso</th><th>Custo</th><th>Fase</th><th>Conteúdo</th></tr>
+      <tr><td><strong>fast.ai</strong> — Practical Deep Learning</td><td>Gratuito</td><td>Fase 1-2</td><td>Top-down, prático. Curso mais eficiente para começar DL.</td></tr>
+      <tr><td><strong>Andrej Karpathy</strong> — YouTube</td><td>Gratuito</td><td>Fase 1-2</td><td>makemore, nanoGPT. Aprende construindo do zero. Obrigatório.</td></tr>
+      <tr><td><strong>CS229 Stanford</strong> — YouTube</td><td>Gratuito</td><td>Fase 1</td><td>Fundamentos matemáticos sólidos de ML. Para quem quer entender o porquê.</td></tr>
+      <tr><td><strong>HuggingFace Course</strong></td><td>Gratuito</td><td>Fase 2</td><td>Transformers, fine-tuning, Datasets. Oficial e excelente.</td></tr>
+      <tr><td><strong>Full Stack Deep Learning</strong></td><td>Gratuito</td><td>Fase 2-3</td><td>MLOps, deploy, produção. O que falta na maioria dos cursos acadêmicos.</td></tr>
+      <tr><td><strong>Designing ML Systems</strong> (Chip Huyen)</td><td>~USD 35</td><td>Fase 3</td><td>Livro essencial para ML System Design interviews. Leitura obrigatória.</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Inglês técnico</h2>
+    <table>
+      <tr><th>Recurso</th><th>Custo</th><th>Uso</th></tr>
+      <tr><td><strong>Anki</strong> — flashcards</td><td>Gratuito</td><td>Vocabulário técnico diário. Deck de ML terms disponível pronto no AnkiWeb.</td></tr>
+      <tr><td><strong>Andrej Karpathy / 3Blue1Brown / Yannic Kilcher</strong></td><td>Gratuito</td><td>YouTube com CC em inglês. Assistir com legendas primeiro, depois sem.</td></tr>
+      <tr><td><strong>Towards Data Science</strong> (Medium)</td><td>Gratuito/USD 5/mês</td><td>Leitura técnica em inglês. 3 artigos por semana.</td></tr>
+      <tr><td><strong>iTalki</strong></td><td>USD 15-25/h</td><td>A partir do mês 9. 1 aula por semana com tutor. Foco em conversação técnica.</td></tr>
+      <tr><td><strong>interviewing.io</strong></td><td>Gratuito (mock)</td><td>Fase 3-4. Mock interviews em inglês com engenheiros reais. Feedback valioso.</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Kaggle e projetos</h2>
+    <table>
+      <tr><th>Recurso</th><th>Quando</th><th>Como usar</th></tr>
+      <tr><td><strong>Kaggle</strong></td><td>Mês 6 em diante</td><td>1 competição por trimestre. Focar em análise dos notebooks top 10, não em ganhar.</td></tr>
+      <tr><td><strong>Papers with Code</strong></td><td>Fase 2 em diante</td><td>Encontrar implementações de estado da arte. Replicar 1 paper por trimestre.</td></tr>
+      <tr><td><strong>GitHub Copilot</strong></td><td>Mês 3 em diante</td><td>Gratuito para estudantes. Acelera boilerplate mas não usar como muleta.</td></tr>
+      <tr><td><strong>Weights & Biases</strong></td><td>Fase 2 em diante</td><td>Gratuito para uso pessoal. Tracking obrigatório de experimentos.</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Plataformas para emprego internacional</h2>
+    <table>
+      <tr><th>Plataforma</th><th>Foco</th><th>Quando aplicar</th><th>Dificuldade</th></tr>
+      <tr><td><strong>Turing.com</strong></td><td>Devs/ML para empresas US</td><td>Mês 18+</td><td class="badge badge-hard">Alta</td></tr>
+      <tr><td><strong>Andela</strong></td><td>Devs para empresas globais</td><td>Mês 18+</td><td class="badge badge-hard">Alta</td></tr>
+      <tr><td><strong>Toptal</strong></td><td>Top 3% de freelancers</td><td>Mês 20+ (com experiência)</td><td class="badge badge-hard">Muito Alta</td></tr>
+      <tr><td><strong>Wellfound (AngelList)</strong></td><td>Startups globais</td><td>Mês 16+</td><td class="badge badge-med">Média</td></tr>
+      <tr><td><strong>Remote.com</strong></td><td>Vagas remotas globais</td><td>Mês 16+</td><td class="badge badge-med">Média</td></tr>
+      <tr><td><strong>Upwork</strong></td><td>Freelance ML/data</td><td>Mês 12+ (projetos pequenos)</td><td class="badge badge-ok">Baixa-Média</td></tr>
+      <tr><td><strong>LinkedIn</strong></td><td>Direto com recrutadores</td><td>Mês 12+ (perfil otimizado)</td><td class="badge badge-med">Média</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ===== MARCOS ===== -->
+<div id="marcos" class="section">
+  <div class="sec-title">Marcos mensais e sinais de alerta</div>
+  <div class="sec-sub">Use esses marcos para calibrar se está no caminho certo. Não para se punir — para corrigir o rumo.</div>
+
+  <div class="card">
+    <h2>Marcos mensais — o que você deve ter em cada mês</h2>
+    <table>
+      <tr><th>Mês</th><th>LeetCode</th><th>GitHub / Projetos</th><th>Inglês</th><th>Marco extra</th></tr>
+      <tr><td><strong>Mês 1</strong></td><td>18+ Easy</td><td>1 EDA pública</td><td>Anki ativo</td><td>Ambiente configurado profissionalmente</td></tr>
+      <tr><td><strong>Mês 2</strong></td><td>36+ Easy</td><td>1 projeto ML completo</td><td>Vocabulário 150+ termos</td><td>README do projeto em inglês</td></tr>
+      <tr><td><strong>Mês 3</strong></td><td>60+ (mix)</td><td>2 projetos</td><td>Leitura técnica diária</td><td>SQL avançado dominado</td></tr>
+      <tr><td><strong>Mês 4</strong></td><td>80+ (começando Medium)</td><td>2 projetos + notebooks limpos</td><td>Assistindo vídeos sem legenda</td><td>Primeiros Medium resolvidos</td></tr>
+      <tr><td><strong>Mês 5</strong></td><td>100+</td><td>API deployada publicamente</td><td>Escrevendo em inglês</td><td>Docker funcionando</td></tr>
+      <tr><td><strong>Mês 6</strong></td><td>120+</td><td>3 projetos + 1 API pública</td><td>1 post LinkedIn em inglês</td><td>1ª competição Kaggle participada</td></tr>
+      <tr><td><strong>Mês 8</strong></td><td>180+</td><td>Projeto RAG completo</td><td>2 posts LinkedIn</td><td>Transformers compreendidos</td></tr>
+      <tr><td><strong>Mês 10</strong></td><td>240+</td><td>Projeto Visão Computacional</td><td>Speaking iniciado</td><td>Top 40% no Kaggle</td></tr>
+      <tr><td><strong>Mês 12</strong></td><td>300+</td><td>5 projetos deployados</td><td>Conversação técnica básica</td><td>Pipeline MLOps funcionando</td></tr>
+      <tr><td><strong>Mês 14</strong></td><td>350+</td><td>Nicho definido, projeto integrador iniciado</td><td>LinkedIn 100% em inglês</td><td>Certificação AWS/GCP em andamento</td></tr>
+      <tr><td><strong>Mês 16</strong></td><td>400+</td><td>Projeto integrador completo e documentado</td><td>Mock interviews iniciadas</td><td>1 freelance no Upwork concluído</td></tr>
+      <tr><td><strong>Mês 18</strong></td><td>450+</td><td>6 projetos públicos</td><td>Entrevistas técnicas em inglês</td><td>Turing assessment tentado</td></tr>
+      <tr><td><strong>Mês 20</strong></td><td>500+</td><td>Portfólio finalizado</td><td>Fluente em contexto técnico</td><td>10+ aplicações enviadas</td></tr>
+      <tr><td><strong>Mês 22</strong></td><td>520+</td><td>Manutenção ativa</td><td>Negociações em inglês</td><td>Primeiras entrevistas avançadas</td></tr>
+      <tr><td><strong>Mês 24</strong></td><td>540+</td><td>Portfólio atualizado</td><td>Fluente</td><td>Oferta ou contrato em andamento</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Sinais de alerta — quando você está no caminho errado</h2>
+    <div class="alert alert-coral">
+      <strong>Sinal vermelho 1: Você estuda mas não tem nada no GitHub.</strong><br>
+      Assistir cursos sem construir é ilusão de progresso. O mercado internacional vê seus commits, não seu histórico de cursos.
+    </div>
+    <div class="alert alert-coral" style="margin-top:8px">
+      <strong>Sinal vermelho 2: Você travou no LeetCode Easy por mais de 2 meses.</strong><br>
+      Easy deve ser confortável no mês 2-3. Se não está, você tem um gap em estruturas de dados básicas — volte para arrays e hashmaps antes de avançar.
+    </div>
+    <div class="alert alert-coral" style="margin-top:8px">
+      <strong>Sinal vermelho 3: Inglês ainda é um bloqueador no mês 12+.</strong><br>
+      Nesse ponto, inglês deve ser funcional para comunicação técnica. Se não está, redirecione 30 min/dia exclusivamente para conversação.
+    </div>
+    <div class="alert alert-coral" style="margin-top:8px">
+      <strong>Sinal vermelho 4: Você não sabe seu nicho no mês 14.</strong><br>
+      Quem não escolhe um nicho até esse ponto continua sendo um candidato genérico. Genérico compete com o mundo inteiro.
+    </div>
+    <div class="alert alert-coral" style="margin-top:8px">
+      <strong>Sinal vermelho 5: Você só estuda teoria e nunca tentou uma entrevista real.</strong><br>
+      Entrevista é uma habilidade separada. A única forma de melhorar é fazer entrevistas reais ou mock interviews com feedback humano.
+    </div>
+
+    <h3 style="margin-top:20px">Sinais de que está no caminho certo</h3>
+    <ul class="checklist">
+      <li><span class="check-box" style="background:#E1F5EE;border-color:#1D9E75"></span>Recrutadores internacionais começam a te contatar no LinkedIn (acontece entre mês 10-14 com perfil bem feito)</li>
+      <li><span class="check-box" style="background:#E1F5EE;border-color:#1D9E75"></span>Você consegue explicar backpropagation, attention mechanism e RAG em inglês sem hesitar</li>
+      <li><span class="check-box" style="background:#E1F5EE;border-color:#1D9E75"></span>Você resolve LeetCode Medium em menos de 30 minutos consistentemente</li>
+      <li><span class="check-box" style="background:#E1F5EE;border-color:#1D9E75"></span>Você tem uma história clara de 60 segundos em inglês sobre quem você é e o que você faz</li>
+      <li><span class="check-box" style="background:#E1F5EE;border-color:#1D9E75"></span>Seus projetos têm estrelas no GitHub de pessoas que você não conhece</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>A regra mais importante do plano</h2>
+    <div class="alert alert-teal" style="font-size:14px;line-height:1.7">
+      <strong>Consistência de 70% por 730 dias &gt; Perfeição por 30 dias.</strong><br><br>
+      Você vai ter semanas ruins. Semanas de prova. Semanas com problemas pessoais. O plano não exige perfeição — exige que você nunca pare completamente. Uma semana de 30 minutos por dia é infinitamente melhor que uma semana zerada seguida de culpa que leva a mais dias zerados.<br><br>
+      Quando você falhar em uma semana, a única pergunta é: <em>o que eu faço diferente na próxima?</em>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== VISÃO COMPUTACIONAL ===== -->
+<div id="visao-comp" class="section">
+  <div class="phase-header phase-purple">
+    <div class="phase-title">👁 Trilha — Visão Computacional</div>
+    <div class="phase-sub">Do zero ao especialista em Computer Vision · ~18 meses para domínio profissional · Altamente demandado em agro, saúde, indústria e autonomous systems</div>
+  </div>
+
+  <div class="alert alert-teal">Visão Computacional é a área de IA mais aplicada no mundo físico. Câmeras são os olhos das máquinas — quem sabe treiná-las tem emprego garantido em qualquer setor industrial.</div>
+
+  <div class="card">
+    <h2>Por que e onde essa trilha tem mercado</h2>
+    <div class="two-col">
+      <div>
+        <h3>Setores que mais contratam</h3>
+        <ul>
+          <li><strong>Agronegócio:</strong> detecção de pragas, maturação de frutas, monitoramento de lavoura por drone</li>
+          <li><strong>Saúde:</strong> diagnóstico por imagem (radiologia, patologia, dermatologia)</li>
+          <li><strong>Indústria 4.0:</strong> inspeção de qualidade, detecção de defeitos em linha de produção</li>
+          <li><strong>Veículos autônomos:</strong> detecção de pedestres, faixas, sinais</li>
+          <li><strong>Segurança:</strong> reconhecimento facial, câmeras inteligentes</li>
+          <li><strong>Varejo:</strong> checkout sem caixa (Amazon Go), análise de prateleiras</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Salários (mercado internacional)</h3>
+        <ul>
+          <li><strong>Junior CV Engineer:</strong> USD 3k–5k/mês remoto</li>
+          <li><strong>Mid-level:</strong> USD 6k–10k/mês</li>
+          <li><strong>Senior / Research:</strong> USD 12k–20k+/mês</li>
+          <li><strong>Brasil (CLT sênior):</strong> R$ 15k–28k/mês</li>
+        </ul>
+        <div class="alert alert-amber" style="margin-top:8px;font-size:12px">Nicho mais rentável: CV + domínio específico (ex: medical imaging ou precision agriculture)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 1 — Fundação (Meses 1–3)</h2>
+    <div class="week-grid">
+      <div class="week-card week-purple">
+        <div class="week-head">Mês 1 — Imagens como dados</div>
+        <div class="week-body">
+          <ul>
+            <li>Representação de imagens: pixels, canais RGB, tensores</li>
+            <li>OpenCV: leitura, redimensionamento, crop, filtros, histogramas</li>
+            <li>Transformações: rotação, flip, normalização, conversão de cor</li>
+            <li>NumPy para manipulação de arrays de imagem</li>
+            <li>Projeto: pipeline de pré-processamento de imagens com OpenCV</li>
+          </ul>
+          <div class="alert alert-teal" style="margin-top:8px;font-size:12px">Recurso: OpenCV official docs + "Programming Computer Vision with Python" (Jan Erik Solem) — gratuito online</div>
+        </div>
+      </div>
+      <div class="week-card week-purple">
+        <div class="week-head">Mês 2 — CNNs do zero</div>
+        <div class="week-body">
+          <ul>
+            <li>Convolução: o que é, por que funciona, visualizando filtros</li>
+            <li>Pooling, padding, stride — efeito em feature maps</li>
+            <li>Implementar CNN do zero em PyTorch (sem torchvision)</li>
+            <li>Treinar classificador no MNIST e CIFAR-10</li>
+            <li>Visualizar feature maps e ativações das camadas</li>
+          </ul>
+          <div class="alert alert-teal" style="margin-top:8px;font-size:12px">Recurso: CS231n Stanford (YouTube, gratuito) — o melhor curso de CV do mundo</div>
+        </div>
+      </div>
+      <div class="week-card week-purple">
+        <div class="week-head">Mês 3 — Transfer Learning</div>
+        <div class="week-body">
+          <ul>
+            <li>Arquiteturas clássicas: VGG, ResNet, EfficientNet, MobileNet</li>
+            <li>Quando congelar camadas vs fine-tuning completo</li>
+            <li>torchvision: modelos pré-treinados no ImageNet</li>
+            <li>Data augmentation: albumentations (biblioteca essencial)</li>
+            <li>Projeto: classificador de imagem no seu domínio de interesse (agro, saúde ou industrial)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 2 — Detecção e Segmentação (Meses 4–7)</h2>
+    <div class="week-grid">
+      <div class="week-card week-purple">
+        <div class="week-head">Mês 4 — Object Detection</div>
+        <div class="week-body">
+          <ul>
+            <li>Conceitos: bounding boxes, IoU, Anchor boxes, NMS</li>
+            <li>Métricas: mAP (mean Average Precision), precision-recall por classe</li>
+            <li>YOLO (v8 / v11): treinamento, avaliação, exportação ONNX</li>
+            <li>Anotação de dados: Roboflow (gratuito para projetos pequenos)</li>
+            <li>Projeto: detector de objetos em domínio real com YOLO</li>
+          </ul>
+          <div class="alert alert-teal" style="margin-top:8px;font-size:12px">Recurso: Ultralytics docs (YOLO) + curso Roboflow YouTube</div>
+        </div>
+      </div>
+      <div class="week-card week-purple">
+        <div class="week-head">Mês 5 — Segmentação</div>
+        <div class="week-body">
+          <ul>
+            <li>Segmentação semântica vs instância vs panóptica</li>
+            <li>Arquiteturas: U-Net (médica), Mask R-CNN, SAM (Segment Anything)</li>
+            <li>Datasets: COCO, Pascal VOC, ADE20K</li>
+            <li>Projeto: segmentação de área foliar ou detecção de lesões</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-purple">
+        <div class="week-head">Mês 6 — Tracking e Vídeo</div>
+        <div class="week-body">
+          <ul>
+            <li>Multi-object tracking: DeepSORT, ByteTrack</li>
+            <li>Optical Flow: Lucas-Kanade, Farnebäck (OpenCV)</li>
+            <li>Processamento de vídeo com PyTorch + OpenCV</li>
+            <li>Projeto: sistema de tracking de objetos em vídeo ao vivo</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-purple">
+        <div class="week-head">Mês 7 — 3D Vision</div>
+        <div class="week-body">
+          <ul>
+            <li>Depth estimation: modelos monoculares (MiDaS, DepthAnything)</li>
+            <li>Point clouds: Open3D, PointNet</li>
+            <li>Câmeras stereo e LIDAR — conceitos e integração</li>
+            <li>Projeto: estimativa de profundidade com câmera comum</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 3 — Modelos Avançados e Produção (Meses 8–12)</h2>
+    <div class="week-grid">
+      <div class="week-card week-purple">
+        <div class="week-head">Mês 8 — Vision Transformers (ViT)</div>
+        <div class="week-body">
+          <ul>
+            <li>Como ViT divide imagem em patches e aplica atenção</li>
+            <li>DINO, DINOv2: self-supervised learning para visão</li>
+            <li>CLIP: alinhamento imagem-texto (base de modelos multimodais)</li>
+            <li>Quando usar ViT vs CNN — trade-offs práticos</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-purple">
+        <div class="week-head">Mês 9 — Multimodal e Generativo</div>
+        <div class="week-body">
+          <ul>
+            <li>LLaVA, GPT-4V: modelos vision-language</li>
+            <li>Grounding DINO: detecção guiada por texto</li>
+            <li>Stable Diffusion: geração e edição de imagens</li>
+            <li>ControlNet: geração controlada por esqueleto/mapa</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-purple">
+        <div class="week-head">Mês 10-11 — Deploy e Otimização</div>
+        <div class="week-body">
+          <ul>
+            <li>ONNX: exportação e inferência multiplataforma</li>
+            <li>TensorRT: aceleração em GPU NVIDIA</li>
+            <li>Quantização: INT8, FP16 — reduzir modelo sem perder acurácia</li>
+            <li>Edge deploy: NCNN, OpenVINO para dispositivos embarcados</li>
+            <li>FastAPI + Docker para servir modelo com endpoint REST</li>
+          </ul>
+          <div class="alert alert-amber" style="margin-top:8px;font-size:12px">Saber otimizar para edge é raro e muito bem pago — diferencial forte para drone e robótica</div>
+        </div>
+      </div>
+      <div class="week-card week-purple">
+        <div class="week-head">Mês 12 — Projeto Integrador</div>
+        <div class="week-body">
+          <ul>
+            <li>Sistema end-to-end: câmera → detecção → tracking → alerta → dashboard</li>
+            <li>Escolha do domínio: agrícola, industrial ou médico</li>
+            <li>Deploy com monitoramento de drift de distribuição de imagens</li>
+            <li>Publicar no GitHub com README profissional + demo em vídeo</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="alert alert-teal">Marco da trilha: sistema deployado com demo pública, top 25% em competição Kaggle de CV, domínio de nicho definido.</div>
+  </div>
+
+  <div class="card">
+    <h2>Recursos essenciais desta trilha</h2>
+    <table>
+      <tr><th>Recurso</th><th>Custo</th><th>Uso</th></tr>
+      <tr><td>CS231n Stanford (YouTube)</td><td>Gratuito</td><td>Melhor curso de fundamentos de CV do mundo</td></tr>
+      <tr><td>fast.ai — Part 2 (Vision)</td><td>Gratuito</td><td>Abordagem prática e moderna</td></tr>
+      <tr><td>Ultralytics (docs YOLO)</td><td>Gratuito</td><td>Referência para object detection</td></tr>
+      <tr><td>Papers with Code — CV</td><td>Gratuito</td><td>Estado da arte atualizado com código</td></tr>
+      <tr><td>Roboflow</td><td>Gratuito (básico)</td><td>Anotação de datasets e datasets prontos</td></tr>
+      <tr><td>Albumentations docs</td><td>Gratuito</td><td>Data augmentation profissional</td></tr>
+      <tr><td>Kaggle — competições CV</td><td>Gratuito</td><td>A partir do mês 4. Participar de pelo menos 2 por ano.</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ===== ROBÓTICA ===== -->
+<div id="robotica" class="section">
+  <div class="phase-header phase-teal">
+    <div class="phase-title">🤖 Trilha — Robótica com IA</div>
+    <div class="phase-sub">Do zero ao engenheiro de robótica inteligente · ~20 meses · Fusão de IA, controle, percepção e sistemas embarcados</div>
+  </div>
+
+  <div class="alert alert-teal">Robótica é onde IA encontra o mundo físico. Demanda crescente em manufatura, logística, agricultura e defesa. No Brasil, ainda escassez enorme de profissionais — quem domina tem campo aberto.</div>
+
+  <div class="card">
+    <h2>Onde robótica com IA tem mercado</h2>
+    <div class="two-col">
+      <div>
+        <h3>Áreas de aplicação</h3>
+        <ul>
+          <li><strong>Manufatura:</strong> robôs colaborativos (cobots), inspeção automatizada</li>
+          <li><strong>Logística:</strong> AMRs (Autonomous Mobile Robots), picking em warehouses</li>
+          <li><strong>Agricultura:</strong> robôs de colheita, pulverização autônoma, plantio de precisão</li>
+          <li><strong>Saúde:</strong> robótica cirúrgica, exoesqueletos de reabilitação</li>
+          <li><strong>Defesa e exploração:</strong> robôs para ambientes perigosos</li>
+          <li><strong>Pesquisa:</strong> manipuladores, humanoides (Boston Dynamics, Tesla Optimus)</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Stack tecnológico central</h3>
+        <div style="margin-top:4px">
+          <span class="tag tag-teal">ROS 2</span><span class="tag tag-teal">Python</span><span class="tag tag-teal">C++</span>
+          <span class="tag tag-teal">PyTorch</span><span class="tag tag-teal">OpenCV</span><span class="tag tag-teal">Gazebo</span>
+          <span class="tag tag-teal">MoveIt 2</span><span class="tag tag-teal">Isaac Sim</span><span class="tag tag-teal">SLAM</span>
+          <span class="tag tag-teal">Arduino/RPi</span><span class="tag tag-teal">Linux embarcado</span>
+        </div>
+        <div class="alert alert-amber" style="margin-top:10px;font-size:12px">C++ é obrigatório para robótica de produção. Não precisa ser expert, mas precisa ler, escrever e debugar.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 1 — Fundação (Meses 1–4)</h2>
+    <div class="week-grid">
+      <div class="week-card week-teal">
+        <div class="week-head">Mês 1 — Matemática e física para robótica</div>
+        <div class="week-body">
+          <ul>
+            <li>Álgebra linear: matrizes de rotação, transformações homogêneas</li>
+            <li>Cinemática: frames de referência, transformações 3D</li>
+            <li>Quaternions: representação de orientação sem gimbal lock</li>
+            <li>Dinâmica básica: forças, torques, momento de inércia</li>
+          </ul>
+          <div class="alert alert-teal" style="margin-top:8px;font-size:12px">Recurso: "Modern Robotics" (Northwestern) — coursera gratuito com livro open-access</div>
+        </div>
+      </div>
+      <div class="week-card week-teal">
+        <div class="week-head">Mês 2 — ROS 2 fundação</div>
+        <div class="week-body">
+          <ul>
+            <li>Instalação: Ubuntu 22.04 + ROS 2 Humble</li>
+            <li>Conceitos: nós, tópicos, serviços, actions, parâmetros</li>
+            <li>Publishers e subscribers em Python</li>
+            <li>rqt, rviz2: ferramentas de visualização e debug</li>
+            <li>Projeto: robô simulado publicando e consumindo tópicos</li>
+          </ul>
+          <div class="alert alert-teal" style="margin-top:8px;font-size:12px">Recurso: ROS 2 official tutorials + "A Gentle Introduction to ROS" (Jason O'Kane)</div>
+        </div>
+      </div>
+      <div class="week-card week-teal">
+        <div class="week-head">Mês 3 — Simulação com Gazebo</div>
+        <div class="week-body">
+          <ul>
+            <li>Gazebo Fortress / Harmonic: criar mundos simulados</li>
+            <li>URDF: descrever robô (links, joints, sensores)</li>
+            <li>Integrar ROS 2 + Gazebo: controlar robô simulado</li>
+            <li>Sensores simulados: câmera, LIDAR, IMU, encoders</li>
+            <li>Projeto: diferencial drive robot navegando em labirinto simulado</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-teal">
+        <div class="week-head">Mês 4 — C++ básico para ROS</div>
+        <div class="week-body">
+          <ul>
+            <li>Sintaxe C++ essencial: ponteiros, referências, classes, templates básicos</li>
+            <li>Nós ROS 2 em C++: performance crítica</li>
+            <li>CMakeLists, colcon build system</li>
+            <li>Debugging com GDB e valgrind</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 2 — Percepção e Navegação (Meses 5–9)</h2>
+    <div class="week-grid">
+      <div class="week-card week-teal">
+        <div class="week-head">Mês 5 — SLAM (Simultaneous Localization and Mapping)</div>
+        <div class="week-body">
+          <ul>
+            <li>Conceito de SLAM: localizar-se enquanto constrói o mapa</li>
+            <li>Filtro de Kalman Estendido (EKF) — fundamento probabilístico</li>
+            <li>slam_toolbox e cartographer (ROS 2)</li>
+            <li>Odometria visual: ORB-SLAM3</li>
+            <li>Projeto: robô simulado construindo mapa 2D com LIDAR</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-teal">
+        <div class="week-head">Mês 6 — Navegação autônoma</div>
+        <div class="week-body">
+          <ul>
+            <li>Nav2 (ROS 2): planejamento de rota, desvio de obstáculos</li>
+            <li>Algoritmos de pathfinding: A*, Dijkstra, RRT</li>
+            <li>Costmaps: global e local</li>
+            <li>Behavior trees para robótica (Nav2 BT)</li>
+            <li>Projeto: robô autônomo navegando de A→B desviando de obstáculos dinâmicos</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-teal">
+        <div class="week-head">Mês 7 — Visão para robótica</div>
+        <div class="week-body">
+          <ul>
+            <li>Integrar câmera (real ou simulada) com pipeline ROS 2</li>
+            <li>Estimativa de pose com ArUco markers e PnP</li>
+            <li>Detecção de objetos com YOLO integrada ao ROS</li>
+            <li>Câmeras de profundidade: RealSense, ZED — point clouds no ROS</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-teal">
+        <div class="week-head">Mês 8–9 — Manipulação robótica</div>
+        <div class="week-body">
+          <ul>
+            <li>Cinemática direta e inversa (IK): solucionadores analíticos vs numéricos</li>
+            <li>MoveIt 2: planejamento de trajetória para braços robóticos</li>
+            <li>Controle de força e torque: compliance control</li>
+            <li>Grasping: como pegar objetos — grasp planning</li>
+            <li>Projeto: braço robótico simulado pegando e colocando objetos</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 3 — IA aplicada à Robótica (Meses 10–15)</h2>
+    <div class="week-grid">
+      <div class="week-card week-teal">
+        <div class="week-head">Mês 10–11 — Aprendizado por Reforço para robótica</div>
+        <div class="week-body">
+          <ul>
+            <li>RL em simulação: Isaac Gym / Isaac Lab (NVIDIA) — treina 1000x mais rápido</li>
+            <li>PPO, SAC: algoritmos mais usados em controle robótico contínuo</li>
+            <li>Sim-to-real transfer: como transferir política treinada em sim para robô real</li>
+            <li>Domain randomization: robustez a variações físicas</li>
+            <li>Projeto: robô aprendendo a caminhar ou segurar objeto com RL</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-teal">
+        <div class="week-head">Mês 12 — Imitation Learning</div>
+        <div class="week-body">
+          <ul>
+            <li>Behavioral Cloning: aprender de demonstrações humanas</li>
+            <li>DAgger: melhoria iterativa sobre BC</li>
+            <li>ACT (Action Chunking with Transformers): robôs manipuladores atuais</li>
+            <li>Coleta de dados com teleoperation</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-teal">
+        <div class="week-head">Mês 13–14 — Foundation Models para Robótica</div>
+        <div class="week-body">
+          <ul>
+            <li>RT-2, OpenVLA: modelos vision-language-action</li>
+            <li>SayCan: usar LLMs para planejamento de tarefas robóticas</li>
+            <li>RoboAgent: generalização com poucos exemplos</li>
+            <li>Limitações atuais: por que o gap sim-to-real ainda existe</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-teal">
+        <div class="week-head">Mês 15 — Hardware real</div>
+        <div class="week-body">
+          <ul>
+            <li>Raspberry Pi 4/5 + ROS 2: robô físico de baixo custo</li>
+            <li>Integrações: Arduino para atuadores, sensores analógicos</li>
+            <li>Diagnóstico e debugging em robô real (muito diferente da simulação)</li>
+            <li>Projeto final: robô físico navegando autonomamente com visão</li>
+          </ul>
+          <div class="alert alert-amber" style="margin-top:8px;font-size:12px">Custo mínimo para robô real: R$ 800–2000. TurtleBot3, robô diferencial com RPi, ou braço robótico educacional (myCobot, SO-ARM100)</div>
+        </div>
+      </div>
+    </div>
+    <div class="alert alert-teal">Marco da trilha: robô físico ou simulado funcionando com RL ou imitation learning. Projeto no GitHub com vídeo demo. Contribuição para pacote ROS open-source.</div>
+  </div>
+
+  <div class="card">
+    <h2>Recursos essenciais desta trilha</h2>
+    <table>
+      <tr><th>Recurso</th><th>Custo</th><th>Uso</th></tr>
+      <tr><td>Modern Robotics (Northwestern / Coursera)</td><td>Gratuito</td><td>Fundamentos matemáticos sólidos</td></tr>
+      <tr><td>ROS 2 Documentation oficial</td><td>Gratuito</td><td>Referência central da trilha</td></tr>
+      <tr><td>The Construct (theconstructsim.com)</td><td>Gratuito / pago</td><td>Cursos ROS 2 e simulação na nuvem</td></tr>
+      <tr><td>Isaac Lab (NVIDIA)</td><td>Gratuito</td><td>RL em simulação de alta performance</td></tr>
+      <tr><td>Robotics Academy (CMU)</td><td>Gratuito</td><td>Fundamentos práticos de robótica</td></tr>
+      <tr><td>Hugging Face LeRobot</td><td>Gratuito</td><td>Datasets e modelos de robótica open-source</td></tr>
+      <tr><td>"Probabilistic Robotics" (Thrun)</td><td>~USD 60</td><td>Livro clássico de SLAM e probabilidade em robótica</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ===== DRONE ===== -->
+<div id="drone" class="section">
+  <div class="phase-header phase-blue">
+    <div class="phase-title">🚁 Trilha — IA para Drones e Sistemas Aéreos</div>
+    <div class="phase-sub">Do zero ao engenheiro de sistemas UAS com IA · ~18 meses · Fusão de controle de voo, visão e navegação autônoma</div>
+  </div>
+
+  <div class="alert alert-teal">Drones com IA estão revolucionando agronegócio, mapeamento, inspeção de infraestrutura, logística e defesa. No Brasil, o mercado de agro-drones cresce 40%+ ao ano — oportunidade enorme para quem está em Goiás.</div>
+
+  <div class="card">
+    <h2>Ecossistema e mercado</h2>
+    <div class="two-col">
+      <div>
+        <h3>Aplicações com maior demanda</h3>
+        <ul>
+          <li><strong>Agronegócio:</strong> pulverização de precisão, mapeamento de lavoura, estimativa de NDVI, detecção de pragas</li>
+          <li><strong>Inspeção:</strong> linhas de transmissão, oleodutos, pontes, torres eólicas</li>
+          <li><strong>Mapeamento:</strong> fotogrametria, LiDAR aéreo, modelos 3D de terreno</li>
+          <li><strong>Entrega de carga:</strong> last-mile delivery (Amazon, Wing)</li>
+          <li><strong>Busca e resgate:</strong> drones com câmera térmica</li>
+          <li><strong>Defesa:</strong> ISR (inteligência, vigilância, reconhecimento)</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Stack tecnológico</h3>
+        <div style="margin-top:4px">
+          <span class="tag tag-blue">PX4 / ArduPilot</span><span class="tag tag-blue">ROS 2</span>
+          <span class="tag tag-blue">MAVLink</span><span class="tag tag-blue">Python</span>
+          <span class="tag tag-blue">OpenCV</span><span class="tag tag-blue">MAVSDK</span>
+          <span class="tag tag-blue">AirSim / Gazebo</span><span class="tag tag-blue">Mission Planner</span>
+          <span class="tag tag-blue">GDAL / QGIS</span><span class="tag tag-blue">ODM</span>
+        </div>
+        <div class="alert alert-amber" style="margin-top:10px;font-size:12px">Diferencial único: combinar IA + ANAC/FAA (regulatório) coloca você à frente de 95% dos candidatos</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 1 — Fundação de voo e controle (Meses 1–3)</h2>
+    <div class="week-grid">
+      <div class="week-card week-blue">
+        <div class="week-head">Mês 1 — Princípios de voo e hardware</div>
+        <div class="week-body">
+          <ul>
+            <li>Aerodinâmica básica: sustentação, arrasto, empuxo, peso</li>
+            <li>Tipos de drone: multirotor, asa fixa, VTOL — quando usar cada um</li>
+            <li>Componentes: ESC, motores brushless, FC (flight controller), GPS, IMU, RC</li>
+            <li>Bateria LiPo: cuidados, C-rating, cálculo de autonomia</li>
+            <li>Regulatório: ANAC RBAC-E 94, classes de drone, habilitação</li>
+          </ul>
+          <div class="alert alert-teal" style="margin-top:8px;font-size:12px">Recurso: ArduPilot docs + canal Painless360 (YouTube) — melhor canal técnico de drone em inglês</div>
+        </div>
+      </div>
+      <div class="week-card week-blue">
+        <div class="week-head">Mês 2 — Flight Controller e PX4/ArduPilot</div>
+        <div class="week-body">
+          <ul>
+            <li>Instalação e configuração PX4 ou ArduPilot (ambos open-source)</li>
+            <li>MAVLink: protocolo de comunicação GCS ↔ drone</li>
+            <li>QGroundControl / Mission Planner: planejamento de missão</li>
+            <li>Modos de voo: manual, stabilize, loiter, auto, guided</li>
+            <li>Simulação: SITL (Software In The Loop) — voar sem hardware</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-blue">
+        <div class="week-head">Mês 3 — Controle programático com Python</div>
+        <div class="week-body">
+          <ul>
+            <li>MAVSDK-Python: controlar drone via código Python</li>
+            <li>DroneKit: missões autônomas programáticas</li>
+            <li>Comandar decolagem, navegação para waypoints, pouso</li>
+            <li>Telemetria: ler altitude, velocidade, bateria em tempo real</li>
+            <li>Projeto: missão autônoma simulada no SITL + lógica em Python</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 2 — IA embarcada e percepção (Meses 4–8)</h2>
+    <div class="week-grid">
+      <div class="week-card week-blue">
+        <div class="week-head">Mês 4 — Computer Vision no drone</div>
+        <div class="week-body">
+          <ul>
+            <li>Integrar câmera com pipeline de visão (OpenCV + PyTorch)</li>
+            <li>Detecção de objetos leve: YOLO-nano, MobileNet para hardware limitado</li>
+            <li>Gimbal e estabilização de câmera para qualidade de imagem</li>
+            <li>Streaming de vídeo para processamento em ground station</li>
+            <li>Projeto: drone detectando alvos em simulação (AirSim ou Gazebo)</li>
+          </ul>
+          <div class="alert alert-teal" style="margin-top:8px;font-size:12px">Recurso: Microsoft AirSim (simulador realístico com Python API)</div>
+        </div>
+      </div>
+      <div class="week-card week-blue">
+        <div class="week-head">Mês 5 — Fotogrametria e mapeamento</div>
+        <div class="week-body">
+          <ul>
+            <li>Planejamento de voo para mapeamento: GSD, overlap, altitude</li>
+            <li>OpenDroneMap (ODM): reconstrução 3D de imagens aéreas</li>
+            <li>Ortomosaicos: geração e análise</li>
+            <li>NDVI: índice de vegetação a partir de câmera multiespectral</li>
+            <li>QGIS: análise espacial dos resultados</li>
+            <li>Projeto: mapeamento de área e análise de vegetação</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-blue">
+        <div class="week-head">Mês 6–7 — VIO e navegação sem GPS</div>
+        <div class="week-body">
+          <ul>
+            <li>VIO (Visual-Inertial Odometry): localização com câmera + IMU</li>
+            <li>VINS-Mono, OpenVINS: implementações open-source</li>
+            <li>Navegação indoor sem GPS: desafios e soluções</li>
+            <li>Optical flow para navegação de baixa altitude</li>
+            <li>ROS 2 + PX4: integração para autonomia avançada</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-blue">
+        <div class="week-head">Mês 8 — IA para decisão de missão</div>
+        <div class="week-body">
+          <ul>
+            <li>Behavior trees para missões de drone (BehaviorTree.CPP)</li>
+            <li>Desvio de obstáculos: sensores de distância, câmera stereo</li>
+            <li>Detecção e seguimento de alvo (follow-me com visão)</li>
+            <li>Pouso de precisão com visão computacional</li>
+            <li>Projeto: drone seguindo alvo visual autonomamente na simulação</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 3 — Sistemas avançados e integração real (Meses 9–14)</h2>
+    <div class="week-grid">
+      <div class="week-card week-blue">
+        <div class="week-head">Mês 9–10 — Swarm de drones</div>
+        <div class="week-body">
+          <ul>
+            <li>Coordenação multi-agente: algoritmos de formação</li>
+            <li>Comunicação entre drones: MAVLink2, WiFi mesh</li>
+            <li>Decolagem e aterrissagem sincronizada de múltiplos drones</li>
+            <li>Aplicação: cobertura colaborativa de área (busca e resgate)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-blue">
+        <div class="week-head">Mês 11–12 — RL para controle de voo</div>
+        <div class="week-body">
+          <ul>
+            <li>Treinar controlador de voo com RL (Isaac Gym ou AirSim)</li>
+            <li>PPO para controle de multirotor: política de atitude e posição</li>
+            <li>Sim-to-real: adaptar política treinada para hardware real</li>
+            <li>Robustez a perturbações: vento, cargas variáveis</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-blue">
+        <div class="week-head">Mês 13–14 — Hardware real + projeto final</div>
+        <div class="week-body">
+          <ul>
+            <li>Montagem ou uso de drone F450 / F550 com Pixhawk</li>
+            <li>Companion computer: Raspberry Pi / NVIDIA Jetson Orin Nano</li>
+            <li>Pipeline completo: missão autônoma com detecção ativa em campo</li>
+            <li>Documentação, vídeo de demo, relatório de missão</li>
+          </ul>
+          <div class="alert alert-amber" style="margin-top:8px;font-size:12px">Custo hardware mínimo: R$ 2.500–6.000 (drone + Pixhawk + câmera). NVIDIA Jetson Orin Nano (~R$ 1.500) para IA embarcada pesada.</div>
+        </div>
+      </div>
+    </div>
+    <div class="alert alert-teal">Marco da trilha: missão autônoma completa demonstrada em vídeo. Pipeline de mapeamento funcionando. Habilitação ANAC obtida para operações comerciais.</div>
+  </div>
+
+  <div class="card">
+    <h2>Recursos essenciais desta trilha</h2>
+    <table>
+      <tr><th>Recurso</th><th>Custo</th><th>Uso</th></tr>
+      <tr><td>ArduPilot docs + fórum</td><td>Gratuito</td><td>Referência técnica principal</td></tr>
+      <tr><td>PX4 User Guide</td><td>Gratuito</td><td>Alternativa ao ArduPilot, mais usado em pesquisa</td></tr>
+      <tr><td>Microsoft AirSim</td><td>Gratuito</td><td>Simulador realístico com Python API</td></tr>
+      <tr><td>OpenDroneMap</td><td>Gratuito</td><td>Fotogrametria e mapeamento 3D</td></tr>
+      <tr><td>MAVSDK docs</td><td>Gratuito</td><td>Controle programático do drone</td></tr>
+      <tr><td>Painless360 (YouTube)</td><td>Gratuito</td><td>Melhor canal técnico de drone</td></tr>
+      <tr><td>UAV Coach (uavcoach.com)</td><td>Gratuito/pago</td><td>Regulatório e certificações</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ===== AUTOMAÇÃO ===== -->
+<div id="automacao" class="section">
+  <div class="phase-header phase-amber2">
+    <div class="phase-title">⚙️ Trilha — Automação Inteligente com IA</div>
+    <div class="phase-sub">Do zero ao engenheiro de automação com IA · ~16 meses · RPA, agentes, processos industriais e sistemas de controle com inteligência</div>
+  </div>
+
+  <div class="alert alert-teal">Automação com IA é a área que mais cresce em todos os setores. Diferente do RPA tradicional (frágil), automação com IA usa visão, linguagem e raciocínio — e é muito mais robusta e valiosa.</div>
+
+  <div class="card">
+    <h2>Tipos de automação e onde cada um tem mercado</h2>
+    <div class="two-col">
+      <div>
+        <h3>Automação de processos (RPA + IA)</h3>
+        <ul>
+          <li>RPA clássico: UiPath, Automation Anywhere — automação de cliques e formulários</li>
+          <li>RPA inteligente: visão computacional + OCR + LLM para processos complexos</li>
+          <li>Extração de dados de documentos: NF-e, contratos, laudos</li>
+          <li>Automação de atendimento: chatbots com RAG integrado a sistemas</li>
+          <li><strong>Mercado:</strong> bancos, seguradoras, governo, varejo, logística</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Agentes de IA (nova fronteira)</h3>
+        <ul>
+          <li>Agentes autônomos: LLM + ferramentas + memória + planejamento</li>
+          <li>Multi-agent systems: agentes especializados colaborando</li>
+          <li>Computer use: agentes controlando desktop/browser como humano</li>
+          <li>Automação de workflows: Zapier, Make, n8n com IA</li>
+          <li><strong>Mercado:</strong> startups, consultorias, qualquer empresa com processos repetitivos</li>
+        </ul>
+      </div>
+    </div>
+    <div class="two-col" style="margin-top:12px">
+      <div>
+        <h3>Automação industrial (IIoT)</h3>
+        <ul>
+          <li>SCADA / PLC com IA: detectar anomalias em processo industrial</li>
+          <li>Manutenção preditiva: sensores + modelos de ML para prever falhas</li>
+          <li>Qualidade automatizada: inspeção visual com CV em linha de produção</li>
+          <li><strong>Mercado:</strong> indústria, mineração, petróleo, utilities</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Stack tecnológico</h3>
+        <div style="margin-top:4px">
+          <span class="tag tag-amber">Python</span><span class="tag tag-amber">LangChain</span>
+          <span class="tag tag-amber">LangGraph</span><span class="tag tag-amber">n8n</span>
+          <span class="tag tag-amber">FastAPI</span><span class="tag tag-amber">Playwright</span>
+          <span class="tag tag-amber">Celery</span><span class="tag tag-amber">Redis</span>
+          <span class="tag tag-amber">Docker</span><span class="tag tag-amber">MQTT</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 1 — Fundação (Meses 1–3)</h2>
+    <div class="week-grid">
+      <div class="week-card week-amber">
+        <div class="week-head">Mês 1 — Automação com Python</div>
+        <div class="week-body">
+          <ul>
+            <li>Selenium / Playwright: automação de browser (web scraping, testes, RPA)</li>
+            <li>pyautogui: controle de mouse e teclado</li>
+            <li>Requests + BeautifulSoup: coleta de dados da web</li>
+            <li>Agendamento: schedule, APScheduler, cron</li>
+            <li>Projeto: bot que coleta dados, processa e envia relatório automático</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-amber">
+        <div class="week-head">Mês 2 — APIs e integração de sistemas</div>
+        <div class="week-body">
+          <ul>
+            <li>REST APIs: consumir, autenticar (OAuth2, API keys), tratar erros</li>
+            <li>Webhooks: receber eventos em tempo real</li>
+            <li>FastAPI: criar APIs para exposição de automações</li>
+            <li>Mensageria: Redis, RabbitMQ para filas de tarefas</li>
+            <li>Celery: execução assíncrona de tarefas pesadas</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-amber">
+        <div class="week-head">Mês 3 — OCR e extração de documentos</div>
+        <div class="week-body">
+          <ul>
+            <li>Tesseract OCR: extrair texto de imagens e PDFs</li>
+            <li>PaddleOCR: OCR moderno e mais preciso (open-source)</li>
+            <li>PyMuPDF, pdfplumber: extrair dados de PDFs estruturados</li>
+            <li>Extração com LLM: usar GPT/Claude para interpretar documentos</li>
+            <li>Projeto: pipeline de extração de dados de NF-e ou contratos em PDF</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 2 — Agentes de IA (Meses 4–8)</h2>
+    <div class="week-grid">
+      <div class="week-card week-amber">
+        <div class="week-head">Mês 4 — LLMs como motor de automação</div>
+        <div class="week-body">
+          <ul>
+            <li>Function calling / Tool use: LLM decidindo qual ferramenta chamar</li>
+            <li>LangChain: chains, tools, memory, prompt templates</li>
+            <li>Structured outputs: forçar JSON estruturado do LLM</li>
+            <li>Projeto: agente que responde perguntas buscando em APIs externas</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-amber">
+        <div class="week-head">Mês 5 — LangGraph e agentes com estado</div>
+        <div class="week-body">
+          <ul>
+            <li>LangGraph: agentes com grafo de estados (muito mais robusto que chains)</li>
+            <li>ReAct pattern: raciocinar → agir → observar → repetir</li>
+            <li>Memória de curto e longo prazo em agentes</li>
+            <li>Human-in-the-loop: quando o agente pede confirmação humana</li>
+            <li>Projeto: agente de pesquisa que busca, sintetiza e escreve relatório</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-amber">
+        <div class="week-head">Mês 6 — Multi-agent systems</div>
+        <div class="week-body">
+          <ul>
+            <li>Frameworks: CrewAI, AutoGen, LangGraph multi-agent</li>
+            <li>Padrões: supervisor, hierarchical, collaborative</li>
+            <li>Agentes especializados: pesquisador, escritor, revisor, executor</li>
+            <li>Projeto: sistema multi-agente para análise de empresa (pesquisa + análise + relatório)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-amber">
+        <div class="week-head">Mês 7–8 — Computer Use e automação visual</div>
+        <div class="week-body">
+          <ul>
+            <li>Agentes controlando desktop/browser como humano</li>
+            <li>Visão computacional para identificar elementos na tela</li>
+            <li>n8n / Make: workflows visuais com IA integrada</li>
+            <li>Integração com sistemas legados sem API (usando visão)</li>
+            <li>Projeto: agente que executa processo completo em sistema web</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 3 — Automação Industrial e Produção (Meses 9–14)</h2>
+    <div class="week-grid">
+      <div class="week-card week-amber">
+        <div class="week-head">Mês 9–10 — IIoT e sensores industriais</div>
+        <div class="week-body">
+          <ul>
+            <li>MQTT: protocolo de mensageria para IoT industrial</li>
+            <li>Node-RED: programação visual para fluxos IoT</li>
+            <li>InfluxDB: banco de dados de séries temporais para sensores</li>
+            <li>Grafana: dashboard de monitoramento em tempo real</li>
+            <li>Projeto: coleta de dados de sensores → alertas automáticos → dashboard</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-amber">
+        <div class="week-head">Mês 11–12 — Manutenção preditiva com ML</div>
+        <div class="week-body">
+          <ul>
+            <li>Séries temporais: ARIMA, Prophet, LSTM para previsão de falha</li>
+            <li>Detecção de anomalias: Isolation Forest, autoencoders</li>
+            <li>Feature engineering para dados de vibração, temperatura, pressão</li>
+            <li>Deploy do modelo em pipeline real ou simulado</li>
+            <li>Projeto: sistema preditivo de falha em equipamento (motor, bomba)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-amber">
+        <div class="week-head">Mês 13–14 — Sistema completo em produção</div>
+        <div class="week-body">
+          <ul>
+            <li>Arquitetura completa: sensores → ingestão → modelo → ação → alerta</li>
+            <li>Containers Docker + orquestração com docker-compose</li>
+            <li>Monitoramento do sistema em produção</li>
+            <li>Projeto final: solução de automação completa resolvendo problema real</li>
+          </ul>
+          <div class="alert alert-teal" style="margin-top:8px;font-size:12px">Dica: contato com industrias locais em Goiás para implementar projeto real — vira case de portfólio poderoso</div>
+        </div>
+      </div>
+    </div>
+    <div class="alert alert-teal">Marco da trilha: agente de IA completo deployado + pipeline industrial funcionando com dados reais ou simulados. Demonstração em vídeo de 5 minutos mostrando o processo antes e depois.</div>
+  </div>
+
+  <div class="card">
+    <h2>Recursos essenciais desta trilha</h2>
+    <table>
+      <tr><th>Recurso</th><th>Custo</th><th>Uso</th></tr>
+      <tr><td>LangChain docs</td><td>Gratuito</td><td>Framework central para agentes LLM</td></tr>
+      <tr><td>LangGraph docs</td><td>Gratuito</td><td>Agentes com estado — mais robusto que chains simples</td></tr>
+      <tr><td>n8n (self-hosted)</td><td>Gratuito</td><td>Automação visual sem código com IA</td></tr>
+      <tr><td>Node-RED docs</td><td>Gratuito</td><td>IIoT e fluxos de dados industriais</td></tr>
+      <tr><td>CrewAI docs</td><td>Gratuito</td><td>Multi-agent systems de forma acessível</td></tr>
+      <tr><td>"Building LLM Powered Applications" (Valentina Alto)</td><td>~USD 40</td><td>Livro prático de agentes em produção</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ===== APRENDIZADO POR REFORÇO ===== -->
+<div id="rl" class="section">
+  <div class="phase-header phase-coral">
+    <div class="phase-title">🧠 Trilha — Aprendizado por Reforço (RL)</div>
+    <div class="phase-sub">Do zero ao especialista em RL · ~20 meses · A área que treina os modelos mais avançados do mundo — de AlphaGo a GPT-4 (RLHF)</div>
+  </div>
+
+  <div class="alert alert-teal">RL é a área mais matematicamente exigente de toda a IA — e por isso tem os menores bolsões de especialistas e os maiores salários. É o que treina robôs, joga xadrez no nível de Deus e alinha LLMs com valores humanos (RLHF).</div>
+
+  <div class="card">
+    <h2>Onde RL tem aplicação e mercado real</h2>
+    <div class="two-col">
+      <div>
+        <h3>Aplicações concretas</h3>
+        <ul>
+          <li><strong>Treinamento de LLMs:</strong> RLHF, RLAIF, DPO — alinhamento de modelos como GPT, Claude</li>
+          <li><strong>Robótica:</strong> controle de movimento, manipulação, locomoção</li>
+          <li><strong>Jogos e simulação:</strong> AlphaGo, AlphaStar, OpenAI Five, Dota</li>
+          <li><strong>Sistemas de recomendação:</strong> otimizar engajamento de longo prazo</li>
+          <li><strong>Trading algorítmico:</strong> estratégias de portfólio adaptativas</li>
+          <li><strong>Gestão de energia:</strong> otimizar consumo em data centers (Google DeepMind)</li>
+          <li><strong>Saúde:</strong> dosagem de medicamentos, tratamento personalizado</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Por que é difícil e valioso</h3>
+        <ul>
+          <li>Exige matemática sólida: probabilidade, otimização, álgebra linear</li>
+          <li>Poucas pessoas no mundo dominam RL avançado — demanda supera oferta</li>
+          <li>Pesquisadores de RL em big tech: USD 300k–600k/ano</li>
+          <li>Engenheiros de RL (aplicado): USD 150k–250k/ano</li>
+          <li>No Brasil: R$ 25k–45k/mês para sênior</li>
+        </ul>
+        <div class="alert alert-coral" style="margin-top:8px;font-size:12px">Realidade: RL puro leva 18-24 meses de estudo sério para ficar empregável. Não é uma trilha para iniciantes absolutos — faça após ter ML e DL sólidos.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Pré-requisitos antes de começar esta trilha</h2>
+    <ul class="checklist">
+      <li><span class="check-box"></span>Cálculo: derivadas parciais, regra da cadeia (backpropagation exige isso)</li>
+      <li><span class="check-box"></span>Probabilidade: distribuições, valor esperado, variância, Bayes</li>
+      <li><span class="check-box"></span>Álgebra linear: matrizes, autovetores, decomposições</li>
+      <li><span class="check-box"></span>Python avançado + PyTorch: você precisa implementar redes neurais com conforto</li>
+      <li><span class="check-box"></span>ML clássico: regressão, classificação, overfitting — compreensão sólida</li>
+    </ul>
+    <div class="alert alert-amber">Se você ainda não tem esses pré-requisitos, complete primeiro 6 meses da Fase 1 do plano principal antes de mergulhar nesta trilha.</div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 1 — Fundação matemática e conceitual (Meses 1–3)</h2>
+    <div class="week-grid">
+      <div class="week-card week-coral">
+        <div class="week-head">Mês 1 — Fundamentos de RL</div>
+        <div class="week-body">
+          <ul>
+            <li>MDP (Markov Decision Process): estados, ações, recompensas, transições</li>
+            <li>Política (π), função valor (V), função Q — definições formais</li>
+            <li>Equação de Bellman: a equação mais importante do RL</li>
+            <li>Dynamic Programming: policy iteration, value iteration</li>
+            <li>Exploração vs exploitação: ε-greedy, UCB, Thompson Sampling</li>
+          </ul>
+          <div class="alert alert-teal" style="margin-top:8px;font-size:12px">Recurso central: "Reinforcement Learning: An Introduction" (Sutton &amp; Barto) — gratuito online, é a bíblia do RL</div>
+        </div>
+      </div>
+      <div class="week-card week-coral">
+        <div class="week-head">Mês 2 — RL clássico</div>
+        <div class="week-body">
+          <ul>
+            <li>Monte Carlo methods: estimativa de valor por episódios completos</li>
+            <li>Temporal Difference (TD): TD(0), TD(λ)</li>
+            <li>Q-Learning: algoritmo off-policy fundamental</li>
+            <li>SARSA: algoritmo on-policy</li>
+            <li>Implementar Q-Learning do zero em Python para um gridworld</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-coral">
+        <div class="week-head">Mês 3 — Deep RL — DQN</div>
+        <div class="week-body">
+          <ul>
+            <li>Deep Q-Network (DQN): combinar Q-learning com redes neurais</li>
+            <li>Experience replay: por que é necessário</li>
+            <li>Target network: estabilizar o treinamento</li>
+            <li>Double DQN, Dueling DQN, Prioritized Experience Replay</li>
+            <li>Projeto: DQN jogando Atari (CartPole, LunarLander) com PyTorch</li>
+          </ul>
+          <div class="alert alert-teal" style="margin-top:8px;font-size:12px">Recurso: CS285 Berkeley (YouTube, gratuito) — o melhor curso de Deep RL do mundo</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 2 — Algoritmos modernos (Meses 4–8)</h2>
+    <div class="week-grid">
+      <div class="week-card week-coral">
+        <div class="week-head">Mês 4 — Policy Gradient</div>
+        <div class="week-body">
+          <ul>
+            <li>Policy Gradient theorem: otimizar a política diretamente</li>
+            <li>REINFORCE: algoritmo fundamental de policy gradient</li>
+            <li>Actor-Critic: combinar policy gradient com estimativa de valor</li>
+            <li>A2C / A3C: versões paralelas e assíncronas</li>
+            <li>Projeto: A2C no ambiente MuJoCo ou PyBullet</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-coral">
+        <div class="week-head">Mês 5 — PPO e SAC</div>
+        <div class="week-body">
+          <ul>
+            <li>PPO (Proximal Policy Optimization): o algoritmo mais usado em produção hoje</li>
+            <li>Clipping de políticas: por que PPO é mais estável que TRPO</li>
+            <li>SAC (Soft Actor-Critic): máximo de entropia para espaços contínuos</li>
+            <li>TD3: Twin Delayed DDPG — state-of-the-art para controle contínuo</li>
+            <li>Projeto: robô simulado (MuJoCo HalfCheetah ou Ant) aprendendo a correr</li>
+          </ul>
+          <div class="alert alert-amber" style="margin-top:8px;font-size:12px">PPO é o algoritmo por trás do InstructGPT e do ChatGPT (RLHF). Dominar PPO é essencial.</div>
+        </div>
+      </div>
+      <div class="week-card week-coral">
+        <div class="week-head">Mês 6 — RL baseado em modelo</div>
+        <div class="week-body">
+          <ul>
+            <li>Model-based RL: aprender um modelo do ambiente e planejar</li>
+            <li>Dyna-Q: integração de planejamento e RL livre de modelo</li>
+            <li>MuZero: planejamento sem modelo explícito do ambiente</li>
+            <li>World Models: aprender representação comprimida do ambiente</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-coral">
+        <div class="week-head">Mês 7–8 — Multi-agent RL</div>
+        <div class="week-body">
+          <ul>
+            <li>Desafios: non-stationarity, credit assignment, comunicação</li>
+            <li>MARL cooperativo: QMIX, MADDPG</li>
+            <li>Self-play: agentes melhorando ao jogar contra si mesmos</li>
+            <li>PettingZoo: ambiente para MARL</li>
+            <li>Projeto: agentes cooperando ou competindo em ambiente simulado</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 3 — Aplicações avançadas (Meses 9–14)</h2>
+    <div class="week-grid">
+      <div class="week-card week-coral">
+        <div class="week-head">Mês 9–10 — RLHF e alinhamento de LLMs</div>
+        <div class="week-body">
+          <ul>
+            <li>RLHF (Reinforcement Learning from Human Feedback): como funciona o alinhamento</li>
+            <li>Reward model: treinar a partir de preferências humanas</li>
+            <li>PPO para fine-tuning de LLM: implementação prática</li>
+            <li>DPO (Direct Preference Optimization): alternativa mais simples ao RLHF</li>
+            <li>RLAIF: usar IA como substituto ao feedback humano</li>
+            <li>Projeto: fine-tuning de LLM pequeno com DPO usando dataset de preferências</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-coral">
+        <div class="week-head">Mês 11–12 — RL para robótica avançada</div>
+        <div class="week-body">
+          <ul>
+            <li>Isaac Gym / Isaac Lab: treinamento massivamente paralelo em GPU</li>
+            <li>Curriculum learning: aumentar dificuldade progressivamente</li>
+            <li>Sim-to-real: domain randomization, domain adaptation</li>
+            <li>Reward shaping: como desenhar funções de recompensa eficazes</li>
+            <li>Projeto: robô aprendendo tarefa de manipulação complexa</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-coral">
+        <div class="week-head">Mês 13–14 — Pesquisa e contribuição</div>
+        <div class="week-body">
+          <ul>
+            <li>Ler e reproduzir 1 paper de RL por mês (Papers with Code)</li>
+            <li>Implementar variação ou melhoria de algoritmo existente</li>
+            <li>Contribuir para Stable-Baselines3 ou CleanRL (open-source)</li>
+            <li>Escrever post técnico explicando o paper reproduzido</li>
+            <li>Submeter para workshop em conferência (NeurIPS, ICML, ICLR)</li>
+          </ul>
+          <div class="alert alert-teal" style="margin-top:8px;font-size:12px">1 paper publicado ou apresentado, mesmo em workshop, transforma seu currículo completamente para vagas de pesquisa.</div>
+        </div>
+      </div>
+    </div>
+    <div class="alert alert-teal">Marco da trilha: implementar PPO do zero + projeto RLHF funcionando + 1 reprodução de paper publicada no GitHub com explicação. Isso te coloca entre os top 5% de candidatos em RL no Brasil.</div>
+  </div>
+
+  <div class="card">
+    <h2>Recursos essenciais desta trilha</h2>
+    <table>
+      <tr><th>Recurso</th><th>Custo</th><th>Uso</th></tr>
+      <tr><td>Sutton &amp; Barto — "RL: An Introduction" (2ª ed.)</td><td>Gratuito (PDF oficial)</td><td>A bíblia do RL. Ler do cap 1 ao 13 como base.</td></tr>
+      <tr><td>CS285 Berkeley (YouTube)</td><td>Gratuito</td><td>Melhor curso de Deep RL do mundo — Sergey Levine</td></tr>
+      <tr><td>David Silver RL Course (YouTube)</td><td>Gratuito</td><td>Fundamentos clássicos — o criador do AlphaGo ensinando</td></tr>
+      <tr><td>Stable-Baselines3</td><td>Gratuito</td><td>Implementações prontas de PPO, SAC, TD3 em PyTorch</td></tr>
+      <tr><td>CleanRL</td><td>Gratuito</td><td>Implementações minimalistas e comentadas — ótimo para aprender</td></tr>
+      <tr><td>Gymnasium (OpenAI)</td><td>Gratuito</td><td>Ambientes padrão para testar algoritmos</td></tr>
+      <tr><td>Isaac Lab (NVIDIA)</td><td>Gratuito</td><td>RL em robótica com GPU massivamente paralela</td></tr>
+      <tr><td>TRL (HuggingFace)</td><td>Gratuito</td><td>RLHF e DPO para LLMs com PyTorch</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ===== TREINAMENTO DE MODELOS ===== -->
+<div id="treinamento" class="section">
+  <div class="phase-header phase-green">
+    <div class="phase-title">🔬 Trilha — Treinamento de Modelos de IA</div>
+    <div class="phase-sub">Do zero ao ML engineer capaz de treinar, ajustar e escalar modelos de grande porte · ~18 meses · A espinha dorsal de qualquer sistema de IA sério</div>
+  </div>
+
+  <div class="alert alert-teal">Esta trilha é sobre dominar o processo completo de criar modelos: desde coleta de dados até deploy em produção, passando por arquitetura, treinamento eficiente, avaliação rigorosa e otimização. É o que as big techs mais buscam.</div>
+
+  <div class="card">
+    <h2>Onde essa especialização tem mais impacto</h2>
+    <div class="two-col">
+      <div>
+        <h3>Papéis profissionais que dependem desta trilha</h3>
+        <ul>
+          <li><strong>ML Engineer:</strong> constrói e mantém pipelines de treinamento em produção</li>
+          <li><strong>Research Engineer:</strong> implementa papers de pesquisa em código eficiente</li>
+          <li><strong>Foundation Model Engineer:</strong> treina LLMs/VLMs de grande escala</li>
+          <li><strong>MLOps Engineer:</strong> garante que modelos funcionem em produção com qualidade</li>
+          <li><strong>AI Engineer:</strong> adapta modelos existentes para problemas específicos</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Habilidades que definem o especialista</h3>
+        <ul>
+          <li>Entende por que o treinamento falha e como corrigir</li>
+          <li>Otimiza uso de GPU/TPU para máxima eficiência</li>
+          <li>Escala treinamento de 1 GPU para centenas</li>
+          <li>Avalia modelos corretamente — além de accuracy</li>
+          <li>Detecta e corrige problemas em dados antes de treinar</li>
+          <li>Documenta experimentos de forma reproduzível</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 1 — Dominar o loop de treinamento (Meses 1–3)</h2>
+    <div class="week-grid">
+      <div class="week-card week-green">
+        <div class="week-head">Mês 1 — PyTorch profundo</div>
+        <div class="week-body">
+          <ul>
+            <li>Autograd: como gradientes fluem pelo grafo computacional</li>
+            <li>custom Dataset, DataLoader, collate_fn</li>
+            <li>Training loop do zero: forward, loss, backward, optimizer step</li>
+            <li>Checkpointing: salvar e restaurar estado completo do treinamento</li>
+            <li>Profiling: torch.profiler para identificar gargalos</li>
+            <li>Projeto: treinar classificador completo com checkpointing e métricas</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-green">
+        <div class="week-head">Mês 2 — Dados: a parte mais importante</div>
+        <div class="week-body">
+          <ul>
+            <li>Data quality: detectar e remover dados ruins (ruído, duplicatas, leakage)</li>
+            <li>Data imbalance: oversampling, undersampling, class weights, focal loss</li>
+            <li>Data augmentation avançada: Mixup, CutMix, AugMix</li>
+            <li>Datasets eficientes: WebDataset, Arrow/Parquet para dados grandes</li>
+            <li>Label quality: Cleanlab para detecção de erros de anotação</li>
+          </ul>
+          <div class="alert alert-amber" style="margin-top:8px;font-size:12px">80% dos problemas de modelos ruins são problemas de dados ruins. Esta semana é mais valiosa do que parece.</div>
+        </div>
+      </div>
+      <div class="week-card week-green">
+        <div class="week-head">Mês 3 — Otimizadores e learning rate</div>
+        <div class="week-body">
+          <ul>
+            <li>SGD vs Adam vs AdamW — quando usar cada um e por quê</li>
+            <li>Learning rate schedules: cosine annealing, warmup, cyclic LR</li>
+            <li>Gradient clipping: estabilizar treinamento de LLMs</li>
+            <li>Weight decay e regularização L2: relação com AdamW</li>
+            <li>Hyperparameter tuning: Optuna para busca eficiente</li>
+            <li>Projeto: ablation study sistemático comparando otimizadores e LR schedules</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 2 — Treinamento eficiente em GPU (Meses 4–7)</h2>
+    <div class="week-grid">
+      <div class="week-card week-green">
+        <div class="week-head">Mês 4 — Precisão mista e memória</div>
+        <div class="week-body">
+          <ul>
+            <li>FP16 / BF16: treinar em meia precisão sem perder qualidade</li>
+            <li>torch.cuda.amp: automatic mixed precision</li>
+            <li>Gradient accumulation: simular batch grande com GPU pequena</li>
+            <li>Ativação de checkpointing: trocar memória por recomputação</li>
+            <li>Flash Attention: atenção eficiente em memória para Transformers</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-green">
+        <div class="week-head">Mês 5 — Fine-tuning eficiente de LLMs</div>
+        <div class="week-body">
+          <ul>
+            <li>LoRA: adapters de baixo ranque — fine-tuning sem reescrever pesos</li>
+            <li>QLoRA: LoRA com quantização 4-bit para rodar em GPUs modestas</li>
+            <li>Unsloth: aceleração de fine-tuning de LLMs (2-5x mais rápido)</li>
+            <li>Instruction tuning: formato de dados para fine-tuning em instruções</li>
+            <li>Projeto: fine-tuning de Llama 3 / Gemma para tarefa específica com QLoRA</li>
+          </ul>
+          <div class="alert alert-teal" style="margin-top:8px;font-size:12px">Com QLoRA, é possível fazer fine-tuning de modelos 7B-13B em uma GPU de 16GB. Isso mudou o jogo em 2023.</div>
+        </div>
+      </div>
+      <div class="week-card week-green">
+        <div class="week-head">Mês 6 — Treinamento distribuído</div>
+        <div class="week-body">
+          <ul>
+            <li>Data parallelism: DDP (DistributedDataParallel) em múltiplas GPUs</li>
+            <li>Model parallelism: dividir modelo entre GPUs (tensor e pipeline parallel)</li>
+            <li>DeepSpeed: ZeRO stages 1/2/3 para modelos que não cabem em 1 GPU</li>
+            <li>Accelerate (HuggingFace): abstração para multi-GPU e multi-node</li>
+            <li>Monitorar treinamento distribuído: wandb, MLflow</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-green">
+        <div class="week-head">Mês 7 — Avaliação rigorosa</div>
+        <div class="week-body">
+          <ul>
+            <li>Além de accuracy: calibração, fairness, robustez, distribuição de erro</li>
+            <li>Benchmarks para LLMs: MMLU, HumanEval, GSM8K, MT-Bench</li>
+            <li>Evaluation harness (EleutherAI): avaliar LLMs de forma padronizada</li>
+            <li>Análise de erros: onde o modelo falha sistematicamente</li>
+            <li>Sliced evaluation: performance por subgrupo (classe, idioma, domínio)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 3 — Modelos grandes e produção (Meses 8–13)</h2>
+    <div class="week-grid">
+      <div class="week-card week-green">
+        <div class="week-head">Mês 8–9 — Pré-treinamento do zero</div>
+        <div class="week-body">
+          <ul>
+            <li>Preparação de dados de pré-treinamento: deduplicação, filtragem, mixing</li>
+            <li>Tokenização: BPE, WordPiece, SentencePiece — treinar tokenizer próprio</li>
+            <li>nanoGPT (Karpathy): implementar GPT do zero, escalar progressivamente</li>
+            <li>Scaling laws: como prever performance antes de treinar</li>
+            <li>Infraestrutura: SLURM, Kubernetes para jobs de treinamento em cluster</li>
+          </ul>
+          <div class="alert alert-teal" style="margin-top:8px;font-size:12px">Recurso: "nanoGPT" do Andrej Karpathy no YouTube — implementar isso muda como você enxerga LLMs para sempre</div>
+        </div>
+      </div>
+      <div class="week-card week-green">
+        <div class="week-head">Mês 10 — Otimização para inferência</div>
+        <div class="week-body">
+          <ul>
+            <li>Quantização: GPTQ, AWQ, GGUF — modelos menores sem perder qualidade</li>
+            <li>Pruning: remover parâmetros desnecessários</li>
+            <li>Knowledge distillation: treinar modelo menor para imitar modelo maior</li>
+            <li>Speculative decoding: acelerar inferência de LLMs</li>
+            <li>vLLM: serving de LLMs com throughput máximo em produção</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-green">
+        <div class="week-head">Mês 11–12 — MLOps para modelos de grande porte</div>
+        <div class="week-body">
+          <ul>
+            <li>Experiment tracking: W&amp;B com sweeps para buscas de hiperparâmetros</li>
+            <li>Model registry: versionar, documentar e promover modelos</li>
+            <li>CI/CD para ML: testar modelos automaticamente antes de promover</li>
+            <li>Monitoramento em produção: drift, performance, latência, custo</li>
+            <li>A/B testing: como testar novos modelos com tráfego real</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-green">
+        <div class="week-head">Mês 13 — Projeto integrador final</div>
+        <div class="week-body">
+          <ul>
+            <li>Treinar modelo completo do zero ou fazer fine-tuning avançado</li>
+            <li>Pipeline: dados → treinamento → avaliação → otimização → deploy → monitoramento</li>
+            <li>Documentação de experimentos reproduzíveis (modelo card)</li>
+            <li>Publicar modelo no HuggingFace Hub</li>
+            <li>Post técnico detalhado descrevendo todo o processo e aprendizados</li>
+          </ul>
+          <div class="alert alert-teal" style="margin-top:8px;font-size:12px">Ter um modelo no HuggingFace Hub com downloads e README completo é um dos portfólios mais fortes que você pode ter.</div>
+        </div>
+      </div>
+    </div>
+    <div class="alert alert-teal">Marco da trilha: modelo publicado no HuggingFace Hub com card completo. Pipeline de treinamento reproduzível no GitHub. Experimentos documentados no W&amp;B (link público). Isso te diferencia da esmagadora maioria dos candidatos.</div>
+  </div>
+
+  <div class="card">
+    <h2>Recursos essenciais desta trilha</h2>
+    <table>
+      <tr><th>Recurso</th><th>Custo</th><th>Uso</th></tr>
+      <tr><td>nanoGPT — Andrej Karpathy (YouTube + GitHub)</td><td>Gratuito</td><td>Construir GPT do zero. Assistir ANTES de qualquer outro recurso.</td></tr>
+      <tr><td>HuggingFace Transformers + TRL</td><td>Gratuito</td><td>Fine-tuning, RLHF, DPO — framework padrão da indústria</td></tr>
+      <tr><td>Unsloth</td><td>Gratuito</td><td>Fine-tuning de LLMs 2-5x mais rápido com menos VRAM</td></tr>
+      <tr><td>DeepSpeed docs (Microsoft)</td><td>Gratuito</td><td>Treinamento distribuído e ZeRO optimization</td></tr>
+      <tr><td>vLLM docs</td><td>Gratuito</td><td>Serving de LLMs em produção com máximo throughput</td></tr>
+      <tr><td>Weights &amp; Biases</td><td>Gratuito (pessoal)</td><td>Tracking de experimentos. Obrigatório em qualquer projeto sério.</td></tr>
+      <tr><td>EleutherAI LM Evaluation Harness</td><td>Gratuito</td><td>Avaliar LLMs em benchmarks padronizados</td></tr>
+      <tr><td>"Designing ML Systems" (Chip Huyen)</td><td>~USD 35</td><td>Visão completa de ML em produção — leitura obrigatória</td></tr>
+      <tr><td>Google Colab Pro / Kaggle Notebooks</td><td>Grátis / USD 10/mês</td><td>GPUs para treinar sem ter hardware próprio</td></tr>
+    </table>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+function show(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>
