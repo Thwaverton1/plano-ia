@@ -1,0 +1,199 @@
+<div id="visao-comp" class="section">
+  <div class="phase-header phase-purple">
+    <div class="phase-title">👁 Trilha — Visão Computacional</div>
+    <div class="phase-sub">Do zero ao especialista em Computer Vision · ~18 meses para domínio profissional · Altamente demandado em agro, saúde, indústria e autonomous systems</div>
+  </div>
+
+  <div class="alert alert-teal">Visão Computacional é a área de IA mais aplicada no mundo físico. Câmeras são os olhos das máquinas — quem sabe treiná-las tem emprego garantido em qualquer setor industrial.</div>
+
+  <div class="card">
+    <h2>Por que e onde essa trilha tem mercado</h2>
+    <div class="two-col">
+      <div>
+        <h3>Setores que mais contratam</h3>
+        <ul>
+          <li><strong>Agronegócio:</strong> detecção de pragas, maturação de frutas, monitoramento de lavoura por drone</li>
+          <li><strong>Saúde:</strong> diagnóstico por imagem (radiologia, patologia, dermatologia)</li>
+          <li><strong>Indústria 4.0:</strong> inspeção de qualidade, detecção de defeitos em linha de produção</li>
+          <li><strong>Veículos autônomos:</strong> detecção de pedestres, faixas, sinais</li>
+          <li><strong>Segurança:</strong> reconhecimento facial, câmeras inteligentes</li>
+          <li><strong>Varejo:</strong> checkout sem caixa (Amazon Go), análise de prateleiras</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Salários (mercado internacional)</h3>
+        <ul>
+          <li><strong>Junior CV Engineer:</strong> USD 3k–5k/mês remoto</li>
+          <li><strong>Mid-level:</strong> USD 6k–10k/mês</li>
+          <li><strong>Senior / Research:</strong> USD 12k–20k+/mês</li>
+          <li><strong>Brasil (CLT sênior):</strong> R$ 15k–28k/mês</li>
+        </ul>
+        <div class="alert alert-amber" style="margin-top:8px;font-size:12px">Nicho mais rentável: CV + domínio específico (ex: medical imaging ou precision agriculture)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 1 — Fundação (Meses 1–3)</h2>
+    <div class="week-grid">
+      <div class="week-card week-purple">
+        <div class="week-head">Mês 1 — Imagens como dados</div>
+        <div class="week-body">
+          <ul>
+            <li>Representação de imagens: pixels, canais RGB, tensores</li>
+            <li>OpenCV: leitura, redimensionamento, crop, filtros, histogramas</li>
+            <li>Transformações: rotação, flip, normalização, conversão de cor</li>
+            <li>NumPy para manipulação de arrays de imagem</li>
+            <li>Projeto: pipeline de pré-processamento de imagens com OpenCV</li>
+          </ul>
+          <div class="alert alert-teal" style="margin-top:8px;font-size:12px">Recurso: OpenCV official docs + "Programming Computer Vision with Python" (Jan Erik Solem) — gratuito online</div>
+        </div>
+      </div>
+      <div class="week-card week-purple">
+        <div class="week-head">Mês 2 — CNNs do zero</div>
+        <div class="week-body">
+          <ul>
+            <li>Convolução: o que é, por que funciona, visualizando filtros</li>
+            <li>Pooling, padding, stride — efeito em feature maps</li>
+            <li>Implementar CNN do zero em PyTorch (sem torchvision)</li>
+            <li>Treinar classificador no MNIST e CIFAR-10</li>
+            <li>Visualizar feature maps e ativações das camadas</li>
+          </ul>
+          <div class="alert alert-teal" style="margin-top:8px;font-size:12px">Recurso: CS231n Stanford (YouTube, gratuito) — o melhor curso de CV do mundo</div>
+        </div>
+      </div>
+      <div class="week-card week-purple">
+        <div class="week-head">Mês 3 — Transfer Learning</div>
+        <div class="week-body">
+          <ul>
+            <li>Arquiteturas clássicas: VGG, ResNet, EfficientNet, MobileNet</li>
+            <li>Quando congelar camadas vs fine-tuning completo</li>
+            <li>torchvision: modelos pré-treinados no ImageNet</li>
+            <li>Data augmentation: albumentations (biblioteca essencial)</li>
+            <li>Projeto: classificador de imagem no seu domínio de interesse (agro, saúde ou industrial)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 2 — Detecção e Segmentação (Meses 4–7)</h2>
+    <div class="week-grid">
+      <div class="week-card week-purple">
+        <div class="week-head">Mês 4 — Object Detection</div>
+        <div class="week-body">
+          <ul>
+            <li>Conceitos: bounding boxes, IoU, Anchor boxes, NMS</li>
+            <li>Métricas: mAP (mean Average Precision), precision-recall por classe</li>
+            <li>YOLO (v8 / v11): treinamento, avaliação, exportação ONNX</li>
+            <li>Anotação de dados: Roboflow (gratuito para projetos pequenos)</li>
+            <li>Projeto: detector de objetos em domínio real com YOLO</li>
+          </ul>
+          <div class="alert alert-teal" style="margin-top:8px;font-size:12px">Recurso: Ultralytics docs (YOLO) + curso Roboflow YouTube</div>
+        </div>
+      </div>
+      <div class="week-card week-purple">
+        <div class="week-head">Mês 5 — Segmentação</div>
+        <div class="week-body">
+          <ul>
+            <li>Segmentação semântica vs instância vs panóptica</li>
+            <li>Arquiteturas: U-Net (médica), Mask R-CNN, SAM (Segment Anything)</li>
+            <li>Datasets: COCO, Pascal VOC, ADE20K</li>
+            <li>Projeto: segmentação de área foliar ou detecção de lesões</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-purple">
+        <div class="week-head">Mês 6 — Tracking e Vídeo</div>
+        <div class="week-body">
+          <ul>
+            <li>Multi-object tracking: DeepSORT, ByteTrack</li>
+            <li>Optical Flow: Lucas-Kanade, Farnebäck (OpenCV)</li>
+            <li>Processamento de vídeo com PyTorch + OpenCV</li>
+            <li>Projeto: sistema de tracking de objetos em vídeo ao vivo</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-purple">
+        <div class="week-head">Mês 7 — 3D Vision</div>
+        <div class="week-body">
+          <ul>
+            <li>Depth estimation: modelos monoculares (MiDaS, DepthAnything)</li>
+            <li>Point clouds: Open3D, PointNet</li>
+            <li>Câmeras stereo e LIDAR — conceitos e integração</li>
+            <li>Projeto: estimativa de profundidade com câmera comum</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 3 — Modelos Avançados e Produção (Meses 8–12)</h2>
+    <div class="week-grid">
+      <div class="week-card week-purple">
+        <div class="week-head">Mês 8 — Vision Transformers (ViT)</div>
+        <div class="week-body">
+          <ul>
+            <li>Como ViT divide imagem em patches e aplica atenção</li>
+            <li>DINO, DINOv2: self-supervised learning para visão</li>
+            <li>CLIP: alinhamento imagem-texto (base de modelos multimodais)</li>
+            <li>Quando usar ViT vs CNN — trade-offs práticos</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-purple">
+        <div class="week-head">Mês 9 — Multimodal e Generativo</div>
+        <div class="week-body">
+          <ul>
+            <li>LLaVA, GPT-4V: modelos vision-language</li>
+            <li>Grounding DINO: detecção guiada por texto</li>
+            <li>Stable Diffusion: geração e edição de imagens</li>
+            <li>ControlNet: geração controlada por esqueleto/mapa</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-purple">
+        <div class="week-head">Mês 10-11 — Deploy e Otimização</div>
+        <div class="week-body">
+          <ul>
+            <li>ONNX: exportação e inferência multiplataforma</li>
+            <li>TensorRT: aceleração em GPU NVIDIA</li>
+            <li>Quantização: INT8, FP16 — reduzir modelo sem perder acurácia</li>
+            <li>Edge deploy: NCNN, OpenVINO para dispositivos embarcados</li>
+            <li>FastAPI + Docker para servir modelo com endpoint REST</li>
+          </ul>
+          <div class="alert alert-amber" style="margin-top:8px;font-size:12px">Saber otimizar para edge é raro e muito bem pago — diferencial forte para drone e robótica</div>
+        </div>
+      </div>
+      <div class="week-card week-purple">
+        <div class="week-head">Mês 12 — Projeto Integrador</div>
+        <div class="week-body">
+          <ul>
+            <li>Sistema end-to-end: câmera → detecção → tracking → alerta → dashboard</li>
+            <li>Escolha do domínio: agrícola, industrial ou médico</li>
+            <li>Deploy com monitoramento de drift de distribuição de imagens</li>
+            <li>Publicar no GitHub com README profissional + demo em vídeo</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="alert alert-teal">Marco da trilha: sistema deployado com demo pública, top 25% em competição Kaggle de CV, domínio de nicho definido.</div>
+  </div>
+
+  <div class="card">
+    <h2>Recursos essenciais desta trilha</h2>
+    <table>
+      <tr><th>Recurso</th><th>Custo</th><th>Uso</th></tr>
+      <tr><td>CS231n Stanford (YouTube)</td><td>Gratuito</td><td>Melhor curso de fundamentos de CV do mundo</td></tr>
+      <tr><td>fast.ai — Part 2 (Vision)</td><td>Gratuito</td><td>Abordagem prática e moderna</td></tr>
+      <tr><td>Ultralytics (docs YOLO)</td><td>Gratuito</td><td>Referência para object detection</td></tr>
+      <tr><td>Papers with Code — CV</td><td>Gratuito</td><td>Estado da arte atualizado com código</td></tr>
+      <tr><td>Roboflow</td><td>Gratuito (básico)</td><td>Anotação de datasets e datasets prontos</td></tr>
+      <tr><td>Albumentations docs</td><td>Gratuito</td><td>Data augmentation profissional</td></tr>
+      <tr><td>Kaggle — competições CV</td><td>Gratuito</td><td>A partir do mês 4. Participar de pelo menos 2 por ano.</td></tr>
+    </table>
+  </div>
+</div>
+

@@ -1,0 +1,208 @@
+<div id="treinamento" class="section">
+  <div class="phase-header phase-green">
+    <div class="phase-title">🔬 Trilha — Treinamento de Modelos de IA</div>
+    <div class="phase-sub">Do zero ao ML engineer capaz de treinar, ajustar e escalar modelos de grande porte · ~18 meses · A espinha dorsal de qualquer sistema de IA sério</div>
+  </div>
+
+  <div class="alert alert-teal">Esta trilha é sobre dominar o processo completo de criar modelos: desde coleta de dados até deploy em produção, passando por arquitetura, treinamento eficiente, avaliação rigorosa e otimização. É o que as big techs mais buscam.</div>
+
+  <div class="card">
+    <h2>Onde essa especialização tem mais impacto</h2>
+    <div class="two-col">
+      <div>
+        <h3>Papéis profissionais que dependem desta trilha</h3>
+        <ul>
+          <li><strong>ML Engineer:</strong> constrói e mantém pipelines de treinamento em produção</li>
+          <li><strong>Research Engineer:</strong> implementa papers de pesquisa em código eficiente</li>
+          <li><strong>Foundation Model Engineer:</strong> treina LLMs/VLMs de grande escala</li>
+          <li><strong>MLOps Engineer:</strong> garante que modelos funcionem em produção com qualidade</li>
+          <li><strong>AI Engineer:</strong> adapta modelos existentes para problemas específicos</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Habilidades que definem o especialista</h3>
+        <ul>
+          <li>Entende por que o treinamento falha e como corrigir</li>
+          <li>Otimiza uso de GPU/TPU para máxima eficiência</li>
+          <li>Escala treinamento de 1 GPU para centenas</li>
+          <li>Avalia modelos corretamente — além de accuracy</li>
+          <li>Detecta e corrige problemas em dados antes de treinar</li>
+          <li>Documenta experimentos de forma reproduzível</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 1 — Dominar o loop de treinamento (Meses 1–3)</h2>
+    <div class="week-grid">
+      <div class="week-card week-green">
+        <div class="week-head">Mês 1 — PyTorch profundo</div>
+        <div class="week-body">
+          <ul>
+            <li>Autograd: como gradientes fluem pelo grafo computacional</li>
+            <li>custom Dataset, DataLoader, collate_fn</li>
+            <li>Training loop do zero: forward, loss, backward, optimizer step</li>
+            <li>Checkpointing: salvar e restaurar estado completo do treinamento</li>
+            <li>Profiling: torch.profiler para identificar gargalos</li>
+            <li>Projeto: treinar classificador completo com checkpointing e métricas</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-green">
+        <div class="week-head">Mês 2 — Dados: a parte mais importante</div>
+        <div class="week-body">
+          <ul>
+            <li>Data quality: detectar e remover dados ruins (ruído, duplicatas, leakage)</li>
+            <li>Data imbalance: oversampling, undersampling, class weights, focal loss</li>
+            <li>Data augmentation avançada: Mixup, CutMix, AugMix</li>
+            <li>Datasets eficientes: WebDataset, Arrow/Parquet para dados grandes</li>
+            <li>Label quality: Cleanlab para detecção de erros de anotação</li>
+          </ul>
+          <div class="alert alert-amber" style="margin-top:8px;font-size:12px">80% dos problemas de modelos ruins são problemas de dados ruins. Esta semana é mais valiosa do que parece.</div>
+        </div>
+      </div>
+      <div class="week-card week-green">
+        <div class="week-head">Mês 3 — Otimizadores e learning rate</div>
+        <div class="week-body">
+          <ul>
+            <li>SGD vs Adam vs AdamW — quando usar cada um e por quê</li>
+            <li>Learning rate schedules: cosine annealing, warmup, cyclic LR</li>
+            <li>Gradient clipping: estabilizar treinamento de LLMs</li>
+            <li>Weight decay e regularização L2: relação com AdamW</li>
+            <li>Hyperparameter tuning: Optuna para busca eficiente</li>
+            <li>Projeto: ablation study sistemático comparando otimizadores e LR schedules</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 2 — Treinamento eficiente em GPU (Meses 4–7)</h2>
+    <div class="week-grid">
+      <div class="week-card week-green">
+        <div class="week-head">Mês 4 — Precisão mista e memória</div>
+        <div class="week-body">
+          <ul>
+            <li>FP16 / BF16: treinar em meia precisão sem perder qualidade</li>
+            <li>torch.cuda.amp: automatic mixed precision</li>
+            <li>Gradient accumulation: simular batch grande com GPU pequena</li>
+            <li>Ativação de checkpointing: trocar memória por recomputação</li>
+            <li>Flash Attention: atenção eficiente em memória para Transformers</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-green">
+        <div class="week-head">Mês 5 — Fine-tuning eficiente de LLMs</div>
+        <div class="week-body">
+          <ul>
+            <li>LoRA: adapters de baixo ranque — fine-tuning sem reescrever pesos</li>
+            <li>QLoRA: LoRA com quantização 4-bit para rodar em GPUs modestas</li>
+            <li>Unsloth: aceleração de fine-tuning de LLMs (2-5x mais rápido)</li>
+            <li>Instruction tuning: formato de dados para fine-tuning em instruções</li>
+            <li>Projeto: fine-tuning de Llama 3 / Gemma para tarefa específica com QLoRA</li>
+          </ul>
+          <div class="alert alert-teal" style="margin-top:8px;font-size:12px">Com QLoRA, é possível fazer fine-tuning de modelos 7B-13B em uma GPU de 16GB. Isso mudou o jogo em 2023.</div>
+        </div>
+      </div>
+      <div class="week-card week-green">
+        <div class="week-head">Mês 6 — Treinamento distribuído</div>
+        <div class="week-body">
+          <ul>
+            <li>Data parallelism: DDP (DistributedDataParallel) em múltiplas GPUs</li>
+            <li>Model parallelism: dividir modelo entre GPUs (tensor e pipeline parallel)</li>
+            <li>DeepSpeed: ZeRO stages 1/2/3 para modelos que não cabem em 1 GPU</li>
+            <li>Accelerate (HuggingFace): abstração para multi-GPU e multi-node</li>
+            <li>Monitorar treinamento distribuído: wandb, MLflow</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-green">
+        <div class="week-head">Mês 7 — Avaliação rigorosa</div>
+        <div class="week-body">
+          <ul>
+            <li>Além de accuracy: calibração, fairness, robustez, distribuição de erro</li>
+            <li>Benchmarks para LLMs: MMLU, HumanEval, GSM8K, MT-Bench</li>
+            <li>Evaluation harness (EleutherAI): avaliar LLMs de forma padronizada</li>
+            <li>Análise de erros: onde o modelo falha sistematicamente</li>
+            <li>Sliced evaluation: performance por subgrupo (classe, idioma, domínio)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 3 — Modelos grandes e produção (Meses 8–13)</h2>
+    <div class="week-grid">
+      <div class="week-card week-green">
+        <div class="week-head">Mês 8–9 — Pré-treinamento do zero</div>
+        <div class="week-body">
+          <ul>
+            <li>Preparação de dados de pré-treinamento: deduplicação, filtragem, mixing</li>
+            <li>Tokenização: BPE, WordPiece, SentencePiece — treinar tokenizer próprio</li>
+            <li>nanoGPT (Karpathy): implementar GPT do zero, escalar progressivamente</li>
+            <li>Scaling laws: como prever performance antes de treinar</li>
+            <li>Infraestrutura: SLURM, Kubernetes para jobs de treinamento em cluster</li>
+          </ul>
+          <div class="alert alert-teal" style="margin-top:8px;font-size:12px">Recurso: "nanoGPT" do Andrej Karpathy no YouTube — implementar isso muda como você enxerga LLMs para sempre</div>
+        </div>
+      </div>
+      <div class="week-card week-green">
+        <div class="week-head">Mês 10 — Otimização para inferência</div>
+        <div class="week-body">
+          <ul>
+            <li>Quantização: GPTQ, AWQ, GGUF — modelos menores sem perder qualidade</li>
+            <li>Pruning: remover parâmetros desnecessários</li>
+            <li>Knowledge distillation: treinar modelo menor para imitar modelo maior</li>
+            <li>Speculative decoding: acelerar inferência de LLMs</li>
+            <li>vLLM: serving de LLMs com throughput máximo em produção</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-green">
+        <div class="week-head">Mês 11–12 — MLOps para modelos de grande porte</div>
+        <div class="week-body">
+          <ul>
+            <li>Experiment tracking: W&amp;B com sweeps para buscas de hiperparâmetros</li>
+            <li>Model registry: versionar, documentar e promover modelos</li>
+            <li>CI/CD para ML: testar modelos automaticamente antes de promover</li>
+            <li>Monitoramento em produção: drift, performance, latência, custo</li>
+            <li>A/B testing: como testar novos modelos com tráfego real</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-green">
+        <div class="week-head">Mês 13 — Projeto integrador final</div>
+        <div class="week-body">
+          <ul>
+            <li>Treinar modelo completo do zero ou fazer fine-tuning avançado</li>
+            <li>Pipeline: dados → treinamento → avaliação → otimização → deploy → monitoramento</li>
+            <li>Documentação de experimentos reproduzíveis (modelo card)</li>
+            <li>Publicar modelo no HuggingFace Hub</li>
+            <li>Post técnico detalhado descrevendo todo o processo e aprendizados</li>
+          </ul>
+          <div class="alert alert-teal" style="margin-top:8px;font-size:12px">Ter um modelo no HuggingFace Hub com downloads e README completo é um dos portfólios mais fortes que você pode ter.</div>
+        </div>
+      </div>
+    </div>
+    <div class="alert alert-teal">Marco da trilha: modelo publicado no HuggingFace Hub com card completo. Pipeline de treinamento reproduzível no GitHub. Experimentos documentados no W&amp;B (link público). Isso te diferencia da esmagadora maioria dos candidatos.</div>
+  </div>
+
+  <div class="card">
+    <h2>Recursos essenciais desta trilha</h2>
+    <table>
+      <tr><th>Recurso</th><th>Custo</th><th>Uso</th></tr>
+      <tr><td>nanoGPT — Andrej Karpathy (YouTube + GitHub)</td><td>Gratuito</td><td>Construir GPT do zero. Assistir ANTES de qualquer outro recurso.</td></tr>
+      <tr><td>HuggingFace Transformers + TRL</td><td>Gratuito</td><td>Fine-tuning, RLHF, DPO — framework padrão da indústria</td></tr>
+      <tr><td>Unsloth</td><td>Gratuito</td><td>Fine-tuning de LLMs 2-5x mais rápido com menos VRAM</td></tr>
+      <tr><td>DeepSpeed docs (Microsoft)</td><td>Gratuito</td><td>Treinamento distribuído e ZeRO optimization</td></tr>
+      <tr><td>vLLM docs</td><td>Gratuito</td><td>Serving de LLMs em produção com máximo throughput</td></tr>
+      <tr><td>Weights &amp; Biases</td><td>Gratuito (pessoal)</td><td>Tracking de experimentos. Obrigatório em qualquer projeto sério.</td></tr>
+      <tr><td>EleutherAI LM Evaluation Harness</td><td>Gratuito</td><td>Avaliar LLMs em benchmarks padronizados</td></tr>
+      <tr><td>"Designing ML Systems" (Chip Huyen)</td><td>~USD 35</td><td>Visão completa de ML em produção — leitura obrigatória</td></tr>
+      <tr><td>Google Colab Pro / Kaggle Notebooks</td><td>Grátis / USD 10/mês</td><td>GPUs para treinar sem ter hardware próprio</td></tr>
+    </table>
+  </div>
+</div>

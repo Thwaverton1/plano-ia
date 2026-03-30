@@ -1,0 +1,53 @@
+<div id="mapa" class="section">
+  <div class="mapa-hdr">
+    <div class="mapa-hdr-row">
+      <div>
+        <div class="mapa-ttl">🕸 Mapa Neural de Conhecimento</div>
+        <div class="mapa-sub">Rede expandida — arraste para navegar, use scroll para zoom e clique nos nós para explorar trilhas</div>
+      </div>
+      <div class="mapa-search">
+        <label class="mapa-search-label" for="mapa-search">Buscar Nó</label>
+        <div class="mapa-search-box">
+          <div class="mapa-search-row">
+            <input id="mapa-search" class="mapa-search-input" type="search" placeholder="Ex.: LangChain, ROS 2, Playwright, RPA" autocomplete="off" spellcheck="false">
+            <button id="mapa-search-clear" class="mapa-btn mapa-btn-search" type="button" aria-label="Limpar busca">Limpar</button>
+          </div>
+          <div id="mapa-search-suggest" class="mapa-search-suggest" hidden></div>
+        </div>
+        <div id="mapa-search-meta" class="mapa-search-meta">Digite para destacar nós. Enter centraliza o primeiro resultado.</div>
+        <div class="mapa-filter-wrap">
+          <div class="mapa-filter-label">Filtros</div>
+          <div id="mapa-filter-row" class="mapa-filter-row"></div>
+        </div>
+      </div>
+      <div class="mapa-tools">
+        <button id="mapa-zoom-out" class="mapa-btn" type="button">-</button>
+        <button id="mapa-zoom-in" class="mapa-btn" type="button">+</button>
+        <button id="mapa-reset" class="mapa-btn mapa-btn-wide" type="button">Recentrar</button>
+        <button id="mapa-fit" class="mapa-btn mapa-btn-wide" type="button">Ver Tudo</button>
+        <div class="mapa-meta">
+          <span id="mapa-stats">0 nós · 0 sinapses</span>
+          <span id="mapa-zoom-value">100%</span>
+        </div>
+      </div>
+      <div class="mapa-leg">
+        <span><i style="background:#1D9E75"></i>Fundação</span>
+        <span><i style="background:#58a6ff"></i>Ferramentas</span>
+        <span><i style="background:#d2a8ff"></i>IA &amp; ML</span>
+        <span><i style="background:#f78166"></i>Avançado</span>
+        <span><i style="background:#ffa657"></i>Carreira</span>
+      </div>
+    </div>
+  </div>
+  <div class="mapa-body">
+    <div class="mapa-cvs" id="mapa-cvs">
+      <svg id="neural-svg"></svg>
+    </div>
+    <div class="mapa-pnl" id="mapa-pnl">
+      <div class="mapa-pnl-empty">
+        <div style="font-size:38px">🧠</div>
+        <div style="font-size:12px;line-height:1.6">Clique em qualquer nó<br>para ver detalhes,<br>materiais e comandos</div>
+      </div>
+    </div>
+  </div>
+</div>

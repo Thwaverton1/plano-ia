@@ -1,0 +1,208 @@
+<div id="rl" class="section">
+  <div class="phase-header phase-coral">
+    <div class="phase-title">🧠 Trilha — Aprendizado por Reforço (RL)</div>
+    <div class="phase-sub">Do zero ao especialista em RL · ~20 meses · A área que treina os modelos mais avançados do mundo — de AlphaGo a GPT-4 (RLHF)</div>
+  </div>
+
+  <div class="alert alert-teal">RL é a área mais matematicamente exigente de toda a IA — e por isso tem os menores bolsões de especialistas e os maiores salários. É o que treina robôs, joga xadrez no nível de Deus e alinha LLMs com valores humanos (RLHF).</div>
+
+  <div class="card">
+    <h2>Onde RL tem aplicação e mercado real</h2>
+    <div class="two-col">
+      <div>
+        <h3>Aplicações concretas</h3>
+        <ul>
+          <li><strong>Treinamento de LLMs:</strong> RLHF, RLAIF, DPO — alinhamento de modelos como GPT, Claude</li>
+          <li><strong>Robótica:</strong> controle de movimento, manipulação, locomoção</li>
+          <li><strong>Jogos e simulação:</strong> AlphaGo, AlphaStar, OpenAI Five, Dota</li>
+          <li><strong>Sistemas de recomendação:</strong> otimizar engajamento de longo prazo</li>
+          <li><strong>Trading algorítmico:</strong> estratégias de portfólio adaptativas</li>
+          <li><strong>Gestão de energia:</strong> otimizar consumo em data centers (Google DeepMind)</li>
+          <li><strong>Saúde:</strong> dosagem de medicamentos, tratamento personalizado</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Por que é difícil e valioso</h3>
+        <ul>
+          <li>Exige matemática sólida: probabilidade, otimização, álgebra linear</li>
+          <li>Poucas pessoas no mundo dominam RL avançado — demanda supera oferta</li>
+          <li>Pesquisadores de RL em big tech: USD 300k–600k/ano</li>
+          <li>Engenheiros de RL (aplicado): USD 150k–250k/ano</li>
+          <li>No Brasil: R$ 25k–45k/mês para sênior</li>
+        </ul>
+        <div class="alert alert-coral" style="margin-top:8px;font-size:12px">Realidade: RL puro leva 18-24 meses de estudo sério para ficar empregável. Não é uma trilha para iniciantes absolutos — faça após ter ML e DL sólidos.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Pré-requisitos antes de começar esta trilha</h2>
+    <ul class="checklist">
+      <li><span class="check-box"></span>Cálculo: derivadas parciais, regra da cadeia (backpropagation exige isso)</li>
+      <li><span class="check-box"></span>Probabilidade: distribuições, valor esperado, variância, Bayes</li>
+      <li><span class="check-box"></span>Álgebra linear: matrizes, autovetores, decomposições</li>
+      <li><span class="check-box"></span>Python avançado + PyTorch: você precisa implementar redes neurais com conforto</li>
+      <li><span class="check-box"></span>ML clássico: regressão, classificação, overfitting — compreensão sólida</li>
+    </ul>
+    <div class="alert alert-amber">Se você ainda não tem esses pré-requisitos, complete primeiro 6 meses da Fase 1 do plano principal antes de mergulhar nesta trilha.</div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 1 — Fundação matemática e conceitual (Meses 1–3)</h2>
+    <div class="week-grid">
+      <div class="week-card week-coral">
+        <div class="week-head">Mês 1 — Fundamentos de RL</div>
+        <div class="week-body">
+          <ul>
+            <li>MDP (Markov Decision Process): estados, ações, recompensas, transições</li>
+            <li>Política (π), função valor (V), função Q — definições formais</li>
+            <li>Equação de Bellman: a equação mais importante do RL</li>
+            <li>Dynamic Programming: policy iteration, value iteration</li>
+            <li>Exploração vs exploitação: ε-greedy, UCB, Thompson Sampling</li>
+          </ul>
+          <div class="alert alert-teal" style="margin-top:8px;font-size:12px">Recurso central: "Reinforcement Learning: An Introduction" (Sutton &amp; Barto) — gratuito online, é a bíblia do RL</div>
+        </div>
+      </div>
+      <div class="week-card week-coral">
+        <div class="week-head">Mês 2 — RL clássico</div>
+        <div class="week-body">
+          <ul>
+            <li>Monte Carlo methods: estimativa de valor por episódios completos</li>
+            <li>Temporal Difference (TD): TD(0), TD(λ)</li>
+            <li>Q-Learning: algoritmo off-policy fundamental</li>
+            <li>SARSA: algoritmo on-policy</li>
+            <li>Implementar Q-Learning do zero em Python para um gridworld</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-coral">
+        <div class="week-head">Mês 3 — Deep RL — DQN</div>
+        <div class="week-body">
+          <ul>
+            <li>Deep Q-Network (DQN): combinar Q-learning com redes neurais</li>
+            <li>Experience replay: por que é necessário</li>
+            <li>Target network: estabilizar o treinamento</li>
+            <li>Double DQN, Dueling DQN, Prioritized Experience Replay</li>
+            <li>Projeto: DQN jogando Atari (CartPole, LunarLander) com PyTorch</li>
+          </ul>
+          <div class="alert alert-teal" style="margin-top:8px;font-size:12px">Recurso: CS285 Berkeley (YouTube, gratuito) — o melhor curso de Deep RL do mundo</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 2 — Algoritmos modernos (Meses 4–8)</h2>
+    <div class="week-grid">
+      <div class="week-card week-coral">
+        <div class="week-head">Mês 4 — Policy Gradient</div>
+        <div class="week-body">
+          <ul>
+            <li>Policy Gradient theorem: otimizar a política diretamente</li>
+            <li>REINFORCE: algoritmo fundamental de policy gradient</li>
+            <li>Actor-Critic: combinar policy gradient com estimativa de valor</li>
+            <li>A2C / A3C: versões paralelas e assíncronas</li>
+            <li>Projeto: A2C no ambiente MuJoCo ou PyBullet</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-coral">
+        <div class="week-head">Mês 5 — PPO e SAC</div>
+        <div class="week-body">
+          <ul>
+            <li>PPO (Proximal Policy Optimization): o algoritmo mais usado em produção hoje</li>
+            <li>Clipping de políticas: por que PPO é mais estável que TRPO</li>
+            <li>SAC (Soft Actor-Critic): máximo de entropia para espaços contínuos</li>
+            <li>TD3: Twin Delayed DDPG — state-of-the-art para controle contínuo</li>
+            <li>Projeto: robô simulado (MuJoCo HalfCheetah ou Ant) aprendendo a correr</li>
+          </ul>
+          <div class="alert alert-amber" style="margin-top:8px;font-size:12px">PPO é o algoritmo por trás do InstructGPT e do ChatGPT (RLHF). Dominar PPO é essencial.</div>
+        </div>
+      </div>
+      <div class="week-card week-coral">
+        <div class="week-head">Mês 6 — RL baseado em modelo</div>
+        <div class="week-body">
+          <ul>
+            <li>Model-based RL: aprender um modelo do ambiente e planejar</li>
+            <li>Dyna-Q: integração de planejamento e RL livre de modelo</li>
+            <li>MuZero: planejamento sem modelo explícito do ambiente</li>
+            <li>World Models: aprender representação comprimida do ambiente</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-coral">
+        <div class="week-head">Mês 7–8 — Multi-agent RL</div>
+        <div class="week-body">
+          <ul>
+            <li>Desafios: non-stationarity, credit assignment, comunicação</li>
+            <li>MARL cooperativo: QMIX, MADDPG</li>
+            <li>Self-play: agentes melhorando ao jogar contra si mesmos</li>
+            <li>PettingZoo: ambiente para MARL</li>
+            <li>Projeto: agentes cooperando ou competindo em ambiente simulado</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 3 — Aplicações avançadas (Meses 9–14)</h2>
+    <div class="week-grid">
+      <div class="week-card week-coral">
+        <div class="week-head">Mês 9–10 — RLHF e alinhamento de LLMs</div>
+        <div class="week-body">
+          <ul>
+            <li>RLHF (Reinforcement Learning from Human Feedback): como funciona o alinhamento</li>
+            <li>Reward model: treinar a partir de preferências humanas</li>
+            <li>PPO para fine-tuning de LLM: implementação prática</li>
+            <li>DPO (Direct Preference Optimization): alternativa mais simples ao RLHF</li>
+            <li>RLAIF: usar IA como substituto ao feedback humano</li>
+            <li>Projeto: fine-tuning de LLM pequeno com DPO usando dataset de preferências</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-coral">
+        <div class="week-head">Mês 11–12 — RL para robótica avançada</div>
+        <div class="week-body">
+          <ul>
+            <li>Isaac Gym / Isaac Lab: treinamento massivamente paralelo em GPU</li>
+            <li>Curriculum learning: aumentar dificuldade progressivamente</li>
+            <li>Sim-to-real: domain randomization, domain adaptation</li>
+            <li>Reward shaping: como desenhar funções de recompensa eficazes</li>
+            <li>Projeto: robô aprendendo tarefa de manipulação complexa</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-coral">
+        <div class="week-head">Mês 13–14 — Pesquisa e contribuição</div>
+        <div class="week-body">
+          <ul>
+            <li>Ler e reproduzir 1 paper de RL por mês (Papers with Code)</li>
+            <li>Implementar variação ou melhoria de algoritmo existente</li>
+            <li>Contribuir para Stable-Baselines3 ou CleanRL (open-source)</li>
+            <li>Escrever post técnico explicando o paper reproduzido</li>
+            <li>Submeter para workshop em conferência (NeurIPS, ICML, ICLR)</li>
+          </ul>
+          <div class="alert alert-teal" style="margin-top:8px;font-size:12px">1 paper publicado ou apresentado, mesmo em workshop, transforma seu currículo completamente para vagas de pesquisa.</div>
+        </div>
+      </div>
+    </div>
+    <div class="alert alert-teal">Marco da trilha: implementar PPO do zero + projeto RLHF funcionando + 1 reprodução de paper publicada no GitHub com explicação. Isso te coloca entre os top 5% de candidatos em RL no Brasil.</div>
+  </div>
+
+  <div class="card">
+    <h2>Recursos essenciais desta trilha</h2>
+    <table>
+      <tr><th>Recurso</th><th>Custo</th><th>Uso</th></tr>
+      <tr><td>Sutton &amp; Barto — "RL: An Introduction" (2ª ed.)</td><td>Gratuito (PDF oficial)</td><td>A bíblia do RL. Ler do cap 1 ao 13 como base.</td></tr>
+      <tr><td>CS285 Berkeley (YouTube)</td><td>Gratuito</td><td>Melhor curso de Deep RL do mundo — Sergey Levine</td></tr>
+      <tr><td>David Silver RL Course (YouTube)</td><td>Gratuito</td><td>Fundamentos clássicos — o criador do AlphaGo ensinando</td></tr>
+      <tr><td>Stable-Baselines3</td><td>Gratuito</td><td>Implementações prontas de PPO, SAC, TD3 em PyTorch</td></tr>
+      <tr><td>CleanRL</td><td>Gratuito</td><td>Implementações minimalistas e comentadas — ótimo para aprender</td></tr>
+      <tr><td>Gymnasium (OpenAI)</td><td>Gratuito</td><td>Ambientes padrão para testar algoritmos</td></tr>
+      <tr><td>Isaac Lab (NVIDIA)</td><td>Gratuito</td><td>RL em robótica com GPU massivamente paralela</td></tr>
+      <tr><td>TRL (HuggingFace)</td><td>Gratuito</td><td>RLHF e DPO para LLMs com PyTorch</td></tr>
+    </table>
+  </div>
+</div>
+

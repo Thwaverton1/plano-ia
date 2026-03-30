@@ -1,0 +1,206 @@
+<div id="automacao" class="section">
+  <div class="phase-header phase-amber2">
+    <div class="phase-title">⚙️ Trilha — Automação Inteligente com IA</div>
+    <div class="phase-sub">Do zero ao engenheiro de automação com IA · ~16 meses · RPA, agentes, processos industriais e sistemas de controle com inteligência</div>
+  </div>
+
+  <div class="alert alert-teal">Automação com IA é a área que mais cresce em todos os setores. Diferente do RPA tradicional (frágil), automação com IA usa visão, linguagem e raciocínio — e é muito mais robusta e valiosa.</div>
+
+  <div class="card">
+    <h2>Tipos de automação e onde cada um tem mercado</h2>
+    <div class="two-col">
+      <div>
+        <h3>Automação de processos (RPA + IA)</h3>
+        <ul>
+          <li>RPA clássico: UiPath, Automation Anywhere — automação de cliques e formulários</li>
+          <li>RPA inteligente: visão computacional + OCR + LLM para processos complexos</li>
+          <li>Extração de dados de documentos: NF-e, contratos, laudos</li>
+          <li>Automação de atendimento: chatbots com RAG integrado a sistemas</li>
+          <li><strong>Mercado:</strong> bancos, seguradoras, governo, varejo, logística</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Agentes de IA (nova fronteira)</h3>
+        <ul>
+          <li>Agentes autônomos: LLM + ferramentas + memória + planejamento</li>
+          <li>Multi-agent systems: agentes especializados colaborando</li>
+          <li>Computer use: agentes controlando desktop/browser como humano</li>
+          <li>Automação de workflows: Zapier, Make, n8n com IA</li>
+          <li><strong>Mercado:</strong> startups, consultorias, qualquer empresa com processos repetitivos</li>
+        </ul>
+      </div>
+    </div>
+    <div class="two-col" style="margin-top:12px">
+      <div>
+        <h3>Automação industrial (IIoT)</h3>
+        <ul>
+          <li>SCADA / PLC com IA: detectar anomalias em processo industrial</li>
+          <li>Manutenção preditiva: sensores + modelos de ML para prever falhas</li>
+          <li>Qualidade automatizada: inspeção visual com CV em linha de produção</li>
+          <li><strong>Mercado:</strong> indústria, mineração, petróleo, utilities</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Stack tecnológico</h3>
+        <div style="margin-top:4px">
+          <span class="tag tag-amber">Python</span><span class="tag tag-amber">LangChain</span>
+          <span class="tag tag-amber">LangGraph</span><span class="tag tag-amber">n8n</span>
+          <span class="tag tag-amber">FastAPI</span><span class="tag tag-amber">Playwright</span>
+          <span class="tag tag-amber">Celery</span><span class="tag tag-amber">Redis</span>
+          <span class="tag tag-amber">Docker</span><span class="tag tag-amber">MQTT</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 1 — Fundação (Meses 1–3)</h2>
+    <div class="week-grid">
+      <div class="week-card week-amber">
+        <div class="week-head">Mês 1 — Automação com Python</div>
+        <div class="week-body">
+          <ul>
+            <li>Selenium / Playwright: automação de browser (web scraping, testes, RPA)</li>
+            <li>pyautogui: controle de mouse e teclado</li>
+            <li>Requests + BeautifulSoup: coleta de dados da web</li>
+            <li>Agendamento: schedule, APScheduler, cron</li>
+            <li>Projeto: bot que coleta dados, processa e envia relatório automático</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-amber">
+        <div class="week-head">Mês 2 — APIs e integração de sistemas</div>
+        <div class="week-body">
+          <ul>
+            <li>REST APIs: consumir, autenticar (OAuth2, API keys), tratar erros</li>
+            <li>Webhooks: receber eventos em tempo real</li>
+            <li>FastAPI: criar APIs para exposição de automações</li>
+            <li>Mensageria: Redis, RabbitMQ para filas de tarefas</li>
+            <li>Celery: execução assíncrona de tarefas pesadas</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-amber">
+        <div class="week-head">Mês 3 — OCR e extração de documentos</div>
+        <div class="week-body">
+          <ul>
+            <li>Tesseract OCR: extrair texto de imagens e PDFs</li>
+            <li>PaddleOCR: OCR moderno e mais preciso (open-source)</li>
+            <li>PyMuPDF, pdfplumber: extrair dados de PDFs estruturados</li>
+            <li>Extração com LLM: usar GPT/Claude para interpretar documentos</li>
+            <li>Projeto: pipeline de extração de dados de NF-e ou contratos em PDF</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 2 — Agentes de IA (Meses 4–8)</h2>
+    <div class="week-grid">
+      <div class="week-card week-amber">
+        <div class="week-head">Mês 4 — LLMs como motor de automação</div>
+        <div class="week-body">
+          <ul>
+            <li>Function calling / Tool use: LLM decidindo qual ferramenta chamar</li>
+            <li>LangChain: chains, tools, memory, prompt templates</li>
+            <li>Structured outputs: forçar JSON estruturado do LLM</li>
+            <li>Projeto: agente que responde perguntas buscando em APIs externas</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-amber">
+        <div class="week-head">Mês 5 — LangGraph e agentes com estado</div>
+        <div class="week-body">
+          <ul>
+            <li>LangGraph: agentes com grafo de estados (muito mais robusto que chains)</li>
+            <li>ReAct pattern: raciocinar → agir → observar → repetir</li>
+            <li>Memória de curto e longo prazo em agentes</li>
+            <li>Human-in-the-loop: quando o agente pede confirmação humana</li>
+            <li>Projeto: agente de pesquisa que busca, sintetiza e escreve relatório</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-amber">
+        <div class="week-head">Mês 6 — Multi-agent systems</div>
+        <div class="week-body">
+          <ul>
+            <li>Frameworks: CrewAI, AutoGen, LangGraph multi-agent</li>
+            <li>Padrões: supervisor, hierarchical, collaborative</li>
+            <li>Agentes especializados: pesquisador, escritor, revisor, executor</li>
+            <li>Projeto: sistema multi-agente para análise de empresa (pesquisa + análise + relatório)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-amber">
+        <div class="week-head">Mês 7–8 — Computer Use e automação visual</div>
+        <div class="week-body">
+          <ul>
+            <li>Agentes controlando desktop/browser como humano</li>
+            <li>Visão computacional para identificar elementos na tela</li>
+            <li>n8n / Make: workflows visuais com IA integrada</li>
+            <li>Integração com sistemas legados sem API (usando visão)</li>
+            <li>Projeto: agente que executa processo completo em sistema web</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 3 — Automação Industrial e Produção (Meses 9–14)</h2>
+    <div class="week-grid">
+      <div class="week-card week-amber">
+        <div class="week-head">Mês 9–10 — IIoT e sensores industriais</div>
+        <div class="week-body">
+          <ul>
+            <li>MQTT: protocolo de mensageria para IoT industrial</li>
+            <li>Node-RED: programação visual para fluxos IoT</li>
+            <li>InfluxDB: banco de dados de séries temporais para sensores</li>
+            <li>Grafana: dashboard de monitoramento em tempo real</li>
+            <li>Projeto: coleta de dados de sensores → alertas automáticos → dashboard</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-amber">
+        <div class="week-head">Mês 11–12 — Manutenção preditiva com ML</div>
+        <div class="week-body">
+          <ul>
+            <li>Séries temporais: ARIMA, Prophet, LSTM para previsão de falha</li>
+            <li>Detecção de anomalias: Isolation Forest, autoencoders</li>
+            <li>Feature engineering para dados de vibração, temperatura, pressão</li>
+            <li>Deploy do modelo em pipeline real ou simulado</li>
+            <li>Projeto: sistema preditivo de falha em equipamento (motor, bomba)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-amber">
+        <div class="week-head">Mês 13–14 — Sistema completo em produção</div>
+        <div class="week-body">
+          <ul>
+            <li>Arquitetura completa: sensores → ingestão → modelo → ação → alerta</li>
+            <li>Containers Docker + orquestração com docker-compose</li>
+            <li>Monitoramento do sistema em produção</li>
+            <li>Projeto final: solução de automação completa resolvendo problema real</li>
+          </ul>
+          <div class="alert alert-teal" style="margin-top:8px;font-size:12px">Dica: contato com industrias locais em Goiás para implementar projeto real — vira case de portfólio poderoso</div>
+        </div>
+      </div>
+    </div>
+    <div class="alert alert-teal">Marco da trilha: agente de IA completo deployado + pipeline industrial funcionando com dados reais ou simulados. Demonstração em vídeo de 5 minutos mostrando o processo antes e depois.</div>
+  </div>
+
+  <div class="card">
+    <h2>Recursos essenciais desta trilha</h2>
+    <table>
+      <tr><th>Recurso</th><th>Custo</th><th>Uso</th></tr>
+      <tr><td>LangChain docs</td><td>Gratuito</td><td>Framework central para agentes LLM</td></tr>
+      <tr><td>LangGraph docs</td><td>Gratuito</td><td>Agentes com estado — mais robusto que chains simples</td></tr>
+      <tr><td>n8n (self-hosted)</td><td>Gratuito</td><td>Automação visual sem código com IA</td></tr>
+      <tr><td>Node-RED docs</td><td>Gratuito</td><td>IIoT e fluxos de dados industriais</td></tr>
+      <tr><td>CrewAI docs</td><td>Gratuito</td><td>Multi-agent systems de forma acessível</td></tr>
+      <tr><td>"Building LLM Powered Applications" (Valentina Alto)</td><td>~USD 40</td><td>Livro prático de agentes em produção</td></tr>
+    </table>
+  </div>
+</div>
+

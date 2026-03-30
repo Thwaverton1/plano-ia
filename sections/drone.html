@@ -1,0 +1,191 @@
+<div id="drone" class="section">
+  <div class="phase-header phase-blue">
+    <div class="phase-title">🚁 Trilha — IA para Drones e Sistemas Aéreos</div>
+    <div class="phase-sub">Do zero ao engenheiro de sistemas UAS com IA · ~18 meses · Fusão de controle de voo, visão e navegação autônoma</div>
+  </div>
+
+  <div class="alert alert-teal">Drones com IA estão revolucionando agronegócio, mapeamento, inspeção de infraestrutura, logística e defesa. No Brasil, o mercado de agro-drones cresce 40%+ ao ano — oportunidade enorme para quem está em Goiás.</div>
+
+  <div class="card">
+    <h2>Ecossistema e mercado</h2>
+    <div class="two-col">
+      <div>
+        <h3>Aplicações com maior demanda</h3>
+        <ul>
+          <li><strong>Agronegócio:</strong> pulverização de precisão, mapeamento de lavoura, estimativa de NDVI, detecção de pragas</li>
+          <li><strong>Inspeção:</strong> linhas de transmissão, oleodutos, pontes, torres eólicas</li>
+          <li><strong>Mapeamento:</strong> fotogrametria, LiDAR aéreo, modelos 3D de terreno</li>
+          <li><strong>Entrega de carga:</strong> last-mile delivery (Amazon, Wing)</li>
+          <li><strong>Busca e resgate:</strong> drones com câmera térmica</li>
+          <li><strong>Defesa:</strong> ISR (inteligência, vigilância, reconhecimento)</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Stack tecnológico</h3>
+        <div style="margin-top:4px">
+          <span class="tag tag-blue">PX4 / ArduPilot</span><span class="tag tag-blue">ROS 2</span>
+          <span class="tag tag-blue">MAVLink</span><span class="tag tag-blue">Python</span>
+          <span class="tag tag-blue">OpenCV</span><span class="tag tag-blue">MAVSDK</span>
+          <span class="tag tag-blue">AirSim / Gazebo</span><span class="tag tag-blue">Mission Planner</span>
+          <span class="tag tag-blue">GDAL / QGIS</span><span class="tag tag-blue">ODM</span>
+        </div>
+        <div class="alert alert-amber" style="margin-top:10px;font-size:12px">Diferencial único: combinar IA + ANAC/FAA (regulatório) coloca você à frente de 95% dos candidatos</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 1 — Fundação de voo e controle (Meses 1–3)</h2>
+    <div class="week-grid">
+      <div class="week-card week-blue">
+        <div class="week-head">Mês 1 — Princípios de voo e hardware</div>
+        <div class="week-body">
+          <ul>
+            <li>Aerodinâmica básica: sustentação, arrasto, empuxo, peso</li>
+            <li>Tipos de drone: multirotor, asa fixa, VTOL — quando usar cada um</li>
+            <li>Componentes: ESC, motores brushless, FC (flight controller), GPS, IMU, RC</li>
+            <li>Bateria LiPo: cuidados, C-rating, cálculo de autonomia</li>
+            <li>Regulatório: ANAC RBAC-E 94, classes de drone, habilitação</li>
+          </ul>
+          <div class="alert alert-teal" style="margin-top:8px;font-size:12px">Recurso: ArduPilot docs + canal Painless360 (YouTube) — melhor canal técnico de drone em inglês</div>
+        </div>
+      </div>
+      <div class="week-card week-blue">
+        <div class="week-head">Mês 2 — Flight Controller e PX4/ArduPilot</div>
+        <div class="week-body">
+          <ul>
+            <li>Instalação e configuração PX4 ou ArduPilot (ambos open-source)</li>
+            <li>MAVLink: protocolo de comunicação GCS ↔ drone</li>
+            <li>QGroundControl / Mission Planner: planejamento de missão</li>
+            <li>Modos de voo: manual, stabilize, loiter, auto, guided</li>
+            <li>Simulação: SITL (Software In The Loop) — voar sem hardware</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-blue">
+        <div class="week-head">Mês 3 — Controle programático com Python</div>
+        <div class="week-body">
+          <ul>
+            <li>MAVSDK-Python: controlar drone via código Python</li>
+            <li>DroneKit: missões autônomas programáticas</li>
+            <li>Comandar decolagem, navegação para waypoints, pouso</li>
+            <li>Telemetria: ler altitude, velocidade, bateria em tempo real</li>
+            <li>Projeto: missão autônoma simulada no SITL + lógica em Python</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 2 — IA embarcada e percepção (Meses 4–8)</h2>
+    <div class="week-grid">
+      <div class="week-card week-blue">
+        <div class="week-head">Mês 4 — Computer Vision no drone</div>
+        <div class="week-body">
+          <ul>
+            <li>Integrar câmera com pipeline de visão (OpenCV + PyTorch)</li>
+            <li>Detecção de objetos leve: YOLO-nano, MobileNet para hardware limitado</li>
+            <li>Gimbal e estabilização de câmera para qualidade de imagem</li>
+            <li>Streaming de vídeo para processamento em ground station</li>
+            <li>Projeto: drone detectando alvos em simulação (AirSim ou Gazebo)</li>
+          </ul>
+          <div class="alert alert-teal" style="margin-top:8px;font-size:12px">Recurso: Microsoft AirSim (simulador realístico com Python API)</div>
+        </div>
+      </div>
+      <div class="week-card week-blue">
+        <div class="week-head">Mês 5 — Fotogrametria e mapeamento</div>
+        <div class="week-body">
+          <ul>
+            <li>Planejamento de voo para mapeamento: GSD, overlap, altitude</li>
+            <li>OpenDroneMap (ODM): reconstrução 3D de imagens aéreas</li>
+            <li>Ortomosaicos: geração e análise</li>
+            <li>NDVI: índice de vegetação a partir de câmera multiespectral</li>
+            <li>QGIS: análise espacial dos resultados</li>
+            <li>Projeto: mapeamento de área e análise de vegetação</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-blue">
+        <div class="week-head">Mês 6–7 — VIO e navegação sem GPS</div>
+        <div class="week-body">
+          <ul>
+            <li>VIO (Visual-Inertial Odometry): localização com câmera + IMU</li>
+            <li>VINS-Mono, OpenVINS: implementações open-source</li>
+            <li>Navegação indoor sem GPS: desafios e soluções</li>
+            <li>Optical flow para navegação de baixa altitude</li>
+            <li>ROS 2 + PX4: integração para autonomia avançada</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-blue">
+        <div class="week-head">Mês 8 — IA para decisão de missão</div>
+        <div class="week-body">
+          <ul>
+            <li>Behavior trees para missões de drone (BehaviorTree.CPP)</li>
+            <li>Desvio de obstáculos: sensores de distância, câmera stereo</li>
+            <li>Detecção e seguimento de alvo (follow-me com visão)</li>
+            <li>Pouso de precisão com visão computacional</li>
+            <li>Projeto: drone seguindo alvo visual autonomamente na simulação</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 3 — Sistemas avançados e integração real (Meses 9–14)</h2>
+    <div class="week-grid">
+      <div class="week-card week-blue">
+        <div class="week-head">Mês 9–10 — Swarm de drones</div>
+        <div class="week-body">
+          <ul>
+            <li>Coordenação multi-agente: algoritmos de formação</li>
+            <li>Comunicação entre drones: MAVLink2, WiFi mesh</li>
+            <li>Decolagem e aterrissagem sincronizada de múltiplos drones</li>
+            <li>Aplicação: cobertura colaborativa de área (busca e resgate)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-blue">
+        <div class="week-head">Mês 11–12 — RL para controle de voo</div>
+        <div class="week-body">
+          <ul>
+            <li>Treinar controlador de voo com RL (Isaac Gym ou AirSim)</li>
+            <li>PPO para controle de multirotor: política de atitude e posição</li>
+            <li>Sim-to-real: adaptar política treinada para hardware real</li>
+            <li>Robustez a perturbações: vento, cargas variáveis</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-blue">
+        <div class="week-head">Mês 13–14 — Hardware real + projeto final</div>
+        <div class="week-body">
+          <ul>
+            <li>Montagem ou uso de drone F450 / F550 com Pixhawk</li>
+            <li>Companion computer: Raspberry Pi / NVIDIA Jetson Orin Nano</li>
+            <li>Pipeline completo: missão autônoma com detecção ativa em campo</li>
+            <li>Documentação, vídeo de demo, relatório de missão</li>
+          </ul>
+          <div class="alert alert-amber" style="margin-top:8px;font-size:12px">Custo hardware mínimo: R$ 2.500–6.000 (drone + Pixhawk + câmera). NVIDIA Jetson Orin Nano (~R$ 1.500) para IA embarcada pesada.</div>
+        </div>
+      </div>
+    </div>
+    <div class="alert alert-teal">Marco da trilha: missão autônoma completa demonstrada em vídeo. Pipeline de mapeamento funcionando. Habilitação ANAC obtida para operações comerciais.</div>
+  </div>
+
+  <div class="card">
+    <h2>Recursos essenciais desta trilha</h2>
+    <table>
+      <tr><th>Recurso</th><th>Custo</th><th>Uso</th></tr>
+      <tr><td>ArduPilot docs + fórum</td><td>Gratuito</td><td>Referência técnica principal</td></tr>
+      <tr><td>PX4 User Guide</td><td>Gratuito</td><td>Alternativa ao ArduPilot, mais usado em pesquisa</td></tr>
+      <tr><td>Microsoft AirSim</td><td>Gratuito</td><td>Simulador realístico com Python API</td></tr>
+      <tr><td>OpenDroneMap</td><td>Gratuito</td><td>Fotogrametria e mapeamento 3D</td></tr>
+      <tr><td>MAVSDK docs</td><td>Gratuito</td><td>Controle programático do drone</td></tr>
+      <tr><td>Painless360 (YouTube)</td><td>Gratuito</td><td>Melhor canal técnico de drone</td></tr>
+      <tr><td>UAV Coach (uavcoach.com)</td><td>Gratuito/pago</td><td>Regulatório e certificações</td></tr>
+    </table>
+  </div>
+</div>
+

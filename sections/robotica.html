@@ -1,0 +1,210 @@
+<div id="robotica" class="section">
+  <div class="phase-header phase-teal">
+    <div class="phase-title">🤖 Trilha — Robótica com IA</div>
+    <div class="phase-sub">Do zero ao engenheiro de robótica inteligente · ~20 meses · Fusão de IA, controle, percepção e sistemas embarcados</div>
+  </div>
+
+  <div class="alert alert-teal">Robótica é onde IA encontra o mundo físico. Demanda crescente em manufatura, logística, agricultura e defesa. No Brasil, ainda escassez enorme de profissionais — quem domina tem campo aberto.</div>
+
+  <div class="card">
+    <h2>Onde robótica com IA tem mercado</h2>
+    <div class="two-col">
+      <div>
+        <h3>Áreas de aplicação</h3>
+        <ul>
+          <li><strong>Manufatura:</strong> robôs colaborativos (cobots), inspeção automatizada</li>
+          <li><strong>Logística:</strong> AMRs (Autonomous Mobile Robots), picking em warehouses</li>
+          <li><strong>Agricultura:</strong> robôs de colheita, pulverização autônoma, plantio de precisão</li>
+          <li><strong>Saúde:</strong> robótica cirúrgica, exoesqueletos de reabilitação</li>
+          <li><strong>Defesa e exploração:</strong> robôs para ambientes perigosos</li>
+          <li><strong>Pesquisa:</strong> manipuladores, humanoides (Boston Dynamics, Tesla Optimus)</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Stack tecnológico central</h3>
+        <div style="margin-top:4px">
+          <span class="tag tag-teal">ROS 2</span><span class="tag tag-teal">Python</span><span class="tag tag-teal">C++</span>
+          <span class="tag tag-teal">PyTorch</span><span class="tag tag-teal">OpenCV</span><span class="tag tag-teal">Gazebo</span>
+          <span class="tag tag-teal">MoveIt 2</span><span class="tag tag-teal">Isaac Sim</span><span class="tag tag-teal">SLAM</span>
+          <span class="tag tag-teal">Arduino/RPi</span><span class="tag tag-teal">Linux embarcado</span>
+        </div>
+        <div class="alert alert-amber" style="margin-top:10px;font-size:12px">C++ é obrigatório para robótica de produção. Não precisa ser expert, mas precisa ler, escrever e debugar.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 1 — Fundação (Meses 1–4)</h2>
+    <div class="week-grid">
+      <div class="week-card week-teal">
+        <div class="week-head">Mês 1 — Matemática e física para robótica</div>
+        <div class="week-body">
+          <ul>
+            <li>Álgebra linear: matrizes de rotação, transformações homogêneas</li>
+            <li>Cinemática: frames de referência, transformações 3D</li>
+            <li>Quaternions: representação de orientação sem gimbal lock</li>
+            <li>Dinâmica básica: forças, torques, momento de inércia</li>
+          </ul>
+          <div class="alert alert-teal" style="margin-top:8px;font-size:12px">Recurso: "Modern Robotics" (Northwestern) — coursera gratuito com livro open-access</div>
+        </div>
+      </div>
+      <div class="week-card week-teal">
+        <div class="week-head">Mês 2 — ROS 2 fundação</div>
+        <div class="week-body">
+          <ul>
+            <li>Instalação: Ubuntu 22.04 + ROS 2 Humble</li>
+            <li>Conceitos: nós, tópicos, serviços, actions, parâmetros</li>
+            <li>Publishers e subscribers em Python</li>
+            <li>rqt, rviz2: ferramentas de visualização e debug</li>
+            <li>Projeto: robô simulado publicando e consumindo tópicos</li>
+          </ul>
+          <div class="alert alert-teal" style="margin-top:8px;font-size:12px">Recurso: ROS 2 official tutorials + "A Gentle Introduction to ROS" (Jason O'Kane)</div>
+        </div>
+      </div>
+      <div class="week-card week-teal">
+        <div class="week-head">Mês 3 — Simulação com Gazebo</div>
+        <div class="week-body">
+          <ul>
+            <li>Gazebo Fortress / Harmonic: criar mundos simulados</li>
+            <li>URDF: descrever robô (links, joints, sensores)</li>
+            <li>Integrar ROS 2 + Gazebo: controlar robô simulado</li>
+            <li>Sensores simulados: câmera, LIDAR, IMU, encoders</li>
+            <li>Projeto: diferencial drive robot navegando em labirinto simulado</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-teal">
+        <div class="week-head">Mês 4 — C++ básico para ROS</div>
+        <div class="week-body">
+          <ul>
+            <li>Sintaxe C++ essencial: ponteiros, referências, classes, templates básicos</li>
+            <li>Nós ROS 2 em C++: performance crítica</li>
+            <li>CMakeLists, colcon build system</li>
+            <li>Debugging com GDB e valgrind</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 2 — Percepção e Navegação (Meses 5–9)</h2>
+    <div class="week-grid">
+      <div class="week-card week-teal">
+        <div class="week-head">Mês 5 — SLAM (Simultaneous Localization and Mapping)</div>
+        <div class="week-body">
+          <ul>
+            <li>Conceito de SLAM: localizar-se enquanto constrói o mapa</li>
+            <li>Filtro de Kalman Estendido (EKF) — fundamento probabilístico</li>
+            <li>slam_toolbox e cartographer (ROS 2)</li>
+            <li>Odometria visual: ORB-SLAM3</li>
+            <li>Projeto: robô simulado construindo mapa 2D com LIDAR</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-teal">
+        <div class="week-head">Mês 6 — Navegação autônoma</div>
+        <div class="week-body">
+          <ul>
+            <li>Nav2 (ROS 2): planejamento de rota, desvio de obstáculos</li>
+            <li>Algoritmos de pathfinding: A*, Dijkstra, RRT</li>
+            <li>Costmaps: global e local</li>
+            <li>Behavior trees para robótica (Nav2 BT)</li>
+            <li>Projeto: robô autônomo navegando de A→B desviando de obstáculos dinâmicos</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-teal">
+        <div class="week-head">Mês 7 — Visão para robótica</div>
+        <div class="week-body">
+          <ul>
+            <li>Integrar câmera (real ou simulada) com pipeline ROS 2</li>
+            <li>Estimativa de pose com ArUco markers e PnP</li>
+            <li>Detecção de objetos com YOLO integrada ao ROS</li>
+            <li>Câmeras de profundidade: RealSense, ZED — point clouds no ROS</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-teal">
+        <div class="week-head">Mês 8–9 — Manipulação robótica</div>
+        <div class="week-body">
+          <ul>
+            <li>Cinemática direta e inversa (IK): solucionadores analíticos vs numéricos</li>
+            <li>MoveIt 2: planejamento de trajetória para braços robóticos</li>
+            <li>Controle de força e torque: compliance control</li>
+            <li>Grasping: como pegar objetos — grasp planning</li>
+            <li>Projeto: braço robótico simulado pegando e colocando objetos</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fase 3 — IA aplicada à Robótica (Meses 10–15)</h2>
+    <div class="week-grid">
+      <div class="week-card week-teal">
+        <div class="week-head">Mês 10–11 — Aprendizado por Reforço para robótica</div>
+        <div class="week-body">
+          <ul>
+            <li>RL em simulação: Isaac Gym / Isaac Lab (NVIDIA) — treina 1000x mais rápido</li>
+            <li>PPO, SAC: algoritmos mais usados em controle robótico contínuo</li>
+            <li>Sim-to-real transfer: como transferir política treinada em sim para robô real</li>
+            <li>Domain randomization: robustez a variações físicas</li>
+            <li>Projeto: robô aprendendo a caminhar ou segurar objeto com RL</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-teal">
+        <div class="week-head">Mês 12 — Imitation Learning</div>
+        <div class="week-body">
+          <ul>
+            <li>Behavioral Cloning: aprender de demonstrações humanas</li>
+            <li>DAgger: melhoria iterativa sobre BC</li>
+            <li>ACT (Action Chunking with Transformers): robôs manipuladores atuais</li>
+            <li>Coleta de dados com teleoperation</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-teal">
+        <div class="week-head">Mês 13–14 — Foundation Models para Robótica</div>
+        <div class="week-body">
+          <ul>
+            <li>RT-2, OpenVLA: modelos vision-language-action</li>
+            <li>SayCan: usar LLMs para planejamento de tarefas robóticas</li>
+            <li>RoboAgent: generalização com poucos exemplos</li>
+            <li>Limitações atuais: por que o gap sim-to-real ainda existe</li>
+          </ul>
+        </div>
+      </div>
+      <div class="week-card week-teal">
+        <div class="week-head">Mês 15 — Hardware real</div>
+        <div class="week-body">
+          <ul>
+            <li>Raspberry Pi 4/5 + ROS 2: robô físico de baixo custo</li>
+            <li>Integrações: Arduino para atuadores, sensores analógicos</li>
+            <li>Diagnóstico e debugging em robô real (muito diferente da simulação)</li>
+            <li>Projeto final: robô físico navegando autonomamente com visão</li>
+          </ul>
+          <div class="alert alert-amber" style="margin-top:8px;font-size:12px">Custo mínimo para robô real: R$ 800–2000. TurtleBot3, robô diferencial com RPi, ou braço robótico educacional (myCobot, SO-ARM100)</div>
+        </div>
+      </div>
+    </div>
+    <div class="alert alert-teal">Marco da trilha: robô físico ou simulado funcionando com RL ou imitation learning. Projeto no GitHub com vídeo demo. Contribuição para pacote ROS open-source.</div>
+  </div>
+
+  <div class="card">
+    <h2>Recursos essenciais desta trilha</h2>
+    <table>
+      <tr><th>Recurso</th><th>Custo</th><th>Uso</th></tr>
+      <tr><td>Modern Robotics (Northwestern / Coursera)</td><td>Gratuito</td><td>Fundamentos matemáticos sólidos</td></tr>
+      <tr><td>ROS 2 Documentation oficial</td><td>Gratuito</td><td>Referência central da trilha</td></tr>
+      <tr><td>The Construct (theconstructsim.com)</td><td>Gratuito / pago</td><td>Cursos ROS 2 e simulação na nuvem</td></tr>
+      <tr><td>Isaac Lab (NVIDIA)</td><td>Gratuito</td><td>RL em simulação de alta performance</td></tr>
+      <tr><td>Robotics Academy (CMU)</td><td>Gratuito</td><td>Fundamentos práticos de robótica</td></tr>
+      <tr><td>Hugging Face LeRobot</td><td>Gratuito</td><td>Datasets e modelos de robótica open-source</td></tr>
+      <tr><td>"Probabilistic Robotics" (Thrun)</td><td>~USD 60</td><td>Livro clássico de SLAM e probabilidade em robótica</td></tr>
+    </table>
+  </div>
+</div>
+
