@@ -18,10 +18,11 @@ const MAIN_SECTION_IDS = [
 ];
 
 const EXTRA_SECTION_IDS = ['mapa'];
-const APP_ASSET_VERSION = '20260401-4';
+const APP_ASSET_VERSION = '20260401-5';
 const ULTRA_TRACKER_STORAGE_KEY = 'plano.ultraTracker.v1';
 const DAILY_PLANNER_STORAGE_KEY = 'plano.dailyPlanner.v1';
 const DAILY_PLANNER_MAX_FILE_BYTES = 1500000;
+const PLANNER_STATUS_ORDER = ['backlog', 'pending', 'progress', 'review', 'done'];
 
 async function loadSectionHtml(id) {
   const resp = await fetch(`sections/${id}.html?v=${APP_ASSET_VERSION}`);
@@ -351,11 +352,13 @@ function createPlannerSubtask() {
   };
 }
 
-function createPlannerTask() {
+function createPlannerTask(status = 'pending') {
   return {
     id: createPlannerId('task'),
     title: 'Nova tarefa',
     priority: 'medium',
+    status,
+    expanded: true,
     done: false,
     subtasks: [createPlannerSubtask()],
   };
@@ -391,6 +394,8 @@ function normalizePlannerTask(task) {
     id: typeof task?.id === 'string' ? task.id : createPlannerId('task'),
     title: typeof task?.title === 'string' ? task.title : 'Nova tarefa',
     priority: ['high', 'medium', 'low'].includes(task?.priority) ? task.priority : 'medium',
+    status: PLANNER_STATUS_ORDER.includes(task?.status) ? task.status : (task?.done ? 'done' : 'pending'),
+    expanded: typeof task?.expanded === 'boolean' ? task.expanded : false,
     done: Boolean(task?.done),
     subtasks,
   };
@@ -492,6 +497,17 @@ function getPlannerPriorityMeta(priority) {
   return map[priority] || map.medium;
 }
 
+function getPlannerStatusMeta(status) {
+  const map = {
+    backlog: { label: 'BACKLOG', className: 'planner-status-backlog' },
+    pending: { label: 'PENDENTE', className: 'planner-status-pending' },
+    progress: { label: 'EM PROGRESSO', className: 'planner-status-progress' },
+    review: { label: 'EM REVISÃO', className: 'planner-status-review' },
+    done: { label: 'CONCLUÍDO', className: 'planner-status-done' },
+  };
+  return map[status] || map.pending;
+}
+
 function getPlannerFilterMeta(filterStatus) {
   const map = {
     all: 'Mostrando todas as subtarefas.',
@@ -535,24 +551,34 @@ function buildDailyPlannerReport(state) {
     return lines.join('\n').trim();
   }
 
-  day.tasks.forEach((task, taskIndex) => {
-    const priority = getPlannerPriorityMeta(task.priority);
-    const completedSubtasks = task.subtasks.filter((subtask) => subtask.done).length;
-    lines.push(`${taskIndex + 1}. ${task.title} [${priority.label}] - ${completedSubtasks}/${task.subtasks.length} concluidas`);
+  PLANNER_STATUS_ORDER.forEach((status) => {
+    const tasks = day.tasks.filter((task) => task.status === status);
+    if (!tasks.length) {
+      return;
+    }
 
-    task.subtasks.forEach((subtask) => {
-      const timePrefix = subtask.time ? `${subtask.time} | ` : '';
-      const status = subtask.done ? 'OK' : 'PENDENTE';
-      lines.push(`- ${timePrefix}${status} ${subtask.title}`);
-      if (subtask.deliveryText.trim()) {
-        lines.push(indentMultiline(subtask.deliveryText.trim(), '  Entrega: '));
-      }
-      if (subtask.attachment) {
-        lines.push(`  Arquivo: ${subtask.attachment.name} (${formatBytes(subtask.attachment.size)})`);
-      }
+    const statusMeta = getPlannerStatusMeta(status);
+    lines.push(`${statusMeta.label} (${tasks.length})`);
+
+    tasks.forEach((task, taskIndex) => {
+      const priority = getPlannerPriorityMeta(task.priority);
+      const completedSubtasks = task.subtasks.filter((subtask) => subtask.done).length;
+      lines.push(`${taskIndex + 1}. ${task.title} [${priority.label}] - ${completedSubtasks}/${task.subtasks.length} concluidas`);
+
+      task.subtasks.forEach((subtask) => {
+        const timePrefix = subtask.time ? `${subtask.time} | ` : '';
+        const subtaskStatus = subtask.done ? 'OK' : 'PENDENTE';
+        lines.push(`- ${timePrefix}${subtaskStatus} ${subtask.title}`);
+        if (subtask.deliveryText.trim()) {
+          lines.push(indentMultiline(subtask.deliveryText.trim(), '  Entrega: '));
+        }
+        if (subtask.attachment) {
+          lines.push(`  Arquivo: ${subtask.attachment.name} (${formatBytes(subtask.attachment.size)})`);
+        }
+      });
+
+      lines.push('');
     });
-
-    lines.push('');
   });
 
   return lines.join('\n').trim();
@@ -568,12 +594,51 @@ function syncDailyPlannerReportBox(root, state) {
   reportTextEl.value = buildDailyPlannerReport(state);
 }
 
+function getTaskTimeSummary(task) {
+  const times = task.subtasks
+    .map((subtask) => subtask.time)
+    .filter(Boolean)
+    .sort();
+
+  if (!times.length) {
+    return '—';
+  }
+
+  if (times.length === 1) {
+    return times[0];
+  }
+
+  return `${times[0]} +${times.length - 1}`;
+}
+
+function renderPlannerPriorityOptions(selectedValue) {
+  return [
+    ['high', 'Alta'],
+    ['medium', 'Média'],
+    ['low', 'Baixa'],
+  ]
+    .map(([value, label]) => `<option value="${value}" ${selectedValue === value ? 'selected' : ''}>${label}</option>`)
+    .join('');
+}
+
+function renderPlannerStatusOptions(selectedValue) {
+  return PLANNER_STATUS_ORDER
+    .map((status) => {
+      const meta = getPlannerStatusMeta(status);
+      return `<option value="${status}" ${selectedValue === status ? 'selected' : ''}>${meta.label}</option>`;
+    })
+    .join('');
+}
+
 function countPlannerDeliveries(task) {
   return task.subtasks.filter((subtask) => subtask.deliveryText.trim() || subtask.attachment).length;
 }
 
 function syncPlannerTaskDone(task) {
   task.done = task.subtasks.length > 0 && task.subtasks.every((subtask) => subtask.done);
+  if (!task.done && task.status === 'done') {
+    task.status = task.subtasks.some((subtask) => subtask.done) ? 'review' : 'progress';
+  }
 }
 
 function readFileAsDataUrl(file) {
@@ -639,121 +704,166 @@ function renderDailyPlanner(root, state) {
     return;
   }
 
-  const visibleTasks = day.tasks
-    .map((task) => {
-      const visibleSubtasks = task.subtasks.filter((subtask) => shouldShowPlannerSubtask(subtask, state.filterStatus));
-      return {
-        task,
-        visibleSubtasks,
-        hiddenCount: task.subtasks.length - visibleSubtasks.length,
-      };
-    })
-    .filter(({ visibleSubtasks }) => visibleSubtasks.length > 0 || state.filterStatus === 'all');
+  listRoot.innerHTML = PLANNER_STATUS_ORDER
+    .map((status) => {
+      const statusMeta = getPlannerStatusMeta(status);
+      const tasksInGroup = day.tasks.filter((task) => task.status === status);
+      const visibleTasks = tasksInGroup
+        .map((task) => {
+          const visibleSubtasks = task.subtasks.filter((subtask) => shouldShowPlannerSubtask(subtask, state.filterStatus));
+          return {
+            task,
+            visibleSubtasks,
+            hiddenCount: task.subtasks.length - visibleSubtasks.length,
+          };
+        })
+        .filter(({ visibleSubtasks }) => visibleSubtasks.length > 0 || state.filterStatus === 'all');
 
-  if (!visibleTasks.length) {
-    listRoot.innerHTML = `
-      <div class="planner-empty">
-        Nenhuma subtarefa corresponde ao filtro atual. Troque para <strong>Todas</strong> ou crie novas entregas.
-      </div>
-    `;
-  } else {
-    listRoot.innerHTML = visibleTasks
-      .map(({ task, visibleSubtasks, hiddenCount }) => {
-      const completedSubtasks = task.subtasks.filter((subtask) => subtask.done).length;
-      const totalSubtasks = task.subtasks.length;
-      const deliveryCount = countPlannerDeliveries(task);
-      const priority = getPlannerPriorityMeta(task.priority);
-      const hiddenMeta = hiddenCount > 0 ? ` · ${hiddenCount} ocultas pelo filtro` : '';
+      const bodyHtml = visibleTasks.length
+        ? visibleTasks
+            .map(({ task, visibleSubtasks, hiddenCount }) => {
+              const completedSubtasks = task.subtasks.filter((subtask) => subtask.done).length;
+              const totalSubtasks = task.subtasks.length;
+              const deliveryCount = countPlannerDeliveries(task);
+              const taskTimeSummary = getTaskTimeSummary(task);
 
-      return `
-        <div class="planner-task-card" data-planner-task-card="${escapeHtml(task.id)}">
-          <div class="planner-task-head">
-            <label class="planner-checkline">
-              <input type="checkbox" data-planner-task-toggle="${escapeHtml(task.id)}" ${task.done ? 'checked' : ''}>
-              <input class="planner-task-input" type="text" data-planner-task-title="${escapeHtml(task.id)}" value="${escapeHtml(task.title)}" placeholder="Nome da tarefa">
-            </label>
-            <div class="planner-side-stack">
-              <label class="planner-select-wrap">
-                <span>Prioridade</span>
-                <select class="planner-select" data-planner-task-priority="${escapeHtml(task.id)}">
-                  <option value="high" ${task.priority === 'high' ? 'selected' : ''}>Alta</option>
-                  <option value="medium" ${task.priority === 'medium' ? 'selected' : ''}>Média</option>
-                  <option value="low" ${task.priority === 'low' ? 'selected' : ''}>Baixa</option>
-                </select>
-              </label>
-              <div class="planner-mini-actions">
-                <button class="planner-mini-btn" type="button" data-planner-add-subtask="${escapeHtml(task.id)}">Nova subtarefa</button>
-                <button class="planner-mini-btn planner-mini-btn-danger" type="button" data-planner-delete-task="${escapeHtml(task.id)}">Excluir tarefa</button>
-              </div>
-            </div>
-          </div>
-          <div class="planner-task-meta">
-            <span class="planner-priority-badge ${priority.className}">Prioridade ${priority.label}</span>
-            <span>${completedSubtasks}/${totalSubtasks} subtarefas concluidas</span>
-            <span>${deliveryCount} entregas registradas</span>
-            <span>${hiddenMeta.trim()}</span>
-          </div>
-          <div class="planner-subtask-list">
-            ${visibleSubtasks
-              .map((subtask) => {
-                const compositeKey = `${task.id}::${subtask.id}`;
-                const attachment = subtask.attachment
-                  ? `
-                    <a class="planner-file-link" href="${escapeHtml(subtask.attachment.dataUrl)}" download="${escapeHtml(subtask.attachment.name)}">
-                      ${escapeHtml(subtask.attachment.name)}
-                    </a>
-                    <div class="planner-file-meta">${escapeHtml(formatBytes(subtask.attachment.size))}</div>
-                  `
-                  : '<p class="planner-file-empty">Nenhum arquivo anexado.</p>';
-
-                return `
-                  <div class="planner-subtask-card">
-                    <div class="planner-subtask-head">
-                      <label class="planner-checkline">
-                        <input type="checkbox" data-planner-subtask-toggle="${escapeHtml(compositeKey)}" ${subtask.done ? 'checked' : ''}>
-                        <input class="planner-subtask-input" type="text" data-planner-subtask-title="${escapeHtml(compositeKey)}" value="${escapeHtml(subtask.title)}" placeholder="Nome da subtarefa">
-                      </label>
-                      <div class="planner-side-stack">
-                        <label class="planner-select-wrap">
-                          <span>Horário</span>
-                          <input class="planner-time-input" type="time" data-planner-subtask-time="${escapeHtml(compositeKey)}" value="${escapeHtml(subtask.time)}">
-                        </label>
-                        <div class="planner-mini-actions">
-                          <button class="planner-mini-btn planner-mini-btn-danger" type="button" data-planner-delete-subtask="${escapeHtml(compositeKey)}">Remover</button>
-                        </div>
-                      </div>
+              const detailHtml = task.expanded
+                ? `
+                  <div class="planner-task-detail">
+                    ${
+                      hiddenCount > 0
+                        ? `<div class="planner-detail-note">${hiddenCount} subtarefa(s) ocultas pelo filtro atual.</div>`
+                        : ''
+                    }
+                    <div class="planner-subtask-head-row">
+                      <span>Subtarefa</span>
+                      <span>Hora</span>
+                      <span>Entrega</span>
+                      <span>Ações</span>
                     </div>
-                    <div class="planner-delivery-stack">
-                      <label class="planner-field">
-                        <span>Mensagem / entrega</span>
-                        <textarea data-planner-subtask-text="${escapeHtml(compositeKey)}" placeholder="O que foi feito, link, resumo ou mensagem de entrega">${escapeHtml(subtask.deliveryText)}</textarea>
-                      </label>
-                      <div class="planner-file-box">
-                        <div class="planner-file-head">
-                          <span class="planner-file-title">Arquivo da entrega</span>
-                          <div class="planner-mini-actions">
-                            <button class="planner-mini-btn" type="button" data-planner-attach-file="${escapeHtml(compositeKey)}">Anexar arquivo</button>
-                            ${
-                              subtask.attachment
-                                ? `<button class="planner-mini-btn planner-mini-btn-danger" type="button" data-planner-remove-file="${escapeHtml(compositeKey)}">Remover arquivo</button>`
-                                : ''
-                            }
-                          </div>
-                        </div>
-                        ${attachment}
-                        <input type="file" hidden data-planner-file-input="${escapeHtml(compositeKey)}">
-                      </div>
+                    ${
+                      visibleSubtasks.length
+                        ? visibleSubtasks
+                            .map((subtask) => {
+                              const compositeKey = `${task.id}::${subtask.id}`;
+                              const attachment = subtask.attachment
+                                ? `
+                                  <a class="planner-file-link" href="${escapeHtml(subtask.attachment.dataUrl)}" download="${escapeHtml(subtask.attachment.name)}">
+                                    ${escapeHtml(subtask.attachment.name)}
+                                  </a>
+                                  <div class="planner-file-meta">${escapeHtml(formatBytes(subtask.attachment.size))}</div>
+                                `
+                                : '<p class="planner-file-empty">Nenhum arquivo anexado.</p>';
+                              const hasDelivery = Boolean(subtask.deliveryText.trim() || subtask.attachment);
+
+                              return `
+                                <div class="planner-subtask-row">
+                                  <div class="planner-subtask-name">
+                                    <label class="planner-checkline planner-checkline-sub">
+                                      <input type="checkbox" data-planner-subtask-toggle="${escapeHtml(compositeKey)}" ${subtask.done ? 'checked' : ''}>
+                                      <input class="planner-subtask-input planner-subtask-input-compact" type="text" data-planner-subtask-title="${escapeHtml(compositeKey)}" value="${escapeHtml(subtask.title)}" placeholder="Nome da subtarefa">
+                                    </label>
+                                  </div>
+                                  <div class="planner-subtask-time">
+                                    <input class="planner-time-input" type="time" data-planner-subtask-time="${escapeHtml(compositeKey)}" value="${escapeHtml(subtask.time)}">
+                                  </div>
+                                  <div class="planner-subtask-delivery">
+                                    <details class="planner-delivery-details" ${hasDelivery ? 'open' : ''}>
+                                      <summary>${hasDelivery ? 'Entrega registrada' : 'Abrir entrega'}</summary>
+                                      <div class="planner-delivery-stack planner-delivery-stack-compact">
+                                        <label class="planner-field">
+                                          <span>Mensagem / entrega</span>
+                                          <textarea data-planner-subtask-text="${escapeHtml(compositeKey)}" placeholder="O que foi feito, link, resumo ou mensagem de entrega">${escapeHtml(subtask.deliveryText)}</textarea>
+                                        </label>
+                                        <div class="planner-file-box">
+                                          <div class="planner-file-head">
+                                            <span class="planner-file-title">Arquivo</span>
+                                            <div class="planner-mini-actions">
+                                              <button class="planner-mini-btn" type="button" data-planner-attach-file="${escapeHtml(compositeKey)}">Anexar</button>
+                                              ${
+                                                subtask.attachment
+                                                  ? `<button class="planner-mini-btn planner-mini-btn-danger" type="button" data-planner-remove-file="${escapeHtml(compositeKey)}">Remover</button>`
+                                                  : ''
+                                              }
+                                            </div>
+                                          </div>
+                                          ${attachment}
+                                          <input type="file" hidden data-planner-file-input="${escapeHtml(compositeKey)}">
+                                        </div>
+                                      </div>
+                                    </details>
+                                  </div>
+                                  <div class="planner-subtask-actions">
+                                    <button class="planner-mini-btn planner-mini-btn-danger" type="button" data-planner-delete-subtask="${escapeHtml(compositeKey)}">Remover</button>
+                                  </div>
+                                </div>
+                              `;
+                            })
+                            .join('')
+                        : '<div class="planner-group-empty">Nenhuma subtarefa visível com o filtro atual.</div>'
+                    }
+                  </div>
+                `
+                : '';
+
+              return `
+                <div class="planner-task-shell" data-planner-task-card="${escapeHtml(task.id)}">
+                  <div class="planner-list-row planner-task-row">
+                    <div class="planner-col planner-col-name">
+                      <button class="planner-expand ${task.expanded ? 'is-open' : ''}" type="button" data-planner-toggle-expand="${escapeHtml(task.id)}" aria-label="Expandir tarefa">${task.expanded ? '▾' : '▸'}</button>
+                      <input class="planner-task-input planner-task-input-compact" type="text" data-planner-task-title="${escapeHtml(task.id)}" value="${escapeHtml(task.title)}" placeholder="Nome da tarefa">
+                    </div>
+                    <div class="planner-col planner-col-time">${escapeHtml(taskTimeSummary)}</div>
+                    <div class="planner-col planner-col-priority">
+                      <select class="planner-select planner-select-compact" data-planner-task-priority="${escapeHtml(task.id)}">
+                        ${renderPlannerPriorityOptions(task.priority)}
+                      </select>
+                    </div>
+                    <div class="planner-col planner-col-subtasks">${completedSubtasks}/${totalSubtasks}</div>
+                    <div class="planner-col planner-col-status">
+                      <select class="planner-select planner-select-compact" data-planner-task-status="${escapeHtml(task.id)}">
+                        ${renderPlannerStatusOptions(task.status)}
+                      </select>
+                    </div>
+                    <div class="planner-col planner-col-actions">
+                      <button class="planner-mini-btn" type="button" data-planner-add-subtask="${escapeHtml(task.id)}">+ Sub</button>
+                      <button class="planner-mini-btn planner-mini-btn-danger" type="button" data-planner-delete-task="${escapeHtml(task.id)}">Excluir</button>
                     </div>
                   </div>
-                `;
-              })
-              .join('')}
+                  <div class="planner-row-meta">${deliveryCount} entrega(s) registradas</div>
+                  ${detailHtml}
+                </div>
+              `;
+            })
+            .join('')
+        : `<div class="planner-group-empty">${
+            state.filterStatus === 'all'
+              ? 'Nenhuma tarefa neste status.'
+              : 'Nenhuma tarefa visível neste status com o filtro atual.'
+          }</div>`;
+
+      return `
+        <div class="planner-group">
+          <div class="planner-group-header">
+            <div class="planner-group-main">
+              <span class="planner-status-pill ${statusMeta.className}">${statusMeta.label}</span>
+              <span class="planner-group-count">${tasksInGroup.length}</span>
+            </div>
+            <button class="planner-mini-btn" type="button" data-planner-add-task-status="${status}">Adicionar tarefa</button>
           </div>
+          <div class="planner-column-head">
+            <span>Nome</span>
+            <span>Horário</span>
+            <span>Prioridade</span>
+            <span>Subtarefas</span>
+            <span>Status</span>
+            <span>Ações</span>
+          </div>
+          ${bodyHtml}
         </div>
       `;
-      })
-      .join('');
-  }
+    })
+    .join('');
 
   syncDailyPlannerReportBox(root, state);
 }
@@ -779,7 +889,19 @@ function initDailyPlanner() {
     const addTaskButton = event.target.closest('[data-planner-add-task]');
     if (addTaskButton) {
       const day = getPlannerDay(state);
-      day.tasks.push(createPlannerTask());
+      day.tasks.push(createPlannerTask('pending'));
+      if (state.filterStatus === 'done') {
+        state.filterStatus = 'all';
+      }
+      saveDailyPlannerState(state);
+      renderDailyPlanner(root, state);
+      return;
+    }
+
+    const addTaskStatusButton = event.target.closest('[data-planner-add-task-status]');
+    if (addTaskStatusButton) {
+      const day = getPlannerDay(state);
+      day.tasks.push(createPlannerTask(addTaskStatusButton.dataset.plannerAddTaskStatus));
       if (state.filterStatus === 'done') {
         state.filterStatus = 'all';
       }
@@ -796,6 +918,19 @@ function initDailyPlanner() {
         reportTextEl.value = buildDailyPlannerReport(state);
         reportBox.hidden = false;
       }
+      return;
+    }
+
+    const toggleExpandButton = event.target.closest('[data-planner-toggle-expand]');
+    if (toggleExpandButton) {
+      const day = getPlannerDay(state);
+      const task = findPlannerTask(day, toggleExpandButton.dataset.plannerToggleExpand);
+      if (!task) {
+        return;
+      }
+      task.expanded = !task.expanded;
+      saveDailyPlannerState(state);
+      renderDailyPlanner(root, state);
       return;
     }
 
@@ -834,6 +969,7 @@ function initDailyPlanner() {
       }
       task.subtasks.push(createPlannerSubtask());
       syncPlannerTaskDone(task);
+      task.expanded = true;
       if (state.filterStatus === 'done') {
         state.filterStatus = 'all';
       }
@@ -996,26 +1132,32 @@ function initDailyPlanner() {
 
     const day = getPlannerDay(state);
 
+    if (event.target.matches('[data-planner-task-status]')) {
+      const task = findPlannerTask(day, event.target.dataset.plannerTaskStatus);
+      if (!task) {
+        return;
+      }
+      task.status = PLANNER_STATUS_ORDER.includes(event.target.value) ? event.target.value : 'pending';
+      task.expanded = task.status !== 'done';
+      if (task.status === 'done') {
+        task.subtasks.forEach((subtask) => {
+          subtask.done = true;
+        });
+        task.done = true;
+      } else {
+        task.done = false;
+      }
+      saveDailyPlannerState(state);
+      renderDailyPlanner(root, state);
+      return;
+    }
+
     if (event.target.matches('[data-planner-task-priority]')) {
       const task = findPlannerTask(day, event.target.dataset.plannerTaskPriority);
       if (!task) {
         return;
       }
       task.priority = ['high', 'medium', 'low'].includes(event.target.value) ? event.target.value : 'medium';
-      saveDailyPlannerState(state);
-      renderDailyPlanner(root, state);
-      return;
-    }
-
-    if (event.target.matches('[data-planner-task-toggle]')) {
-      const task = findPlannerTask(day, event.target.dataset.plannerTaskToggle);
-      if (!task) {
-        return;
-      }
-      task.done = event.target.checked;
-      task.subtasks.forEach((subtask) => {
-        subtask.done = event.target.checked;
-      });
       saveDailyPlannerState(state);
       renderDailyPlanner(root, state);
       return;

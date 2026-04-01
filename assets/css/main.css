@@ -299,6 +299,90 @@
     resize:vertical; outline:none;
   }
   .planner-list { display:flex; flex-direction:column; gap:14px; }
+  .planner-group {
+    border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg); overflow:hidden;
+  }
+  .planner-group-header {
+    display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+    padding:10px 14px; background:var(--bg2); border-bottom:1px solid var(--border);
+  }
+  .planner-group-main { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .planner-status-pill {
+    display:inline-flex; align-items:center; padding:4px 10px; border-radius:999px; font-size:11px; font-weight:700;
+  }
+  .planner-status-backlog { background:#d92d20; color:#fff; }
+  .planner-status-pending { background:var(--gray-bg); color:var(--gray); }
+  .planner-status-progress { background:var(--purple); color:#fff; }
+  .planner-status-review { background:#fdb022; color:#3b2a00; }
+  .planner-status-done { background:var(--teal-mid); color:#fff; }
+  .planner-group-count { font-size:12px; font-weight:700; color:var(--text2); }
+  .planner-column-head,
+  .planner-task-row {
+    display:grid; grid-template-columns:minmax(260px,1.8fr) 90px 112px 90px 140px 170px; gap:10px; align-items:center;
+  }
+  .planner-column-head {
+    padding:8px 14px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--text2);
+    background:var(--bg);
+  }
+  .planner-task-shell { border-top:1px solid var(--border); }
+  .planner-task-shell:first-of-type { border-top:none; }
+  .planner-task-row { padding:8px 14px; }
+  .planner-col { min-width:0; }
+  .planner-col-name { display:flex; align-items:center; gap:8px; min-width:0; }
+  .planner-col-time,
+  .planner-col-subtasks { font-size:12px; color:var(--text2); }
+  .planner-col-actions { display:flex; align-items:center; gap:8px; justify-content:flex-end; flex-wrap:wrap; }
+  .planner-expand {
+    width:24px; height:24px; border:none; border-radius:6px; background:transparent; color:var(--text2); cursor:pointer; flex-shrink:0;
+  }
+  .planner-expand:hover { background:var(--bg2); color:var(--text); }
+  .planner-expand.is-open { color:var(--text); }
+  .planner-task-input-compact,
+  .planner-subtask-input-compact {
+    height:34px; border:1px solid transparent; background:transparent; padding:0 10px;
+  }
+  .planner-task-input-compact:focus,
+  .planner-subtask-input-compact:focus {
+    background:var(--bg); border-color:var(--border2); box-shadow:none;
+  }
+  .planner-select-compact { width:100%; min-width:0; }
+  .planner-row-meta {
+    padding:0 14px 8px 46px; font-size:11px; color:var(--text2);
+  }
+  .planner-task-detail {
+    border-top:1px solid var(--border); background:var(--bg2); padding:10px 14px 14px 46px;
+  }
+  .planner-detail-note { font-size:11px; color:var(--text2); margin-bottom:8px; }
+  .planner-subtask-head-row,
+  .planner-subtask-row {
+    display:grid; grid-template-columns:minmax(220px,1.5fr) 90px minmax(220px,1fr) 90px; gap:10px; align-items:start;
+  }
+  .planner-subtask-head-row {
+    font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--text2); margin-bottom:4px;
+  }
+  .planner-subtask-row {
+    padding:10px 0; border-top:1px solid var(--border);
+  }
+  .planner-subtask-name,
+  .planner-subtask-time,
+  .planner-subtask-delivery,
+  .planner-subtask-actions { min-width:0; }
+  .planner-checkline-sub input[type="checkbox"] { margin-top:9px; }
+  .planner-subtask-actions { display:flex; justify-content:flex-end; }
+  .planner-delivery-details {
+    border:1px solid var(--border); border-radius:10px; background:var(--bg); padding:0 10px;
+  }
+  .planner-delivery-details summary {
+    list-style:none; cursor:pointer; font-size:12px; font-weight:600; color:var(--blue); padding:9px 0;
+  }
+  .planner-delivery-details summary::-webkit-details-marker { display:none; }
+  .planner-delivery-details[open] summary { margin-bottom:8px; }
+  .planner-delivery-stack-compact {
+    margin:0 0 10px; gap:10px;
+  }
+  .planner-group-empty {
+    padding:12px 14px; font-size:12px; color:var(--text2); border-top:1px solid var(--border);
+  }
   .planner-empty {
     border:1px dashed var(--border2); border-radius:var(--radius-sm); padding:18px; background:var(--bg2);
     text-align:center; color:var(--text2);
@@ -380,13 +464,26 @@
   }
   .planner-file-link:hover { text-decoration:underline; }
   .planner-file-meta { font-size:11px; color:var(--text2); margin-top:4px; }
+  @media (max-width: 900px) {
+    .planner-column-head,
+    .planner-task-row,
+    .planner-subtask-head-row,
+    .planner-subtask-row { grid-template-columns:1fr; }
+    .planner-column-head,
+    .planner-subtask-head-row { display:none; }
+    .planner-task-row,
+    .planner-subtask-row { gap:8px; }
+    .planner-col-actions,
+    .planner-subtask-actions { justify-content:flex-start; }
+  }
   @media (max-width: 700px) {
     .planner-meta-grid { grid-template-columns:1fr; }
-    .planner-task-meta,
     .planner-delivery-stack { margin-left:0; }
     .planner-toolbar { align-items:flex-start; }
     .planner-checkline { min-width:0; width:100%; }
     .planner-side-stack { width:100%; }
+    .planner-task-detail { padding-left:14px; }
+    .planner-row-meta { padding-left:14px; }
   }
 
   /* ===== MAPA NEURAL ===== */
