@@ -18,7 +18,7 @@ const MAIN_SECTION_IDS = [
 ];
 
 const EXTRA_SECTION_IDS = ['mapa'];
-const APP_ASSET_VERSION = '20260401-3';
+const APP_ASSET_VERSION = '20260401-4';
 const ULTRA_TRACKER_STORAGE_KEY = 'plano.ultraTracker.v1';
 const DAILY_PLANNER_STORAGE_KEY = 'plano.dailyPlanner.v1';
 const DAILY_PLANNER_MAX_FILE_BYTES = 1500000;
@@ -344,6 +344,7 @@ function createPlannerSubtask() {
   return {
     id: createPlannerId('sub'),
     title: 'Nova subtarefa',
+    time: '',
     done: false,
     deliveryText: '',
     attachment: null,
@@ -354,6 +355,7 @@ function createPlannerTask() {
   return {
     id: createPlannerId('task'),
     title: 'Nova tarefa',
+    priority: 'medium',
     done: false,
     subtasks: [createPlannerSubtask()],
   };
@@ -376,6 +378,7 @@ function normalizePlannerSubtask(subtask) {
   return {
     id: typeof subtask?.id === 'string' ? subtask.id : createPlannerId('sub'),
     title: typeof subtask?.title === 'string' ? subtask.title : 'Nova subtarefa',
+    time: typeof subtask?.time === 'string' ? subtask.time : '',
     done: Boolean(subtask?.done),
     deliveryText: typeof subtask?.deliveryText === 'string' ? subtask.deliveryText : '',
     attachment: normalizePlannerAttachment(subtask?.attachment),
@@ -387,6 +390,7 @@ function normalizePlannerTask(task) {
   return {
     id: typeof task?.id === 'string' ? task.id : createPlannerId('task'),
     title: typeof task?.title === 'string' ? task.title : 'Nova tarefa',
+    priority: ['high', 'medium', 'low'].includes(task?.priority) ? task.priority : 'medium',
     done: Boolean(task?.done),
     subtasks,
   };
@@ -400,12 +404,14 @@ function createPlannerDay(day) {
 function getDailyPlannerDefaultState() {
   return {
     selectedDate: getTodayIsoDate(),
+    filterStatus: 'all',
     days: {},
   };
 }
 
 function normalizeDailyPlannerState(candidate) {
   const selectedDate = typeof candidate?.selectedDate === 'string' ? candidate.selectedDate : getTodayIsoDate();
+  const filterStatus = ['all', 'pending', 'done'].includes(candidate?.filterStatus) ? candidate.filterStatus : 'all';
   const days = {};
 
   if (candidate?.days && typeof candidate.days === 'object') {
@@ -414,7 +420,7 @@ function normalizeDailyPlannerState(candidate) {
     });
   }
 
-  return { selectedDate, days };
+  return { selectedDate, filterStatus, days };
 }
 
 function loadDailyPlannerState() {
@@ -469,6 +475,99 @@ function parsePlannerSubtaskKey(key) {
   return { taskId, subtaskId };
 }
 
+function formatPlannerDate(isoDate) {
+  const [year = '', month = '', day = ''] = String(isoDate || '').split('-');
+  if (!year || !month || !day) {
+    return isoDate || '';
+  }
+  return `${day}/${month}/${year}`;
+}
+
+function getPlannerPriorityMeta(priority) {
+  const map = {
+    high: { label: 'Alta', className: 'planner-priority-high' },
+    medium: { label: 'Média', className: 'planner-priority-medium' },
+    low: { label: 'Baixa', className: 'planner-priority-low' },
+  };
+  return map[priority] || map.medium;
+}
+
+function getPlannerFilterMeta(filterStatus) {
+  const map = {
+    all: 'Mostrando todas as subtarefas.',
+    pending: 'Mostrando apenas subtarefas pendentes.',
+    done: 'Mostrando apenas subtarefas concluídas.',
+  };
+  return map[filterStatus] || map.all;
+}
+
+function shouldShowPlannerSubtask(subtask, filterStatus) {
+  if (filterStatus === 'pending') {
+    return !subtask.done;
+  }
+  if (filterStatus === 'done') {
+    return subtask.done;
+  }
+  return true;
+}
+
+function indentMultiline(text, prefix) {
+  return String(text || '')
+    .split('\n')
+    .map((line) => `${prefix}${line}`)
+    .join('\n');
+}
+
+function buildDailyPlannerReport(state) {
+  const day = getPlannerDay(state);
+  const taskTotal = day.tasks.length;
+  const subtaskTotal = day.tasks.reduce((sum, task) => sum + task.subtasks.length, 0);
+  const doneTotal = day.tasks.reduce((sum, task) => sum + task.subtasks.filter((subtask) => subtask.done).length, 0);
+  const deliveryTotal = day.tasks.reduce((sum, task) => sum + countPlannerDeliveries(task), 0);
+  const lines = [
+    `Relatorio do dia - ${formatPlannerDate(state.selectedDate)}`,
+    `Tarefas: ${taskTotal} | Subtarefas: ${subtaskTotal} | Concluidas: ${doneTotal} | Entregas: ${deliveryTotal}`,
+    '',
+  ];
+
+  if (!day.tasks.length) {
+    lines.push('Nenhuma tarefa registrada neste dia.');
+    return lines.join('\n').trim();
+  }
+
+  day.tasks.forEach((task, taskIndex) => {
+    const priority = getPlannerPriorityMeta(task.priority);
+    const completedSubtasks = task.subtasks.filter((subtask) => subtask.done).length;
+    lines.push(`${taskIndex + 1}. ${task.title} [${priority.label}] - ${completedSubtasks}/${task.subtasks.length} concluidas`);
+
+    task.subtasks.forEach((subtask) => {
+      const timePrefix = subtask.time ? `${subtask.time} | ` : '';
+      const status = subtask.done ? 'OK' : 'PENDENTE';
+      lines.push(`- ${timePrefix}${status} ${subtask.title}`);
+      if (subtask.deliveryText.trim()) {
+        lines.push(indentMultiline(subtask.deliveryText.trim(), '  Entrega: '));
+      }
+      if (subtask.attachment) {
+        lines.push(`  Arquivo: ${subtask.attachment.name} (${formatBytes(subtask.attachment.size)})`);
+      }
+    });
+
+    lines.push('');
+  });
+
+  return lines.join('\n').trim();
+}
+
+function syncDailyPlannerReportBox(root, state) {
+  const reportBox = root.querySelector('[data-planner-report-box]');
+  const reportTextEl = root.querySelector('[data-planner-report-text]');
+  if (!reportBox || !reportTextEl || reportBox.hidden) {
+    return;
+  }
+
+  reportTextEl.value = buildDailyPlannerReport(state);
+}
+
 function countPlannerDeliveries(task) {
   return task.subtasks.filter((subtask) => subtask.deliveryText.trim() || subtask.attachment).length;
 }
@@ -513,6 +612,15 @@ function renderDailyPlanner(root, state) {
     dateInput.value = state.selectedDate;
   }
 
+  root.querySelectorAll('[data-planner-filter]').forEach((button) => {
+    button.classList.toggle('is-active', button.dataset.plannerFilter === state.filterStatus);
+  });
+
+  const filterMetaEl = root.querySelector('[data-planner-filter-meta]');
+  if (filterMetaEl) {
+    filterMetaEl.textContent = getPlannerFilterMeta(state.filterStatus);
+  }
+
   renderDailyPlannerStats(root, state);
 
   const day = getPlannerDay(state);
@@ -527,14 +635,35 @@ function renderDailyPlanner(root, state) {
         Nenhuma tarefa criada para este dia ainda. Clique em <strong>Nova tarefa</strong> e comece pelo que realmente precisa ser entregue.
       </div>
     `;
+    syncDailyPlannerReportBox(root, state);
     return;
   }
 
-  listRoot.innerHTML = day.tasks
+  const visibleTasks = day.tasks
     .map((task) => {
+      const visibleSubtasks = task.subtasks.filter((subtask) => shouldShowPlannerSubtask(subtask, state.filterStatus));
+      return {
+        task,
+        visibleSubtasks,
+        hiddenCount: task.subtasks.length - visibleSubtasks.length,
+      };
+    })
+    .filter(({ visibleSubtasks }) => visibleSubtasks.length > 0 || state.filterStatus === 'all');
+
+  if (!visibleTasks.length) {
+    listRoot.innerHTML = `
+      <div class="planner-empty">
+        Nenhuma subtarefa corresponde ao filtro atual. Troque para <strong>Todas</strong> ou crie novas entregas.
+      </div>
+    `;
+  } else {
+    listRoot.innerHTML = visibleTasks
+      .map(({ task, visibleSubtasks, hiddenCount }) => {
       const completedSubtasks = task.subtasks.filter((subtask) => subtask.done).length;
       const totalSubtasks = task.subtasks.length;
       const deliveryCount = countPlannerDeliveries(task);
+      const priority = getPlannerPriorityMeta(task.priority);
+      const hiddenMeta = hiddenCount > 0 ? ` · ${hiddenCount} ocultas pelo filtro` : '';
 
       return `
         <div class="planner-task-card" data-planner-task-card="${escapeHtml(task.id)}">
@@ -543,14 +672,29 @@ function renderDailyPlanner(root, state) {
               <input type="checkbox" data-planner-task-toggle="${escapeHtml(task.id)}" ${task.done ? 'checked' : ''}>
               <input class="planner-task-input" type="text" data-planner-task-title="${escapeHtml(task.id)}" value="${escapeHtml(task.title)}" placeholder="Nome da tarefa">
             </label>
-            <div class="planner-mini-actions">
-              <button class="planner-mini-btn" type="button" data-planner-add-subtask="${escapeHtml(task.id)}">Nova subtarefa</button>
-              <button class="planner-mini-btn planner-mini-btn-danger" type="button" data-planner-delete-task="${escapeHtml(task.id)}">Excluir tarefa</button>
+            <div class="planner-side-stack">
+              <label class="planner-select-wrap">
+                <span>Prioridade</span>
+                <select class="planner-select" data-planner-task-priority="${escapeHtml(task.id)}">
+                  <option value="high" ${task.priority === 'high' ? 'selected' : ''}>Alta</option>
+                  <option value="medium" ${task.priority === 'medium' ? 'selected' : ''}>Média</option>
+                  <option value="low" ${task.priority === 'low' ? 'selected' : ''}>Baixa</option>
+                </select>
+              </label>
+              <div class="planner-mini-actions">
+                <button class="planner-mini-btn" type="button" data-planner-add-subtask="${escapeHtml(task.id)}">Nova subtarefa</button>
+                <button class="planner-mini-btn planner-mini-btn-danger" type="button" data-planner-delete-task="${escapeHtml(task.id)}">Excluir tarefa</button>
+              </div>
             </div>
           </div>
-          <div class="planner-task-meta">${completedSubtasks}/${totalSubtasks} subtarefas concluidas · ${deliveryCount} entregas registradas</div>
+          <div class="planner-task-meta">
+            <span class="planner-priority-badge ${priority.className}">Prioridade ${priority.label}</span>
+            <span>${completedSubtasks}/${totalSubtasks} subtarefas concluidas</span>
+            <span>${deliveryCount} entregas registradas</span>
+            <span>${hiddenMeta.trim()}</span>
+          </div>
           <div class="planner-subtask-list">
-            ${task.subtasks
+            ${visibleSubtasks
               .map((subtask) => {
                 const compositeKey = `${task.id}::${subtask.id}`;
                 const attachment = subtask.attachment
@@ -569,8 +713,14 @@ function renderDailyPlanner(root, state) {
                         <input type="checkbox" data-planner-subtask-toggle="${escapeHtml(compositeKey)}" ${subtask.done ? 'checked' : ''}>
                         <input class="planner-subtask-input" type="text" data-planner-subtask-title="${escapeHtml(compositeKey)}" value="${escapeHtml(subtask.title)}" placeholder="Nome da subtarefa">
                       </label>
-                      <div class="planner-mini-actions">
-                        <button class="planner-mini-btn planner-mini-btn-danger" type="button" data-planner-delete-subtask="${escapeHtml(compositeKey)}">Remover</button>
+                      <div class="planner-side-stack">
+                        <label class="planner-select-wrap">
+                          <span>Horário</span>
+                          <input class="planner-time-input" type="time" data-planner-subtask-time="${escapeHtml(compositeKey)}" value="${escapeHtml(subtask.time)}">
+                        </label>
+                        <div class="planner-mini-actions">
+                          <button class="planner-mini-btn planner-mini-btn-danger" type="button" data-planner-delete-subtask="${escapeHtml(compositeKey)}">Remover</button>
+                        </div>
                       </div>
                     </div>
                     <div class="planner-delivery-stack">
@@ -601,8 +751,11 @@ function renderDailyPlanner(root, state) {
           </div>
         </div>
       `;
-    })
-    .join('');
+      })
+      .join('');
+  }
+
+  syncDailyPlannerReportBox(root, state);
 }
 
 function initDailyPlanner() {
@@ -615,12 +768,60 @@ function initDailyPlanner() {
   getPlannerDay(state);
 
   root.addEventListener('click', (event) => {
+    const filterButton = event.target.closest('[data-planner-filter]');
+    if (filterButton) {
+      state.filterStatus = filterButton.dataset.plannerFilter;
+      saveDailyPlannerState(state);
+      renderDailyPlanner(root, state);
+      return;
+    }
+
     const addTaskButton = event.target.closest('[data-planner-add-task]');
     if (addTaskButton) {
       const day = getPlannerDay(state);
       day.tasks.push(createPlannerTask());
+      if (state.filterStatus === 'done') {
+        state.filterStatus = 'all';
+      }
       saveDailyPlannerState(state);
       renderDailyPlanner(root, state);
+      return;
+    }
+
+    const generateReportButton = event.target.closest('[data-planner-generate-report]');
+    if (generateReportButton) {
+      const reportBox = root.querySelector('[data-planner-report-box]');
+      const reportTextEl = root.querySelector('[data-planner-report-text]');
+      if (reportBox && reportTextEl) {
+        reportTextEl.value = buildDailyPlannerReport(state);
+        reportBox.hidden = false;
+      }
+      return;
+    }
+
+    const copyReportButton = event.target.closest('[data-planner-copy-report]');
+    if (copyReportButton) {
+      const reportBox = root.querySelector('[data-planner-report-box]');
+      const reportTextEl = root.querySelector('[data-planner-report-text]');
+      if (!reportTextEl || !reportBox) {
+        return;
+      }
+
+      if (reportBox.hidden || !reportTextEl.value.trim()) {
+        reportTextEl.value = buildDailyPlannerReport(state);
+        reportBox.hidden = false;
+      }
+
+      const text = reportTextEl.value;
+      if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(text).catch(() => {
+          reportTextEl.focus();
+          reportTextEl.select();
+        });
+      } else {
+        reportTextEl.focus();
+        reportTextEl.select();
+      }
       return;
     }
 
@@ -633,6 +834,9 @@ function initDailyPlanner() {
       }
       task.subtasks.push(createPlannerSubtask());
       syncPlannerTaskDone(task);
+      if (state.filterStatus === 'done') {
+        state.filterStatus = 'all';
+      }
       saveDailyPlannerState(state);
       renderDailyPlanner(root, state);
       return;
@@ -740,6 +944,7 @@ function initDailyPlanner() {
       }
       task.title = event.target.value;
       saveDailyPlannerState(state, true);
+      syncDailyPlannerReportBox(root, state);
       return;
     }
 
@@ -751,6 +956,19 @@ function initDailyPlanner() {
       }
       subtask.title = event.target.value;
       saveDailyPlannerState(state, true);
+      syncDailyPlannerReportBox(root, state);
+      return;
+    }
+
+    if (event.target.matches('[data-planner-subtask-time]')) {
+      const { taskId, subtaskId } = parsePlannerSubtaskKey(event.target.dataset.plannerSubtaskTime);
+      const { subtask } = findPlannerSubtask(day, taskId, subtaskId);
+      if (!subtask) {
+        return;
+      }
+      subtask.time = event.target.value;
+      saveDailyPlannerState(state, true);
+      syncDailyPlannerReportBox(root, state);
       return;
     }
 
@@ -763,6 +981,7 @@ function initDailyPlanner() {
       subtask.deliveryText = event.target.value;
       saveDailyPlannerState(state, true);
       renderDailyPlannerStats(root, state);
+      syncDailyPlannerReportBox(root, state);
     }
   });
 
@@ -776,6 +995,17 @@ function initDailyPlanner() {
     }
 
     const day = getPlannerDay(state);
+
+    if (event.target.matches('[data-planner-task-priority]')) {
+      const task = findPlannerTask(day, event.target.dataset.plannerTaskPriority);
+      if (!task) {
+        return;
+      }
+      task.priority = ['high', 'medium', 'low'].includes(event.target.value) ? event.target.value : 'medium';
+      saveDailyPlannerState(state);
+      renderDailyPlanner(root, state);
+      return;
+    }
 
     if (event.target.matches('[data-planner-task-toggle]')) {
       const task = findPlannerTask(day, event.target.dataset.plannerTaskToggle);

@@ -273,6 +273,31 @@
   .planner-file-note strong { display:block; font-size:12px; margin-bottom:4px; }
   .planner-file-note p { font-size:12px; color:var(--text2); margin-bottom:0; }
   .planner-stat-row { margin-top:0; }
+  .planner-toolbar {
+    display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin:8px 0 14px;
+  }
+  .planner-filter-group { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .planner-filter-label {
+    font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--text2);
+  }
+  .planner-filter-chip {
+    height:30px; border:1px solid var(--border2); border-radius:999px; background:var(--bg); color:var(--text2);
+    padding:0 12px; font-size:11px; font-weight:600; cursor:pointer; transition:all .15s;
+  }
+  .planner-filter-chip:hover { border-color:var(--blue); color:var(--blue); background:var(--blue-bg); }
+  .planner-filter-chip.is-active { border-color:var(--blue); color:var(--blue); background:var(--blue-bg); }
+  .planner-filter-meta { font-size:12px; color:var(--text2); }
+  .planner-report-box {
+    border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg2); padding:12px 14px; margin-bottom:14px;
+  }
+  .planner-report-head {
+    display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:8px;
+  }
+  .planner-report-text {
+    width:100%; min-height:180px; border:1px solid var(--border2); border-radius:10px; background:var(--bg);
+    padding:12px; color:var(--text); font:12px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    resize:vertical; outline:none;
+  }
   .planner-list { display:flex; flex-direction:column; gap:14px; }
   .planner-empty {
     border:1px dashed var(--border2); border-radius:var(--radius-sm); padding:18px; background:var(--bg2);
@@ -285,6 +310,7 @@
   .planner-subtask-head {
     display:flex; align-items:flex-start; justify-content:space-between; gap:10px; flex-wrap:wrap;
   }
+  .planner-side-stack { display:flex; align-items:flex-start; gap:8px; flex-wrap:wrap; }
   .planner-checkline {
     display:flex; align-items:flex-start; gap:10px; flex:1; min-width:220px;
   }
@@ -300,9 +326,30 @@
   .planner-subtask-input:focus {
     border-color:var(--blue); box-shadow:0 0 0 3px rgba(24,95,165,.12);
   }
-  .planner-task-meta {
-    font-size:12px; color:var(--text2); margin:8px 0 10px 26px;
+  .planner-select-wrap {
+    display:flex; flex-direction:column; gap:4px; min-width:120px;
   }
+  .planner-select-wrap span {
+    font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--text2);
+  }
+  .planner-select,
+  .planner-time-input {
+    height:30px; border:1px solid var(--border2); border-radius:999px; background:var(--bg); color:var(--text);
+    padding:0 10px; font:inherit; outline:none; transition:border-color .15s, box-shadow .15s;
+  }
+  .planner-select:focus,
+  .planner-time-input:focus {
+    border-color:var(--blue); box-shadow:0 0 0 3px rgba(24,95,165,.12);
+  }
+  .planner-task-meta {
+    font-size:12px; color:var(--text2); margin:8px 0 10px 26px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  }
+  .planner-priority-badge {
+    display:inline-flex; align-items:center; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:700;
+  }
+  .planner-priority-high { background:var(--coral-bg); color:var(--coral); }
+  .planner-priority-medium { background:var(--amber-bg); color:var(--amber); }
+  .planner-priority-low { background:var(--teal-bg); color:var(--teal); }
   .planner-mini-actions { display:flex; gap:8px; flex-wrap:wrap; }
   .planner-mini-btn {
     height:30px; border:1px solid var(--border2); border-radius:999px; background:var(--bg); color:var(--text);
@@ -337,7 +384,9 @@
     .planner-meta-grid { grid-template-columns:1fr; }
     .planner-task-meta,
     .planner-delivery-stack { margin-left:0; }
+    .planner-toolbar { align-items:flex-start; }
     .planner-checkline { min-width:0; width:100%; }
+    .planner-side-stack { width:100%; }
   }
 
   /* ===== MAPA NEURAL ===== */

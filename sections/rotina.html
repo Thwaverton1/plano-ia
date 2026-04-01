@@ -10,6 +10,7 @@
       </div>
       <div class="planner-actions">
         <button class="planner-btn" type="button" data-planner-add-task>Nova tarefa</button>
+        <button class="planner-btn" type="button" data-planner-generate-report>Gerar relatório</button>
         <button class="planner-btn" type="button" data-planner-export>Exportar dia</button>
         <button class="planner-btn" type="button" data-planner-import-trigger>Importar dia</button>
         <button class="planner-btn planner-btn-danger" type="button" data-planner-clear-day>Limpar dia</button>
@@ -49,6 +50,24 @@
     </div>
 
     <div class="alert alert-teal">Tudo fica salvo no navegador. Para continuar em outro dispositivo, exporte o dia e depois importe o JSON.</div>
+
+    <div class="planner-toolbar">
+      <div class="planner-filter-group" role="group" aria-label="Filtro de status">
+        <span class="planner-filter-label">Filtro</span>
+        <button class="planner-filter-chip is-active" type="button" data-planner-filter="all">Todas</button>
+        <button class="planner-filter-chip" type="button" data-planner-filter="pending">Pendentes</button>
+        <button class="planner-filter-chip" type="button" data-planner-filter="done">Concluídas</button>
+      </div>
+      <div class="planner-filter-meta" data-planner-filter-meta>Mostrando todas as subtarefas.</div>
+    </div>
+
+    <div class="planner-report-box" data-planner-report-box hidden>
+      <div class="planner-report-head">
+        <strong>Relatório do dia</strong>
+        <button class="planner-mini-btn" type="button" data-planner-copy-report>Copiar relatório</button>
+      </div>
+      <textarea class="planner-report-text" data-planner-report-text readonly></textarea>
+    </div>
 
     <div class="planner-list" data-planner-list></div>
   </div>
