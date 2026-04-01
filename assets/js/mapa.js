@@ -1,5 +1,25 @@
 let _mapaInit = false;
 let _selNode = null;
+const MAPA_THEME_STORAGE_KEY = 'plano.mapaTheme.v1';
+
+const MAPA_THEME_PALETTES = {
+  dark: {
+    canvas: '#0d1117',
+    grid: 'rgba(255,255,255,0.03)',
+    dotPrimary: 'rgba(255,255,255,0.22)',
+    dotSecondary: 'rgba(255,255,255,0.14)',
+    guide: 'rgba(255,255,255,0.07)',
+    layerLabel: '#4f5763',
+  },
+  light: {
+    canvas: '#f3f6fb',
+    grid: 'rgba(24,33,43,0.06)',
+    dotPrimary: 'rgba(24,33,43,0.10)',
+    dotSecondary: 'rgba(24,33,43,0.07)',
+    guide: 'rgba(24,33,43,0.10)',
+    layerLabel: '#708096',
+  },
+};
 
 const _mapCtx = {
   root: null,
@@ -33,6 +53,7 @@ const _mapCtx = {
   activeSuggestionIndex: -1,
   suppressClickUntil: 0,
   resizeObs: null,
+  theme: 'dark',
 };
 
 function _clamp(v, min, max) {
@@ -58,6 +79,61 @@ function _escapeHtml(value) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+function _normalizeMapTheme(value) {
+  return value === 'light' ? 'light' : 'dark';
+}
+
+function _loadMapTheme() {
+  try {
+    return _normalizeMapTheme(window.localStorage.getItem(MAPA_THEME_STORAGE_KEY));
+  } catch (err) {
+    return 'dark';
+  }
+}
+
+function _saveMapTheme(theme) {
+  try {
+    window.localStorage.setItem(MAPA_THEME_STORAGE_KEY, _normalizeMapTheme(theme));
+  } catch (err) {
+    console.warn('Falha ao salvar o tema do mapa neural.', err);
+  }
+}
+
+function _getMapThemePalette() {
+  return MAPA_THEME_PALETTES[_mapCtx.theme] || MAPA_THEME_PALETTES.dark;
+}
+
+function _syncMapThemeButtons() {
+  if (!_mapCtx.root) return;
+  _mapCtx.root.querySelectorAll('[data-mapa-theme]').forEach((button) => {
+    button.classList.toggle('is-active', button.dataset.mapaTheme === _mapCtx.theme);
+  });
+}
+
+function _applyMapTheme(theme, { persist = true, redraw = false } = {}) {
+  _mapCtx.theme = _normalizeMapTheme(theme);
+
+  if (_mapCtx.root) {
+    _mapCtx.root.dataset.theme = _mapCtx.theme;
+  }
+
+  _syncMapThemeButtons();
+
+  if (persist) {
+    _saveMapTheme(_mapCtx.theme);
+  }
+
+  if (redraw && _mapCtx.svg) {
+    _drawScene();
+    if (_selNode) {
+      const node = _mapCtx.nodeById.get(_selNode);
+      if (node) {
+        _renderMapaPanel(node);
+      }
+    }
+  }
 }
 
 function _truncateText(value, max = 96) {
@@ -212,6 +288,7 @@ function _getLayerName(layer) {
 
 function _drawScene() {
   const svg = _mapCtx.svg;
+  const theme = _getMapThemePalette();
   svg.innerHTML = '';
   _mapCtx.edgeRecords = [];
   _mapCtx.nodeGroupById.clear();
@@ -236,12 +313,12 @@ function _drawScene() {
   dotA.setAttribute('cx', '3');
   dotA.setAttribute('cy', '4');
   dotA.setAttribute('r', '1.2');
-  dotA.setAttribute('fill', 'rgba(255,255,255,0.22)');
+  dotA.setAttribute('fill', theme.dotPrimary);
   const dotB = _mkSvg('circle');
   dotB.setAttribute('cx', '67');
   dotB.setAttribute('cy', '58');
   dotB.setAttribute('r', '0.9');
-  dotB.setAttribute('fill', 'rgba(255,255,255,0.14)');
+  dotB.setAttribute('fill', theme.dotSecondary);
   dotPattern.appendChild(dotA);
   dotPattern.appendChild(dotB);
   defs.appendChild(dotPattern);
@@ -254,7 +331,7 @@ function _drawScene() {
   const gl = _mkSvg('path');
   gl.setAttribute('d', 'M 140 0 L 0 0 0 140');
   gl.setAttribute('fill', 'none');
-  gl.setAttribute('stroke', 'rgba(255,255,255,0.03)');
+  gl.setAttribute('stroke', theme.grid);
   gl.setAttribute('stroke-width', '1');
   guidePattern.appendChild(gl);
   defs.appendChild(guidePattern);
@@ -274,7 +351,7 @@ function _drawScene() {
   bg.setAttribute('y', _mapCtx.bounds.minY - bgPad);
   bg.setAttribute('width', rangeX + bgPad * 2);
   bg.setAttribute('height', rangeY + bgPad * 2);
-  bg.setAttribute('fill', '#0d1117');
+  bg.setAttribute('fill', theme.canvas);
   world.appendChild(bg);
 
   const grid = _mkSvg('rect');
@@ -305,7 +382,7 @@ function _drawScene() {
     line.setAttribute('x2', x);
     line.setAttribute('y1', _mapCtx.bounds.minY - 90);
     line.setAttribute('y2', _mapCtx.bounds.maxY + 90);
-    line.setAttribute('stroke', 'rgba(255,255,255,0.07)');
+    line.setAttribute('stroke', theme.guide);
     line.setAttribute('stroke-width', '1');
     line.setAttribute('stroke-dasharray', '5,9');
     world.appendChild(line);
@@ -314,7 +391,7 @@ function _drawScene() {
     txt.setAttribute('x', x);
     txt.setAttribute('y', _mapCtx.bounds.maxY + 145);
     txt.setAttribute('text-anchor', 'middle');
-    txt.setAttribute('fill', '#4f5763');
+    txt.setAttribute('fill', theme.layerLabel);
     txt.setAttribute('font-size', '12');
     txt.setAttribute('font-weight', '700');
     txt.setAttribute('font-family', '-apple-system,BlinkMacSystemFont,sans-serif');
@@ -831,9 +908,18 @@ function _wireToolbar() {
   const zo = document.getElementById('mapa-zoom-out');
   const reset = document.getElementById('mapa-reset');
   const fit = document.getElementById('mapa-fit');
+  const themeButtons = _mapCtx.root ? Array.from(_mapCtx.root.querySelectorAll('[data-mapa-theme]')) : [];
   const search = document.getElementById('mapa-search');
   const clearSearch = document.getElementById('mapa-search-clear');
   const searchWrap = _mapCtx.root ? _mapCtx.root.querySelector('.mapa-search') : null;
+
+  themeButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const nextTheme = button.dataset.mapaTheme || 'dark';
+      if (nextTheme === _mapCtx.theme) return;
+      _applyMapTheme(nextTheme, { persist: true, redraw: true });
+    });
+  });
 
   if (zi) {
     zi.addEventListener('click', () => {
@@ -963,6 +1049,7 @@ function initMapa() {
   }
 
   _mapaInit = true;
+  _applyMapTheme(_loadMapTheme(), { persist: false, redraw: false });
 
   _rebuildMaps();
   _buildCategorySets();
