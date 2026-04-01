@@ -19,7 +19,7 @@ const MAIN_SECTION_IDS = [
 ];
 
 const EXTRA_SECTION_IDS = ['mapa'];
-const APP_ASSET_VERSION = '20260401-14';
+const APP_ASSET_VERSION = '20260401-15';
 const ULTRA_TRACKER_STORAGE_KEY = 'plano.ultraTracker.v1';
 const DAILY_PLANNER_STORAGE_KEY = 'plano.dailyPlanner.v1';
 const DAILY_PLANNER_MAX_FILE_BYTES = 1500000;
@@ -483,40 +483,52 @@ function renderUltraTracker(root, state, focusItemKey = '') {
 
   const sprintList = root.querySelector('[data-tracker-sprint-list]');
   if (sprintList) {
+    const sprintCards = filteredSprints
+      .map((sprint) => {
+        const sprintProgress = getUltraTrackerSprintProgress(sprint);
+        const isActive = activeSprint && sprint.id === activeSprint.id;
+        const sprintTitle = normalizeUltraTrackerTrack(sprint.fields.sprintFocus) || 'Nova sprint';
+        const sprintTrack = getUltraTrackerTrackLabel(sprint.fields.track);
+        const sprintStart = sprint.fields.sprintStart ? formatPlannerDate(sprint.fields.sprintStart) : 'Sem data';
+        return `
+          <div class="tracker-sprint-card ${isActive ? 'is-active' : ''}">
+            <button class="tracker-sprint-main" type="button" data-tracker-select-sprint="${escapeHtml(sprint.id)}">
+              <span class="tracker-sprint-track">${escapeHtml(sprintTrack)}</span>
+              <strong class="tracker-sprint-title">${escapeHtml(sprintTitle)}</strong>
+              <span class="tracker-sprint-meta">${sprintProgress.done}/${sprintProgress.total} · ${sprintProgress.percent}% · ${escapeHtml(sprintStart)}</span>
+            </button>
+            <button
+              class="tracker-icon-btn"
+              type="button"
+              data-tracker-delete-sprint="${escapeHtml(sprint.id)}"
+              aria-label="Excluir sprint"
+              title="Excluir sprint"
+            >
+              ${renderUltraTrackerTrashIcon()}
+            </button>
+          </div>
+        `;
+      })
+      .join('');
+
+    const addSprintCard = `
+      <div class="tracker-sprint-card tracker-sprint-add">
+        <button class="tracker-sprint-add-btn" type="button" data-tracker-add-sprint>
+          <span class="tracker-sprint-add-icon">+</span>
+          <strong>Nova sprint</strong>
+          <span>Crie outro ciclo de 4 semanas</span>
+        </button>
+      </div>
+    `;
+
     sprintList.innerHTML = filteredSprints.length
-      ? filteredSprints
-          .map((sprint) => {
-            const sprintProgress = getUltraTrackerSprintProgress(sprint);
-            const isActive = activeSprint && sprint.id === activeSprint.id;
-            const sprintTitle = normalizeUltraTrackerTrack(sprint.fields.sprintFocus) || 'Nova sprint';
-            const sprintTrack = getUltraTrackerTrackLabel(sprint.fields.track);
-            const sprintStart = sprint.fields.sprintStart ? formatPlannerDate(sprint.fields.sprintStart) : 'Sem data';
-            return `
-              <div class="tracker-sprint-card ${isActive ? 'is-active' : ''}">
-                <button class="tracker-sprint-main" type="button" data-tracker-select-sprint="${escapeHtml(sprint.id)}">
-                  <span class="tracker-sprint-track">${escapeHtml(sprintTrack)}</span>
-                  <strong class="tracker-sprint-title">${escapeHtml(sprintTitle)}</strong>
-                  <span class="tracker-sprint-meta">${sprintProgress.done}/${sprintProgress.total} · ${sprintProgress.percent}% · ${escapeHtml(sprintStart)}</span>
-                </button>
-                <button
-                  class="tracker-icon-btn"
-                  type="button"
-                  data-tracker-delete-sprint="${escapeHtml(sprint.id)}"
-                  aria-label="Excluir sprint"
-                  title="Excluir sprint"
-                >
-                  ${renderUltraTrackerTrashIcon()}
-                </button>
-              </div>
-            `;
-          })
-          .join('')
+      ? `${sprintCards}${addSprintCard}`
       : `
         <div class="tracker-empty-state">
           <div class="tracker-empty-title">Nenhuma sprint nesta trilha</div>
           <div class="tracker-empty-sub">Crie uma sprint nova para começar esse ciclo de 4 semanas.</div>
-          <button class="tracker-btn" type="button" data-tracker-add-sprint>Nova sprint</button>
         </div>
+        ${addSprintCard}
       `;
   }
 

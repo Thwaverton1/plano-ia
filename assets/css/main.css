@@ -188,6 +188,9 @@
     height:30px; border:1px solid var(--border2); border-radius:999px; background:var(--bg);
     color:var(--text); padding:0 12px; font-size:11px; font-weight:600; cursor:pointer; transition:all .15s;
   }
+  .tracker-btn-primary {
+    border-color:rgba(153,53,86,.28); background:var(--pink-bg); color:var(--pink);
+  }
   .tracker-btn:hover { border-color:var(--pink); color:var(--pink); background:var(--pink-bg); }
   .tracker-btn-danger:hover { border-color:var(--coral); color:var(--coral); background:var(--coral-bg); }
   .tracker-meta-grid {
@@ -266,6 +269,22 @@
   }
   .tracker-sprint-card.is-active {
     border-color:rgba(153,53,86,.35); box-shadow:0 0 0 3px rgba(153,53,86,.08);
+  }
+  .tracker-sprint-add {
+    grid-template-columns:1fr; gap:8px; min-height:88px; border-style:dashed; background:var(--bg);
+  }
+  .tracker-sprint-add:hover {
+    border-color:rgba(153,53,86,.35); background:var(--pink-bg);
+  }
+  .tracker-sprint-add-btn {
+    width:100%; border:none; background:transparent; padding:0; cursor:pointer;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; text-align:center; color:var(--text2);
+  }
+  .tracker-sprint-add-btn strong { font-size:12px; color:var(--pink); }
+  .tracker-sprint-add-btn span { font-size:10px; }
+  .tracker-sprint-add-icon {
+    width:28px; height:28px; border-radius:999px; border:1px solid rgba(153,53,86,.24); background:rgba(153,53,86,.08);
+    display:inline-flex; align-items:center; justify-content:center; font-size:18px; line-height:1; color:var(--pink);
   }
   .tracker-sprint-main {
     border:none; background:transparent; text-align:left; cursor:pointer; padding:0;
