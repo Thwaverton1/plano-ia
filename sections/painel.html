@@ -1,0 +1,90 @@
+<div id="painel" class="section">
+  <div class="phase-header phase-blue">
+    <div class="phase-title">🗂 Painel de Dados</div>
+    <div class="phase-sub">Controle do banco local do plano: exportar, importar, editar e excluir registros do tracker e do planejador.</div>
+  </div>
+
+  <div class="card" id="data-panel">
+    <div class="dbpanel-head">
+      <div>
+        <h2>Painel CRUD</h2>
+        <p class="dbpanel-sub">Tudo aqui trabalha em cima do armazenamento local do navegador.</p>
+      </div>
+      <div class="dbpanel-actions">
+        <button class="dbpanel-btn" type="button" data-panel-export-db>Exportar banco</button>
+        <button class="dbpanel-btn" type="button" data-panel-import-db-trigger>Importar banco</button>
+        <button class="dbpanel-btn dbpanel-btn-danger" type="button" data-panel-clear-db>Limpar banco</button>
+      </div>
+      <input type="file" data-panel-import-db-file accept="application/json" hidden>
+    </div>
+
+    <div class="dbpanel-stats">
+      <div class="dbpanel-stat">
+        <div class="dbpanel-stat-value" data-panel-stat="collections">2</div>
+        <div class="dbpanel-stat-label">coleções</div>
+      </div>
+      <div class="dbpanel-stat">
+        <div class="dbpanel-stat-value" data-panel-stat="days">0</div>
+        <div class="dbpanel-stat-label">dias no planejador</div>
+      </div>
+      <div class="dbpanel-stat">
+        <div class="dbpanel-stat-value" data-panel-stat="tasks">0</div>
+        <div class="dbpanel-stat-label">tarefas salvas</div>
+      </div>
+      <div class="dbpanel-stat">
+        <div class="dbpanel-stat-value" data-panel-stat="subtasks">0</div>
+        <div class="dbpanel-stat-label">subtarefas salvas</div>
+      </div>
+      <div class="dbpanel-stat">
+        <div class="dbpanel-stat-value" data-panel-stat="size">0 B</div>
+        <div class="dbpanel-stat-label">tamanho aproximado</div>
+      </div>
+    </div>
+
+    <div class="dbpanel-layout">
+      <aside class="dbpanel-sidebar">
+        <div class="dbpanel-box">
+          <div class="dbpanel-box-head">
+            <h3>Coleções</h3>
+            <p>Escolha o que editar.</p>
+          </div>
+          <div class="dbpanel-collection-list">
+            <button class="dbpanel-collection-btn is-active" type="button" data-panel-dataset="tracker">Ultra tracker</button>
+            <button class="dbpanel-collection-btn" type="button" data-panel-dataset="planner">Planejador diário</button>
+          </div>
+        </div>
+
+        <div class="dbpanel-box" data-panel-day-box hidden>
+          <div class="dbpanel-box-head">
+            <h3>Dias do planejador</h3>
+            <p>Crie ou selecione um dia.</p>
+          </div>
+          <div class="dbpanel-create-day">
+            <input type="date" data-panel-new-day-date>
+            <button class="dbpanel-btn" type="button" data-panel-create-day>Novo dia</button>
+          </div>
+          <div class="dbpanel-day-list" data-panel-day-list></div>
+        </div>
+      </aside>
+
+      <div class="dbpanel-editor">
+        <div class="dbpanel-editor-head">
+          <div>
+            <h3 data-panel-editor-title>Ultra tracker</h3>
+            <p class="dbpanel-editor-sub" data-panel-editor-sub>Edite o JSON salvo no navegador.</p>
+          </div>
+          <div class="dbpanel-actions">
+            <button class="dbpanel-btn" type="button" data-panel-export-record>Exportar registro</button>
+            <button class="dbpanel-btn" type="button" data-panel-save-record>Salvar</button>
+            <button class="dbpanel-btn dbpanel-btn-danger" type="button" data-panel-delete-record>Excluir registro</button>
+          </div>
+        </div>
+
+        <label class="dbpanel-field">
+          <span data-panel-editor-label>JSON do tracker</span>
+          <textarea data-panel-editor spellcheck="false"></textarea>
+        </label>
+      </div>
+    </div>
+  </div>
+</div>

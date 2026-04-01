@@ -7,6 +7,7 @@ const MAIN_SECTION_IDS = [
   'fase3',
   'rotina',
   'ultra-aprendizado',
+  'painel',
   'recursos',
   'marcos',
   'visao-comp',
@@ -18,11 +19,12 @@ const MAIN_SECTION_IDS = [
 ];
 
 const EXTRA_SECTION_IDS = ['mapa'];
-const APP_ASSET_VERSION = '20260401-11';
+const APP_ASSET_VERSION = '20260401-12';
 const ULTRA_TRACKER_STORAGE_KEY = 'plano.ultraTracker.v1';
 const DAILY_PLANNER_STORAGE_KEY = 'plano.dailyPlanner.v1';
 const DAILY_PLANNER_MAX_FILE_BYTES = 1500000;
 const PLANNER_STATUS_ORDER = ['backlog', 'pending', 'progress', 'review', 'done'];
+const APP_SECTION_SYNC = {};
 
 async function loadSectionHtml(id) {
   const resp = await fetch(`sections/${id}.html?v=${APP_ASSET_VERSION}`);
@@ -44,6 +46,49 @@ async function loadSections() {
 
   const extraHtml = await Promise.all(EXTRA_SECTION_IDS.map(loadSectionHtml));
   extraRoot.innerHTML = extraHtml.join('\n');
+}
+
+function ensureToastRoot() {
+  let root = document.getElementById('app-toast-root');
+  if (root) {
+    return root;
+  }
+
+  root = document.createElement('div');
+  root.id = 'app-toast-root';
+  root.className = 'app-toast-root';
+  document.body.appendChild(root);
+  return root;
+}
+
+function showToast(message, tone = 'neutral') {
+  const root = ensureToastRoot();
+  const toast = document.createElement('div');
+  toast.className = `app-toast app-toast-${tone}`;
+  toast.textContent = message;
+  root.appendChild(toast);
+
+  requestAnimationFrame(() => {
+    toast.classList.add('is-visible');
+  });
+
+  window.setTimeout(() => {
+    toast.classList.remove('is-visible');
+    window.setTimeout(() => toast.remove(), 180);
+  }, 2400);
+}
+
+function refreshSection(sectionId) {
+  const sync = APP_SECTION_SYNC[sectionId];
+  if (typeof sync === 'function') {
+    sync();
+  }
+}
+
+function refreshDataViews() {
+  refreshSection('ultra-aprendizado');
+  refreshSection('rotina');
+  refreshSection('painel');
 }
 
 function getUltraTrackerDefaultState() {
@@ -198,6 +243,21 @@ function initUltraTracker() {
   let state = loadUltraTrackerState();
   const fieldEls = Array.from(root.querySelectorAll('[data-tracker-field]'));
   const checkEls = Array.from(root.querySelectorAll('[data-tracker-check]'));
+  const syncUltraTrackerFromStorage = () => {
+    state = loadUltraTrackerState();
+
+    fieldEls.forEach((el) => {
+      const key = el.dataset.trackerField;
+      el.value = typeof state.fields[key] === 'string' ? state.fields[key] : '';
+    });
+
+    checkEls.forEach((el) => {
+      const key = el.dataset.trackerCheck;
+      el.checked = Boolean(state.checks[key]);
+    });
+
+    renderUltraTracker(root, state);
+  };
 
   fieldEls.forEach((el) => {
     const key = el.dataset.trackerField;
@@ -273,8 +333,10 @@ function initUltraTracker() {
 
         saveUltraTrackerState(state);
         renderUltraTracker(root, state);
+        refreshSection('painel');
+        showToast('Tracker importado.', 'success');
       } catch (err) {
-        window.alert('Arquivo invalido. Importe um JSON exportado pelo tracker.');
+        showToast('Arquivo invalido do tracker.', 'error');
         console.warn('Falha ao importar o tracker de ultra-aprendizado.', err);
       } finally {
         importFileInput.value = '';
@@ -284,10 +346,6 @@ function initUltraTracker() {
 
   if (resetButton) {
     resetButton.addEventListener('click', () => {
-      if (!window.confirm('Limpar todos os campos e marcacoes desta sprint?')) {
-        return;
-      }
-
       state = getUltraTrackerDefaultState();
       fieldEls.forEach((el) => {
         el.value = '';
@@ -298,10 +356,13 @@ function initUltraTracker() {
 
       saveUltraTrackerState(state);
       renderUltraTracker(root, state);
+      refreshSection('painel');
+      showToast('Tracker limpo.', 'neutral');
     });
   }
 
-  renderUltraTracker(root, state);
+  APP_SECTION_SYNC['ultra-aprendizado'] = syncUltraTrackerFromStorage;
+  syncUltraTrackerFromStorage();
 }
 
 function getTodayIsoDate() {
@@ -448,7 +509,7 @@ function saveDailyPlannerState(state, quiet = false) {
   } catch (err) {
     console.warn('Falha ao salvar o planejador diario.', err);
     if (!quiet) {
-      window.alert('Nao foi possivel salvar no navegador. Tente anexar um arquivo menor ou exporte e limpe dados antigos.');
+      showToast('Nao foi possivel salvar no navegador.', 'error');
     }
     return false;
   }
@@ -951,6 +1012,11 @@ function initDailyPlanner() {
 
   let state = loadDailyPlannerState();
   getPlannerDay(state);
+  const syncDailyPlannerFromStorage = () => {
+    state = loadDailyPlannerState();
+    getPlannerDay(state);
+    renderDailyPlanner(root, state);
+  };
 
   root.addEventListener('click', (event) => {
     const filterButton = event.target.closest('[data-planner-filter]');
@@ -1066,12 +1132,14 @@ function initDailyPlanner() {
       const taskId = deleteTaskButton.dataset.plannerDeleteTask;
       const day = getPlannerDay(state);
       const task = findPlannerTask(day, taskId);
-      if (!task || !window.confirm(`Excluir a tarefa "${task.title}" e todas as subtarefas?`)) {
+      if (!task) {
         return;
       }
       day.tasks = day.tasks.filter((item) => item.id !== taskId);
       saveDailyPlannerState(state);
       renderDailyPlanner(root, state);
+      refreshSection('painel');
+      showToast('Tarefa excluida.', 'neutral');
       return;
     }
 
@@ -1087,6 +1155,8 @@ function initDailyPlanner() {
       syncPlannerTaskDone(task);
       saveDailyPlannerState(state);
       renderDailyPlanner(root, state);
+      refreshSection('painel');
+      showToast('Subtarefa excluida.', 'neutral');
       return;
     }
 
@@ -1144,12 +1214,11 @@ function initDailyPlanner() {
 
     const clearDayButton = event.target.closest('[data-planner-clear-day]');
     if (clearDayButton) {
-      if (!window.confirm(`Limpar todas as tarefas do dia ${state.selectedDate}?`)) {
-        return;
-      }
       state.days[state.selectedDate] = createPlannerDay();
       saveDailyPlannerState(state);
       renderDailyPlanner(root, state);
+      refreshSection('painel');
+      showToast(`Dia ${formatPlannerDate(state.selectedDate)} limpo.`, 'neutral');
     }
   });
 
@@ -1273,8 +1342,10 @@ function initDailyPlanner() {
         state.days[importedDate] = createPlannerDay(parsed.day);
         saveDailyPlannerState(state);
         renderDailyPlanner(root, state);
+        refreshSection('painel');
+        showToast('Dia importado.', 'success');
       } catch (err) {
-        window.alert('Arquivo invalido. Importe um JSON exportado pelo planejador.');
+        showToast('Arquivo invalido do planejador.', 'error');
         console.warn('Falha ao importar o planejador diario.', err);
       } finally {
         event.target.value = '';
@@ -1289,7 +1360,7 @@ function initDailyPlanner() {
       }
 
       if (file.size > DAILY_PLANNER_MAX_FILE_BYTES) {
-        window.alert(`Arquivo muito grande. Use algo com ate ${formatBytes(DAILY_PLANNER_MAX_FILE_BYTES)}.`);
+        showToast(`Arquivo muito grande. Limite: ${formatBytes(DAILY_PLANNER_MAX_FILE_BYTES)}.`, 'error');
         event.target.value = '';
         return;
       }
@@ -1309,9 +1380,11 @@ function initDailyPlanner() {
         };
         if (saveDailyPlannerState(state)) {
           renderDailyPlanner(root, state);
+          refreshSection('painel');
+          showToast('Arquivo anexado.', 'success');
         }
       } catch (err) {
-        window.alert('Nao foi possivel anexar o arquivo.');
+        showToast('Nao foi possivel anexar o arquivo.', 'error');
         console.warn('Falha ao anexar arquivo ao planejador diario.', err);
       } finally {
         event.target.value = '';
@@ -1319,7 +1392,305 @@ function initDailyPlanner() {
     }
   });
 
-  renderDailyPlanner(root, state);
+  APP_SECTION_SYNC.rotina = syncDailyPlannerFromStorage;
+  syncDailyPlannerFromStorage();
+}
+
+function downloadJsonFile(filename, payload) {
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function getPlannerDayKeys(state) {
+  return Object.keys(state.days).sort((a, b) => b.localeCompare(a));
+}
+
+function getPlannerTotals(state) {
+  return getPlannerDayKeys(state).reduce((acc, date) => {
+    const day = createPlannerDay(state.days[date]);
+    acc.days += 1;
+    acc.tasks += day.tasks.length;
+    acc.subtasks += day.tasks.reduce((sum, task) => sum + task.subtasks.length, 0);
+    return acc;
+  }, { days: 0, tasks: 0, subtasks: 0 });
+}
+
+function initDataPanel() {
+  const root = document.getElementById('data-panel');
+  if (!root) {
+    return;
+  }
+
+  const uiState = {
+    dataset: 'tracker',
+    selectedDay: '',
+  };
+
+  const renderDataPanel = () => {
+    const trackerState = loadUltraTrackerState();
+    const plannerState = loadDailyPlannerState();
+    const dayKeys = getPlannerDayKeys(plannerState);
+    const totals = getPlannerTotals(plannerState);
+    const snapshot = {
+      ultraTracker: trackerState,
+      dailyPlanner: plannerState,
+    };
+
+    if (uiState.dataset === 'planner' && (!uiState.selectedDay || !plannerState.days[uiState.selectedDay])) {
+      uiState.selectedDay = dayKeys[0] || '';
+    }
+
+    root.querySelectorAll('[data-panel-stat]').forEach((el) => {
+      const key = el.dataset.panelStat;
+      if (key === 'collections') el.textContent = '2';
+      if (key === 'days') el.textContent = String(totals.days);
+      if (key === 'tasks') el.textContent = String(totals.tasks);
+      if (key === 'subtasks') el.textContent = String(totals.subtasks);
+      if (key === 'size') el.textContent = formatBytes(new Blob([JSON.stringify(snapshot)]).size);
+    });
+
+    root.querySelectorAll('[data-panel-dataset]').forEach((button) => {
+      button.classList.toggle('is-active', button.dataset.panelDataset === uiState.dataset);
+    });
+
+    const dayBox = root.querySelector('[data-panel-day-box]');
+    const dayList = root.querySelector('[data-panel-day-list]');
+    const newDayInput = root.querySelector('[data-panel-new-day-date]');
+    if (dayBox) {
+      dayBox.hidden = uiState.dataset !== 'planner';
+    }
+
+    if (newDayInput && (!newDayInput.value || newDayInput.value === uiState.selectedDay)) {
+      newDayInput.value = uiState.selectedDay || plannerState.selectedDate || getTodayIsoDate();
+    }
+
+    if (dayList) {
+      dayList.innerHTML = dayKeys.length
+        ? dayKeys.map((date) => {
+            const taskCount = createPlannerDay(plannerState.days[date]).tasks.length;
+            return `
+              <button
+                class="dbpanel-day-btn ${uiState.selectedDay === date ? 'is-active' : ''}"
+                type="button"
+                data-panel-select-day="${date}"
+              >
+                <span>${formatPlannerDate(date)}</span>
+                <strong>${taskCount}</strong>
+              </button>
+            `;
+          }).join('')
+        : '<div class="dbpanel-empty">Nenhum dia salvo ainda.</div>';
+    }
+
+    const editorTitle = root.querySelector('[data-panel-editor-title]');
+    const editorSub = root.querySelector('[data-panel-editor-sub]');
+    const editorLabel = root.querySelector('[data-panel-editor-label]');
+    const editor = root.querySelector('[data-panel-editor]');
+    const deleteButton = root.querySelector('[data-panel-delete-record]');
+    let payload = trackerState;
+    let exportName = 'ultra-tracker-db.json';
+
+    if (uiState.dataset === 'tracker') {
+      if (editorTitle) editorTitle.textContent = 'Ultra tracker';
+      if (editorSub) editorSub.textContent = 'Campos e checks do ultra-aprendizado salvos neste navegador.';
+      if (editorLabel) editorLabel.textContent = 'JSON do tracker';
+      if (deleteButton) {
+        deleteButton.textContent = 'Limpar tracker';
+        deleteButton.disabled = false;
+      }
+    } else {
+      const selectedDay = uiState.selectedDay;
+      const day = selectedDay ? createPlannerDay(plannerState.days[selectedDay]) : createPlannerDay();
+      payload = day;
+      exportName = selectedDay ? `planejador-${selectedDay}.json` : 'planejador-vazio.json';
+
+      if (editorTitle) editorTitle.textContent = selectedDay ? `Planejador ${formatPlannerDate(selectedDay)}` : 'Planejador diário';
+      if (editorSub) {
+        editorSub.textContent = selectedDay
+          ? 'Edite o registro bruto desse dia. Salvar aqui atualiza a aba Rotina.'
+          : 'Crie um novo dia na lateral para começar.';
+      }
+      if (editorLabel) {
+        editorLabel.textContent = selectedDay ? `JSON do dia ${selectedDay}` : 'JSON do planejador';
+      }
+      if (deleteButton) {
+        deleteButton.textContent = 'Excluir dia';
+        deleteButton.disabled = !selectedDay;
+      }
+    }
+
+    if (editor) {
+      editor.value = JSON.stringify(payload, null, 2);
+    }
+
+    root.dataset.panelExportName = exportName;
+  };
+
+  root.addEventListener('click', (event) => {
+    const datasetButton = event.target.closest('[data-panel-dataset]');
+    if (datasetButton) {
+      uiState.dataset = datasetButton.dataset.panelDataset;
+      renderDataPanel();
+      return;
+    }
+
+    const selectDayButton = event.target.closest('[data-panel-select-day]');
+    if (selectDayButton) {
+      uiState.dataset = 'planner';
+      uiState.selectedDay = selectDayButton.dataset.panelSelectDay;
+      renderDataPanel();
+      return;
+    }
+
+    const createDayButton = event.target.closest('[data-panel-create-day]');
+    if (createDayButton) {
+      const dateInput = root.querySelector('[data-panel-new-day-date]');
+      const date = dateInput?.value || getTodayIsoDate();
+      const plannerState = loadDailyPlannerState();
+      plannerState.days[date] = plannerState.days[date] ? createPlannerDay(plannerState.days[date]) : createPlannerDay();
+      plannerState.selectedDate = date;
+      saveDailyPlannerState(plannerState);
+      uiState.dataset = 'planner';
+      uiState.selectedDay = date;
+      refreshDataViews();
+      showToast(`Dia ${formatPlannerDate(date)} pronto para editar.`, 'success');
+      return;
+    }
+
+    const exportDbButton = event.target.closest('[data-panel-export-db]');
+    if (exportDbButton) {
+      downloadJsonFile('plano-banco-local.json', {
+        ultraTracker: loadUltraTrackerState(),
+        dailyPlanner: loadDailyPlannerState(),
+      });
+      showToast('Banco exportado.', 'success');
+      return;
+    }
+
+    const exportRecordButton = event.target.closest('[data-panel-export-record]');
+    if (exportRecordButton) {
+      const editor = root.querySelector('[data-panel-editor]');
+      if (!editor) {
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(editor.value || '{}');
+        downloadJsonFile(root.dataset.panelExportName || 'registro.json', parsed);
+        showToast('Registro exportado.', 'success');
+      } catch (err) {
+        showToast('JSON invalido para exportar.', 'error');
+      }
+      return;
+    }
+
+    const saveRecordButton = event.target.closest('[data-panel-save-record]');
+    if (saveRecordButton) {
+      const editor = root.querySelector('[data-panel-editor]');
+      if (!editor) {
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(editor.value || '{}');
+
+        if (uiState.dataset === 'tracker') {
+          saveUltraTrackerState(normalizeUltraTrackerState(parsed));
+          showToast('Tracker salvo pelo painel.', 'success');
+        } else {
+          const plannerState = loadDailyPlannerState();
+          const targetDate = uiState.selectedDay || root.querySelector('[data-panel-new-day-date]')?.value || getTodayIsoDate();
+          plannerState.days[targetDate] = createPlannerDay(parsed);
+          plannerState.selectedDate = targetDate;
+          saveDailyPlannerState(plannerState);
+          uiState.selectedDay = targetDate;
+          showToast(`Dia ${formatPlannerDate(targetDate)} salvo.`, 'success');
+        }
+
+        refreshDataViews();
+      } catch (err) {
+        showToast('JSON invalido. Corrija antes de salvar.', 'error');
+      }
+      return;
+    }
+
+    const deleteRecordButton = event.target.closest('[data-panel-delete-record]');
+    if (deleteRecordButton) {
+      if (uiState.dataset === 'tracker') {
+        saveUltraTrackerState(getUltraTrackerDefaultState());
+        showToast('Tracker removido do banco local.', 'neutral');
+      } else if (uiState.selectedDay) {
+        const plannerState = loadDailyPlannerState();
+        delete plannerState.days[uiState.selectedDay];
+        const nextDay = getPlannerDayKeys(plannerState)[0] || '';
+        plannerState.selectedDate = nextDay || getTodayIsoDate();
+        saveDailyPlannerState(plannerState);
+        showToast(`Dia ${formatPlannerDate(uiState.selectedDay)} excluido.`, 'neutral');
+        uiState.selectedDay = nextDay;
+      }
+
+      refreshDataViews();
+      return;
+    }
+
+    const importTriggerButton = event.target.closest('[data-panel-import-db-trigger]');
+    if (importTriggerButton) {
+      const fileInput = root.querySelector('[data-panel-import-db-file]');
+      if (fileInput) {
+        fileInput.click();
+      }
+      return;
+    }
+
+    const clearDbButton = event.target.closest('[data-panel-clear-db]');
+    if (clearDbButton) {
+      window.localStorage.removeItem(ULTRA_TRACKER_STORAGE_KEY);
+      window.localStorage.removeItem(DAILY_PLANNER_STORAGE_KEY);
+      uiState.dataset = 'tracker';
+      uiState.selectedDay = '';
+      refreshDataViews();
+      showToast('Banco local limpo.', 'neutral');
+    }
+  });
+
+  root.addEventListener('change', async (event) => {
+    if (!event.target.matches('[data-panel-import-db-file]')) {
+      return;
+    }
+
+    const [file] = event.target.files || [];
+    if (!file) {
+      return;
+    }
+
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      const trackerState = normalizeUltraTrackerState(parsed?.ultraTracker);
+      const plannerState = normalizeDailyPlannerState(parsed?.dailyPlanner);
+      saveUltraTrackerState(trackerState);
+      saveDailyPlannerState(plannerState);
+      uiState.dataset = 'planner';
+      uiState.selectedDay = getPlannerDayKeys(plannerState)[0] || '';
+      refreshDataViews();
+      showToast('Banco importado.', 'success');
+    } catch (err) {
+      showToast('Arquivo invalido para importar o banco.', 'error');
+      console.warn('Falha ao importar o banco local.', err);
+    } finally {
+      event.target.value = '';
+    }
+  });
+
+  APP_SECTION_SYNC.painel = renderDataPanel;
+  renderDataPanel();
 }
 
 function getTabBySection(id) {
@@ -1347,6 +1718,7 @@ function show(id, tabEl) {
   }
 
   document.body.classList.toggle('mapa-mode', id === 'mapa');
+  refreshSection(id);
 
   if (id === 'mapa') {
     setTimeout(initMapa, 30);
@@ -1380,6 +1752,7 @@ async function boot() {
     await loadSections();
     initUltraTracker();
     initDailyPlanner();
+    initDataPanel();
 
     const hashId = window.location.hash.replace('#', '').trim();
     const initialId = hashId || 'visao';

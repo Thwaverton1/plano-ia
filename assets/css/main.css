@@ -37,6 +37,20 @@
   .section { display: none; }
   .section.active { display: block; }
 
+  .app-toast-root {
+    position: fixed; right: 16px; bottom: 16px; display: flex; flex-direction: column; gap: 8px;
+    z-index: 2000; pointer-events: none;
+  }
+  .app-toast {
+    min-width: 220px; max-width: 320px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border2);
+    background: rgba(26,26,24,.94); color: #fff; box-shadow: 0 10px 24px rgba(0,0,0,.14);
+    font-size: 12px; line-height: 1.45; opacity: 0; transform: translateY(8px); transition: all .18s ease;
+  }
+  .app-toast.is-visible { opacity: 1; transform: translateY(0); }
+  .app-toast-success { background: rgba(15,110,86,.96); border-color: rgba(15,110,86,.96); }
+  .app-toast-error { background: rgba(153,60,29,.96); border-color: rgba(153,60,29,.96); }
+  .app-toast-neutral { background: rgba(26,26,24,.94); border-color: rgba(26,26,24,.94); }
+
   /* CARDS */
   .card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius);
     padding: 20px 24px; margin-bottom: 16px; }
@@ -516,6 +530,98 @@
     .planner-side-stack { width:100%; }
     .planner-task-detail { padding-left:14px; }
     .planner-row-meta { padding-left:14px; }
+  }
+
+  /* DATA PANEL */
+  .dbpanel-head {
+    display:flex; align-items:flex-start; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-bottom:14px;
+  }
+  .dbpanel-sub { font-size:12px; color:var(--text2); margin-bottom:0; }
+  .dbpanel-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .dbpanel-btn {
+    height:30px; border:1px solid var(--border2); border-radius:999px; background:var(--bg);
+    color:var(--text); padding:0 12px; font-size:11px; font-weight:600; cursor:pointer; transition:all .15s;
+  }
+  .dbpanel-btn:hover { border-color:var(--blue); color:var(--blue); background:var(--blue-bg); }
+  .dbpanel-btn-danger:hover { border-color:var(--coral); color:var(--coral); background:var(--coral-bg); }
+  .dbpanel-btn:disabled {
+    opacity:.45; cursor:not-allowed; border-color:var(--border2); color:var(--text3); background:var(--bg2);
+  }
+  .dbpanel-stats {
+    display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); gap:10px; margin-bottom:16px;
+  }
+  .dbpanel-stat {
+    border:1px solid var(--border); border-radius:12px; background:var(--bg2); padding:10px 12px;
+  }
+  .dbpanel-stat-value { font-size:18px; font-weight:700; line-height:1.1; }
+  .dbpanel-stat-label { font-size:11px; color:var(--text2); margin-top:4px; }
+  .dbpanel-layout {
+    display:grid; grid-template-columns:260px minmax(0, 1fr); gap:14px;
+  }
+  .dbpanel-sidebar,
+  .dbpanel-editor { min-width:0; }
+  .dbpanel-box {
+    border:1px solid var(--border); border-radius:12px; background:var(--bg2); padding:12px; margin-bottom:12px;
+  }
+  .dbpanel-box-head h3 { margin:0 0 2px; font-size:13px; }
+  .dbpanel-box-head p { margin:0 0 10px; font-size:11px; color:var(--text2); }
+  .dbpanel-collection-list,
+  .dbpanel-day-list {
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .dbpanel-collection-btn,
+  .dbpanel-day-btn {
+    width:100%; min-height:34px; border:1px solid var(--border2); border-radius:10px; background:var(--bg);
+    color:var(--text); padding:8px 10px; font-size:11px; font-weight:600; text-align:left; cursor:pointer; transition:all .15s;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+  }
+  .dbpanel-collection-btn:hover,
+  .dbpanel-day-btn:hover { border-color:var(--blue); background:var(--blue-bg); color:var(--blue); }
+  .dbpanel-collection-btn.is-active,
+  .dbpanel-day-btn.is-active { border-color:var(--blue); background:var(--blue-bg); color:var(--blue); }
+  .dbpanel-day-btn strong { font-size:10px; color:var(--text2); }
+  .dbpanel-create-day {
+    display:grid; grid-template-columns:minmax(0, 1fr) auto; gap:8px; margin-bottom:10px;
+  }
+  .dbpanel-create-day input,
+  .dbpanel-field textarea {
+    width:100%; border:1px solid var(--border2); border-radius:10px; background:var(--bg); color:var(--text);
+    font:inherit; outline:none; transition:border-color .15s, box-shadow .15s;
+  }
+  .dbpanel-create-day input {
+    height:30px; padding:0 10px; font-size:11px;
+  }
+  .dbpanel-create-day input:focus,
+  .dbpanel-field textarea:focus {
+    border-color:var(--blue); box-shadow:0 0 0 3px rgba(24,95,165,.12);
+  }
+  .dbpanel-empty {
+    border:1px dashed var(--border2); border-radius:10px; padding:10px; background:var(--bg); color:var(--text2); font-size:11px;
+  }
+  .dbpanel-editor {
+    border:1px solid var(--border); border-radius:12px; background:var(--bg2); padding:12px;
+  }
+  .dbpanel-editor-head {
+    display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:10px;
+  }
+  .dbpanel-editor-head h3 { margin:0 0 2px; font-size:14px; }
+  .dbpanel-editor-sub { margin:0; font-size:11px; color:var(--text2); }
+  .dbpanel-field { display:flex; flex-direction:column; gap:6px; }
+  .dbpanel-field span {
+    font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--text2);
+  }
+  .dbpanel-field textarea {
+    min-height:420px; padding:12px; font:12px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; resize:vertical;
+  }
+  @media (max-width: 900px) {
+    .dbpanel-stats { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+    .dbpanel-layout { grid-template-columns:1fr; }
+  }
+  @media (max-width: 600px) {
+    .dbpanel-stats { grid-template-columns:1fr; }
+    .dbpanel-create-day { grid-template-columns:1fr; }
+    .app-toast-root { left:16px; right:16px; }
+    .app-toast { min-width:0; max-width:none; }
   }
 
   /* ===== MAPA NEURAL ===== */
