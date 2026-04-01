@@ -18,7 +18,7 @@ const MAIN_SECTION_IDS = [
 ];
 
 const EXTRA_SECTION_IDS = ['mapa'];
-const APP_ASSET_VERSION = '20260401-6';
+const APP_ASSET_VERSION = '20260401-7';
 const ULTRA_TRACKER_STORAGE_KEY = 'plano.ultraTracker.v1';
 const DAILY_PLANNER_STORAGE_KEY = 'plano.dailyPlanner.v1';
 const DAILY_PLANNER_MAX_FILE_BYTES = 1500000;
@@ -695,17 +695,26 @@ function renderDailyPlanner(root, state) {
   }
 
   const hasAnyTasks = day.tasks.length > 0;
+  root.classList.toggle('is-empty', !hasAnyTasks);
+
+  const toolbar = root.querySelector('.planner-toolbar');
+  if (toolbar) {
+    toolbar.hidden = !hasAnyTasks;
+  }
+
+  if (!hasAnyTasks) {
+    listRoot.innerHTML = `
+      <div class="planner-empty">
+        <div class="planner-empty-title">Nenhuma tarefa criada</div>
+        <div class="planner-empty-sub">Comece pelo que precisa ser entregue hoje.</div>
+        <button class="planner-btn planner-btn-primary" type="button" data-planner-add-task>Nova tarefa</button>
+      </div>
+    `;
+    syncDailyPlannerReportBox(root, state);
+    return;
+  }
 
   listRoot.innerHTML = `
-    ${
-      hasAnyTasks
-        ? ''
-        : `
-          <div class="planner-empty">
-            Nenhuma tarefa criada para este dia ainda. Use <strong>Nova tarefa</strong> ou <strong>Adicionar tarefa</strong> em um status abaixo.
-          </div>
-        `
-    }
     ${PLANNER_STATUS_ORDER
     .map((status) => {
       const statusMeta = getPlannerStatusMeta(status);
