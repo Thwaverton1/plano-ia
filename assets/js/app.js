@@ -19,7 +19,7 @@ const MAIN_SECTION_IDS = [
 ];
 
 const EXTRA_SECTION_IDS = ['mapa'];
-const APP_ASSET_VERSION = '20260401-12';
+const APP_ASSET_VERSION = '20260401-13';
 const ULTRA_TRACKER_STORAGE_KEY = 'plano.ultraTracker.v1';
 const DAILY_PLANNER_STORAGE_KEY = 'plano.dailyPlanner.v1';
 const DAILY_PLANNER_MAX_FILE_BYTES = 1500000;
@@ -91,8 +91,100 @@ function refreshDataViews() {
   refreshSection('painel');
 }
 
+function createUltraTrackerItem(id, text) {
+  return {
+    id,
+    text,
+    done: false,
+  };
+}
+
+function getUltraTrackerDefaultWeeks() {
+  return [
+    {
+      id: 'week-1',
+      title: 'Mapa + baseline',
+      items: [
+        createUltraTrackerItem('w1-define-skill', 'Definir a habilidade em linguagem concreta'),
+        createUltraTrackerItem('w1-select-sources', 'Escolher 3 referências fortes'),
+        createUltraTrackerItem('w1-run-baseline', 'Executar um baseline simples'),
+        createUltraTrackerItem('w1-map-gaps', 'Mapear as principais lacunas'),
+      ],
+    },
+    {
+      id: 'week-2',
+      title: 'Prática direta',
+      items: [
+        createUltraTrackerItem('w2-build-core', 'Construir a tarefa central da sprint'),
+        createUltraTrackerItem('w2-apply-theory', 'Aplicar a teoria imediatamente no projeto'),
+        createUltraTrackerItem('w2-log-errors', 'Registrar erros, hipóteses e correções'),
+        createUltraTrackerItem('w2-functional-v1', 'Chegar a uma versão funcional'),
+      ],
+    },
+    {
+      id: 'week-3',
+      title: 'Repetição + retorno',
+      items: [
+        createUltraTrackerItem('w3-isolate-bottlenecks', 'Isolar os gargalos mais caros'),
+        createUltraTrackerItem('w3-deliberate-drills', 'Fazer drills deliberados'),
+        createUltraTrackerItem('w3-measure', 'Medir contra baseline, benchmark ou checklist'),
+        createUltraTrackerItem('w3-feedback', 'Buscar feedback externo ou comparação forte'),
+      ],
+    },
+    {
+      id: 'week-4',
+      title: 'Integração + prova',
+      items: [
+        createUltraTrackerItem('w4-refactor', 'Refatorar e documentar o projeto'),
+        createUltraTrackerItem('w4-experiment', 'Executar um experimento fora do tutorial'),
+        createUltraTrackerItem('w4-publish', 'Publicar demo, repositório, vídeo ou post'),
+        createUltraTrackerItem('w4-retrospective', 'Escrever uma retrospectiva curta'),
+      ],
+    },
+  ].map((week) => ({
+    ...week,
+    items: week.items.map((item) => ({ ...item })),
+  }));
+}
+
 function getUltraTrackerDefaultState() {
-  return { fields: {}, checks: {} };
+  return { fields: {}, weeks: getUltraTrackerDefaultWeeks() };
+}
+
+function normalizeUltraTrackerItem(item, fallbackId, legacyChecks = {}) {
+  const id = typeof item?.id === 'string' ? item.id : fallbackId || createPlannerId('trk');
+  const text = typeof item?.text === 'string'
+    ? item.text
+    : (typeof item?.label === 'string' ? item.label : 'Novo item');
+  const done = typeof item?.done === 'boolean' ? item.done : Boolean(legacyChecks[id]);
+  return { id, text, done };
+}
+
+function normalizeUltraTrackerWeek(week, index, legacyChecks = {}) {
+  const defaultWeek = getUltraTrackerDefaultWeeks()[index] || null;
+  const itemsSource = Array.isArray(week?.items)
+    ? week.items
+    : (defaultWeek?.items || []);
+
+  return {
+    id: typeof week?.id === 'string' ? week.id : (defaultWeek?.id || `week-${index + 1}`),
+    title: typeof week?.title === 'string' ? week.title : (defaultWeek?.title || `Semana ${index + 1}`),
+    items: itemsSource.map((item, itemIndex) => {
+      const fallbackId = defaultWeek?.items?.[itemIndex]?.id || `week-${index + 1}-item-${itemIndex + 1}`;
+      return normalizeUltraTrackerItem(item, fallbackId, legacyChecks);
+    }),
+  };
+}
+
+function normalizeUltraTrackerState(candidate) {
+  const legacyChecks = candidate && typeof candidate.checks === 'object' ? candidate.checks : {};
+  const defaultWeeks = getUltraTrackerDefaultWeeks();
+  const sourceWeeks = Array.isArray(candidate?.weeks) ? candidate.weeks : [];
+
+  return {
+    fields: candidate && typeof candidate.fields === 'object' ? candidate.fields : {},
+    weeks: defaultWeeks.map((week, index) => normalizeUltraTrackerWeek(sourceWeeks[index] ?? week, index, legacyChecks)),
+  };
 }
 
 function loadUltraTrackerState() {
@@ -101,12 +193,7 @@ function loadUltraTrackerState() {
     if (!raw) {
       return getUltraTrackerDefaultState();
     }
-
-    const parsed = JSON.parse(raw);
-    return {
-      fields: parsed && typeof parsed.fields === 'object' ? parsed.fields : {},
-      checks: parsed && typeof parsed.checks === 'object' ? parsed.checks : {},
-    };
+    return normalizeUltraTrackerState(JSON.parse(raw));
   } catch (err) {
     console.warn('Falha ao carregar o tracker de ultra-aprendizado.', err);
     return getUltraTrackerDefaultState();
@@ -121,10 +208,13 @@ function saveUltraTrackerState(state) {
   }
 }
 
-function normalizeUltraTrackerState(candidate) {
+function getUltraTrackerClearedState(state) {
   return {
-    fields: candidate && typeof candidate.fields === 'object' ? candidate.fields : {},
-    checks: candidate && typeof candidate.checks === 'object' ? candidate.checks : {},
+    fields: {},
+    weeks: state.weeks.map((week) => ({
+      ...week,
+      items: week.items.map((item) => ({ ...item, done: false })),
+    })),
   };
 }
 
@@ -159,10 +249,56 @@ function getTrackerSchedule(startValue) {
   return { activeWeek, status: `Semana ${activeWeek} em andamento` };
 }
 
-function renderUltraTracker(root, state) {
-  const checkEls = Array.from(root.querySelectorAll('[data-tracker-check]'));
-  const totalTasks = checkEls.length;
-  const completedTasks = checkEls.filter((el) => Boolean(state.checks[el.dataset.trackerCheck])).length;
+function findUltraTrackerWeek(state, weekId) {
+  return state.weeks.find((week) => week.id === weekId) || null;
+}
+
+function parseTrackerItemKey(key) {
+  const [weekId, itemId] = String(key || '').split('::');
+  return { weekId, itemId };
+}
+
+function findUltraTrackerItem(state, weekId, itemId) {
+  const week = findUltraTrackerWeek(state, weekId);
+  if (!week) {
+    return { week: null, item: null };
+  }
+
+  const item = week.items.find((entry) => entry.id === itemId) || null;
+  return { week, item };
+}
+
+function renderUltraTrackerTrashIcon() {
+  return `
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M9 3h6l1 2h4v2H4V5h4l1-2z"></path>
+      <path d="M7 8h10l-1 11H8L7 8z"></path>
+      <path d="M10 11v5"></path>
+      <path d="M14 11v5"></path>
+    </svg>
+  `;
+}
+
+function getTrackerWeekTone(index) {
+  return ['purple', 'teal', 'amber', 'coral'][index] || 'purple';
+}
+
+function getTrackerWeekStatusLabel(weekNumber, schedule, weekDone, weekTotal) {
+  if (weekTotal > 0 && weekDone === weekTotal) {
+    return 'Concluída';
+  }
+  if (schedule.activeWeek === weekNumber) {
+    return 'Atual';
+  }
+  return 'Pendente';
+}
+
+function renderUltraTracker(root, state, focusItemKey = '') {
+  const totalTasks = state.weeks.reduce((sum, week) => sum + week.items.length, 0);
+  const completedTasks = state.weeks.reduce(
+    (sum, week) => sum + week.items.filter((item) => item.done).length,
+    0,
+  );
   const sprintPercent = totalTasks ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
   const sprintCountEl = root.querySelector('[data-tracker-sprint-count]');
@@ -174,42 +310,89 @@ function renderUltraTracker(root, state) {
 
   const schedule = getTrackerSchedule(state.fields.sprintStart);
   const weekStats = {};
+  const weeksRoot = root.querySelector('[data-tracker-weeks]');
 
-  root.querySelectorAll('[data-tracker-week]').forEach((weekCard) => {
-    const weekNumber = Number(weekCard.dataset.trackerWeek);
-    const weekChecks = Array.from(weekCard.querySelectorAll('[data-tracker-check]'));
-    const weekTotal = weekChecks.length;
-    const weekDone = weekChecks.filter((el) => Boolean(state.checks[el.dataset.trackerCheck])).length;
-    const weekPercent = weekTotal ? Math.round((weekDone / weekTotal) * 100) : 0;
-    const isCurrent = schedule.activeWeek === weekNumber;
-    const isComplete = weekDone === weekTotal;
+  if (weeksRoot) {
+    weeksRoot.innerHTML = state.weeks
+      .map((week, index) => {
+        const weekNumber = index + 1;
+        const weekDone = week.items.filter((item) => item.done).length;
+        const weekTotal = week.items.length;
+        const weekPercent = weekTotal ? Math.round((weekDone / weekTotal) * 100) : 0;
+        const isCurrent = schedule.activeWeek === weekNumber;
+        const isComplete = weekTotal > 0 && weekDone === weekTotal;
+        const tone = getTrackerWeekTone(index);
+        const statusLabel = getTrackerWeekStatusLabel(weekNumber, schedule, weekDone, weekTotal);
 
-    weekStats[weekNumber] = { total: weekTotal, done: weekDone, percent: weekPercent };
+        weekStats[weekNumber] = { total: weekTotal, done: weekDone, percent: weekPercent };
 
-    weekCard.classList.toggle('is-current', isCurrent);
-    weekCard.classList.toggle('is-complete', isComplete);
-
-    const countEl = weekCard.querySelector(`[data-tracker-week-count="${weekNumber}"]`);
-    const fillEl = weekCard.querySelector(`[data-tracker-week-fill="${weekNumber}"]`);
-    const statusEl = weekCard.querySelector(`[data-tracker-week-status="${weekNumber}"]`);
-
-    if (countEl) countEl.textContent = `${weekDone}/${weekTotal}`;
-    if (fillEl) fillEl.style.width = `${weekPercent}%`;
-
-    if (statusEl) {
-      let status = 'Pendente';
-      if (isComplete) {
-        status = 'Semana concluida';
-      } else if (isCurrent) {
-        status = 'Semana atual';
-      } else if (schedule.activeWeek && weekNumber < schedule.activeWeek) {
-        status = 'Semana anterior';
-      } else if (schedule.activeWeek && weekNumber > schedule.activeWeek) {
-        status = 'Proxima semana';
-      }
-      statusEl.textContent = status;
-    }
-  });
+        return `
+          <div class="tracker-week-card tracker-week-${tone} ${isCurrent ? 'is-current' : ''} ${isComplete ? 'is-complete' : ''}">
+            <div class="tracker-week-head">
+              <div class="tracker-week-top">
+                <span class="tracker-week-kicker">Semana ${weekNumber}</span>
+                <span class="tracker-week-count">${weekDone}/${weekTotal}</span>
+              </div>
+              <div class="tracker-week-title-row">
+                <input
+                  class="tracker-week-title-input"
+                  type="text"
+                  data-tracker-week-title="${escapeHtml(week.id)}"
+                  value="${escapeHtml(week.title)}"
+                  placeholder="Nome da semana"
+                >
+                <button class="tracker-mini-btn" type="button" data-tracker-add-item="${escapeHtml(week.id)}">+ Item</button>
+              </div>
+              <div class="progress-bar tracker-week-progress">
+                <div class="progress-fill tracker-fill tracker-fill-${tone}" style="width:${weekPercent}%"></div>
+              </div>
+              <div class="tracker-week-status-row">
+                <span class="tracker-week-status">${statusLabel}</span>
+                <span class="tracker-week-percent">${weekPercent}%</span>
+              </div>
+            </div>
+            <div class="tracker-item-list">
+              ${
+                week.items.length
+                  ? week.items
+                      .map((item) => {
+                        const compositeKey = `${week.id}::${item.id}`;
+                        return `
+                          <div class="tracker-item-row ${item.done ? 'is-done' : ''}">
+                            <input
+                              class="tracker-item-check"
+                              type="checkbox"
+                              data-tracker-item-check="${escapeHtml(compositeKey)}"
+                              ${item.done ? 'checked' : ''}
+                            >
+                            <input
+                              class="tracker-item-input"
+                              type="text"
+                              data-tracker-item-text="${escapeHtml(compositeKey)}"
+                              value="${escapeHtml(item.text)}"
+                              placeholder="Novo item"
+                            >
+                            <button
+                              class="tracker-icon-btn"
+                              type="button"
+                              data-tracker-delete-item="${escapeHtml(compositeKey)}"
+                              aria-label="Excluir item"
+                              title="Excluir item"
+                            >
+                              ${renderUltraTrackerTrashIcon()}
+                            </button>
+                          </div>
+                        `;
+                      })
+                      .join('')
+                  : '<div class="tracker-empty-list">Sem itens nesta semana. Use + Item.</div>'
+              }
+            </div>
+          </div>
+        `;
+      })
+      .join('');
+  }
 
   const activeWeek = schedule.activeWeek;
   const activeWeekStats = activeWeek ? weekStats[activeWeek] : null;
@@ -224,13 +407,21 @@ function renderUltraTracker(root, state) {
   if (activeWeekCountEl) {
     activeWeekCountEl.textContent = activeWeekStats
       ? `${activeWeekStats.done}/${activeWeekStats.total} tarefas`
-      : '0/4 tarefas';
+      : '0/0 tarefas';
   }
   if (activeWeekStatusEl) {
     activeWeekStatusEl.textContent = schedule.status;
   }
   if (activeWeekFillEl) {
     activeWeekFillEl.style.width = `${activeWeekStats ? activeWeekStats.percent : 0}%`;
+  }
+
+  if (focusItemKey) {
+    const focusEl = root.querySelector(`[data-tracker-item-text="${focusItemKey}"]`);
+    if (focusEl) {
+      focusEl.focus();
+      focusEl.select();
+    }
   }
 }
 
@@ -241,8 +432,8 @@ function initUltraTracker() {
   }
 
   let state = loadUltraTrackerState();
+  let pendingFocusItemKey = '';
   const fieldEls = Array.from(root.querySelectorAll('[data-tracker-field]'));
-  const checkEls = Array.from(root.querySelectorAll('[data-tracker-check]'));
   const syncUltraTrackerFromStorage = () => {
     state = loadUltraTrackerState();
 
@@ -251,12 +442,8 @@ function initUltraTracker() {
       el.value = typeof state.fields[key] === 'string' ? state.fields[key] : '';
     });
 
-    checkEls.forEach((el) => {
-      const key = el.dataset.trackerCheck;
-      el.checked = Boolean(state.checks[key]);
-    });
-
-    renderUltraTracker(root, state);
+    renderUltraTracker(root, state, pendingFocusItemKey);
+    pendingFocusItemKey = '';
   };
 
   fieldEls.forEach((el) => {
@@ -272,37 +459,92 @@ function initUltraTracker() {
     });
   });
 
-  checkEls.forEach((el) => {
-    const key = el.dataset.trackerCheck;
-    el.checked = Boolean(state.checks[key]);
-
-    el.addEventListener('change', () => {
-      state.checks[key] = el.checked;
-      saveUltraTrackerState(state);
-      renderUltraTracker(root, state);
-    });
-  });
-
   const resetButton = root.querySelector('[data-tracker-reset]');
+  const restoreButton = root.querySelector('[data-tracker-restore]');
   const exportButton = root.querySelector('[data-tracker-export]');
   const importTriggerButton = root.querySelector('[data-tracker-import-trigger]');
   const importFileInput = root.querySelector('[data-tracker-import-file]');
 
+  root.addEventListener('input', (event) => {
+    if (event.target.matches('[data-tracker-week-title]')) {
+      const week = findUltraTrackerWeek(state, event.target.dataset.trackerWeekTitle);
+      if (!week) {
+        return;
+      }
+      week.title = event.target.value;
+      saveUltraTrackerState(state);
+      return;
+    }
+
+    if (event.target.matches('[data-tracker-item-text]')) {
+      const { weekId, itemId } = parseTrackerItemKey(event.target.dataset.trackerItemText);
+      const { item } = findUltraTrackerItem(state, weekId, itemId);
+      if (!item) {
+        return;
+      }
+      item.text = event.target.value;
+      saveUltraTrackerState(state);
+    }
+  });
+
+  root.addEventListener('change', (event) => {
+    if (!event.target.matches('[data-tracker-item-check]')) {
+      return;
+    }
+
+    const { weekId, itemId } = parseTrackerItemKey(event.target.dataset.trackerItemCheck);
+    const { item } = findUltraTrackerItem(state, weekId, itemId);
+    if (!item) {
+      return;
+    }
+
+    item.done = event.target.checked;
+    saveUltraTrackerState(state);
+    renderUltraTracker(root, state);
+    refreshSection('painel');
+  });
+
+  root.addEventListener('click', (event) => {
+    const addItemButton = event.target.closest('[data-tracker-add-item]');
+    if (addItemButton) {
+      const week = findUltraTrackerWeek(state, addItemButton.dataset.trackerAddItem);
+      if (!week) {
+        return;
+      }
+
+      const item = createUltraTrackerItem(createPlannerId('trk'), 'Novo item');
+      week.items.push(item);
+      pendingFocusItemKey = `${week.id}::${item.id}`;
+      saveUltraTrackerState(state);
+      renderUltraTracker(root, state, pendingFocusItemKey);
+      pendingFocusItemKey = '';
+      refreshSection('painel');
+      return;
+    }
+
+    const deleteItemButton = event.target.closest('[data-tracker-delete-item]');
+    if (deleteItemButton) {
+      const { weekId, itemId } = parseTrackerItemKey(deleteItemButton.dataset.trackerDeleteItem);
+      const week = findUltraTrackerWeek(state, weekId);
+      if (!week) {
+        return;
+      }
+
+      week.items = week.items.filter((item) => item.id !== itemId);
+      saveUltraTrackerState(state);
+      renderUltraTracker(root, state);
+      refreshSection('painel');
+      return;
+    }
+  });
+
   if (exportButton) {
     exportButton.addEventListener('click', () => {
       const normalized = normalizeUltraTrackerState(state);
-      const blob = new Blob([JSON.stringify(normalized, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
       const focus = normalized.fields.sprintFocus || 'sprint';
       const safeFocus = focus.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'sprint';
 
-      link.href = url;
-      link.download = `ultra-tracker-${safeFocus}.json`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
+      downloadJsonFile(`ultra-tracker-${safeFocus}.json`, normalized);
     });
   }
 
@@ -326,10 +568,6 @@ function initUltraTracker() {
           const key = el.dataset.trackerField;
           el.value = typeof state.fields[key] === 'string' ? state.fields[key] : '';
         });
-        checkEls.forEach((el) => {
-          const key = el.dataset.trackerCheck;
-          el.checked = Boolean(state.checks[key]);
-        });
 
         saveUltraTrackerState(state);
         renderUltraTracker(root, state);
@@ -344,14 +582,26 @@ function initUltraTracker() {
     });
   }
 
-  if (resetButton) {
-    resetButton.addEventListener('click', () => {
+  if (restoreButton) {
+    restoreButton.addEventListener('click', () => {
       state = getUltraTrackerDefaultState();
       fieldEls.forEach((el) => {
-        el.value = '';
+        const key = el.dataset.trackerField;
+        el.value = typeof state.fields[key] === 'string' ? state.fields[key] : '';
       });
-      checkEls.forEach((el) => {
-        el.checked = false;
+
+      saveUltraTrackerState(state);
+      renderUltraTracker(root, state);
+      refreshSection('painel');
+      showToast('Modelo base restaurado.', 'neutral');
+    });
+  }
+
+  if (resetButton) {
+    resetButton.addEventListener('click', () => {
+      state = getUltraTrackerClearedState(state);
+      fieldEls.forEach((el) => {
+        el.value = '';
       });
 
       saveUltraTrackerState(state);

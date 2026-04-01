@@ -179,42 +179,42 @@
 
   /* TRACKER */
   .tracker-head {
-    display:flex; align-items:flex-start; justify-content:space-between; gap:14px; flex-wrap:wrap;
-    margin-bottom:14px;
+    display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap;
+    margin-bottom:12px;
   }
-  .tracker-sub { font-size:13px; color:var(--text2); margin-bottom:0; }
+  .tracker-sub { font-size:12px; color:var(--text2); margin-bottom:0; }
   .tracker-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
   .tracker-btn {
-    height:34px; border:1px solid var(--border2); border-radius:999px; background:var(--bg);
-    color:var(--text); padding:0 14px; font-size:12px; font-weight:600; cursor:pointer; transition:all .15s;
+    height:30px; border:1px solid var(--border2); border-radius:999px; background:var(--bg);
+    color:var(--text); padding:0 12px; font-size:11px; font-weight:600; cursor:pointer; transition:all .15s;
   }
   .tracker-btn:hover { border-color:var(--pink); color:var(--pink); background:var(--pink-bg); }
   .tracker-btn-danger:hover { border-color:var(--coral); color:var(--coral); background:var(--coral-bg); }
   .tracker-meta-grid {
-    display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px; margin-bottom:16px;
+    display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:10px; margin-bottom:12px;
   }
   .tracker-field { display:flex; flex-direction:column; gap:6px; }
   .tracker-field span {
-    font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--text2);
+    font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--text2);
   }
   .tracker-field input {
-    width:100%; height:40px; border:1px solid var(--border2); border-radius:10px; background:var(--bg);
-    padding:0 12px; color:var(--text); font:inherit; outline:none; transition:border-color .15s, box-shadow .15s;
+    width:100%; height:34px; border:1px solid var(--border2); border-radius:10px; background:var(--bg);
+    padding:0 10px; color:var(--text); font:inherit; font-size:12px; outline:none; transition:border-color .15s, box-shadow .15s;
   }
   .tracker-field input:focus {
     border-color:var(--pink); box-shadow:0 0 0 3px rgba(153,53,86,.12);
   }
   .tracker-stats {
-    display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px; margin-bottom:16px;
+    display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px; margin-bottom:10px;
   }
   .tracker-stat {
-    background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px 16px;
+    background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:12px 14px;
   }
   .tracker-stat-top {
-    display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px;
+    display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px;
   }
-  .tracker-stat-label { font-size:12px; font-weight:700; color:var(--text); }
-  .tracker-progress { height:8px; margin:0 0 8px; }
+  .tracker-stat-label { font-size:11px; font-weight:700; color:var(--text); }
+  .tracker-progress { height:6px; margin:0 0 6px; }
   .tracker-fill { width:0; transition:width .2s ease; }
   .tracker-fill-pink { background:var(--pink); }
   .tracker-fill-teal { background:var(--teal-mid); }
@@ -223,31 +223,100 @@
   .tracker-fill-coral { background:var(--coral); }
   .tracker-stat-meta {
     display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
-    font-size:12px; color:var(--text2);
+    font-size:11px; color:var(--text2);
   }
-  .tracker-grid { margin-bottom:12px; }
-  .tracker-week-card { transition:border-color .15s, box-shadow .15s, transform .15s; }
+  .tracker-note,
+  .tracker-tip {
+    border:1px solid var(--border); border-radius:10px; background:var(--bg2); color:var(--text2);
+    padding:10px 12px; font-size:11px; line-height:1.45;
+  }
+  .tracker-note { margin-bottom:10px; }
+  .tracker-tip { margin-top:10px; }
+  .tracker-weeks {
+    display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px;
+  }
+  .tracker-week-card {
+    border:1px solid var(--border); border-radius:12px; background:var(--bg); overflow:hidden;
+    transition:border-color .15s, box-shadow .15s;
+  }
   .tracker-week-card.is-current {
     border-color:rgba(153,53,86,.35); box-shadow:0 0 0 3px rgba(153,53,86,.08);
   }
   .tracker-week-card.is-complete {
     border-color:rgba(15,110,86,.28);
   }
-  .tracker-week-count { font-size:11px; font-weight:700; }
-  .tracker-week-progress { height:6px; margin:0 0 8px; }
+  .tracker-week-head {
+    padding:10px 12px 8px; background:var(--bg2);
+  }
+  .tracker-week-purple .tracker-week-head { background:var(--purple-bg); }
+  .tracker-week-teal .tracker-week-head { background:var(--teal-bg); }
+  .tracker-week-amber .tracker-week-head { background:var(--amber-bg); }
+  .tracker-week-coral .tracker-week-head { background:var(--coral-bg); }
+  .tracker-week-top,
+  .tracker-week-title-row,
+  .tracker-week-status-row {
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+  }
+  .tracker-week-top { margin-bottom:4px; }
+  .tracker-week-kicker {
+    font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--text2);
+  }
+  .tracker-week-count { font-size:11px; font-weight:700; color:var(--text2); }
+  .tracker-week-title-row { align-items:flex-start; margin-bottom:8px; }
+  .tracker-week-title-input {
+    width:100%; min-width:0; border:1px solid transparent; background:transparent; color:var(--text);
+    font-size:15px; font-weight:700; line-height:1.2; font-family:inherit; padding:0; outline:none;
+  }
+  .tracker-week-title-input:focus {
+    border-color:transparent; box-shadow:none; color:var(--text);
+  }
+  .tracker-week-progress { height:5px; margin:0 0 8px; }
   .tracker-week-status {
-    font-size:11px; font-weight:600; color:var(--text2); margin-bottom:8px;
+    display:inline-flex; align-items:center; padding:2px 8px; border-radius:999px; background:rgba(255,255,255,.72);
+    font-size:10px; font-weight:700; color:var(--text2);
   }
-  .tracker-check-item {
-    display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-bottom:1px solid var(--border);
-    font-size:13px; cursor:pointer;
+  .tracker-week-percent { font-size:10px; font-weight:700; color:var(--text2); }
+  .tracker-item-list {
+    padding:8px 12px 10px; display:flex; flex-direction:column; gap:6px;
   }
-  .tracker-check-item:last-child { border-bottom:none; }
-  .tracker-check-item input {
-    width:16px; height:16px; margin-top:2px; flex-shrink:0; accent-color:var(--pink);
+  .tracker-item-row {
+    display:grid; grid-template-columns:16px minmax(0, 1fr) 24px; gap:8px; align-items:center;
+    min-height:30px;
+  }
+  .tracker-item-row.is-done .tracker-item-input {
+    text-decoration:line-through; color:var(--text2);
+  }
+  .tracker-item-check {
+    width:16px; height:16px; accent-color:var(--pink);
+  }
+  .tracker-item-input {
+    width:100%; min-width:0; height:30px; border:1px solid transparent; border-radius:8px; background:transparent;
+    padding:0 6px; color:var(--text); font:inherit; font-size:12px; outline:none; transition:background .15s, border-color .15s;
+  }
+  .tracker-item-input:focus {
+    background:var(--bg2); border-color:var(--border2);
+  }
+  .tracker-mini-btn {
+    height:24px; border:1px solid var(--border2); border-radius:999px; background:var(--bg); color:var(--text);
+    padding:0 8px; font-size:10px; font-weight:600; cursor:pointer; white-space:nowrap; transition:all .15s;
+  }
+  .tracker-mini-btn:hover { border-color:var(--pink); color:var(--pink); background:rgba(153,53,86,.08); }
+  .tracker-icon-btn {
+    width:24px; min-width:24px; height:24px; border:1px solid var(--border2); border-radius:8px; background:var(--bg);
+    color:var(--text2); padding:0; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; transition:all .15s;
+  }
+  .tracker-icon-btn:hover { border-color:var(--coral); color:var(--coral); background:var(--coral-bg); }
+  .tracker-icon-btn svg {
+    width:12px; height:12px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;
+  }
+  .tracker-empty-list {
+    border:1px dashed var(--border2); border-radius:8px; padding:10px; color:var(--text2); font-size:11px; text-align:center;
+  }
+  @media (max-width: 1000px) {
+    .tracker-meta-grid { grid-template-columns:repeat(2, minmax(0, 1fr)); }
   }
   @media (max-width: 700px) {
-    .tracker-meta-grid, .tracker-stats { grid-template-columns:1fr; }
+    .tracker-meta-grid, .tracker-stats, .tracker-weeks { grid-template-columns:1fr; }
   }
 
   /* DAILY PLANNER */

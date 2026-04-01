@@ -67,11 +67,12 @@
     <div class="tracker-head">
       <div>
         <h2>Tracker de sprint (4 semanas)</h2>
-        <p class="tracker-sub">Marque o que foi realmente entregue. Este tracker fica salvo no navegador.</p>
+        <p class="tracker-sub">Edite as semanas, crie seus próprios itens e marque o que foi realmente entregue.</p>
       </div>
       <div class="tracker-actions">
         <button class="tracker-btn" type="button" data-tracker-export>Exportar progresso</button>
         <button class="tracker-btn" type="button" data-tracker-import-trigger>Importar progresso</button>
+        <button class="tracker-btn" type="button" data-tracker-restore>Modelo base</button>
         <button class="tracker-btn tracker-btn-danger" type="button" data-tracker-reset>Limpar tracker</button>
       </div>
     </div>
@@ -135,67 +136,11 @@
       </div>
     </div>
 
-    <div class="alert alert-teal">GitHub Pages deixa o site acessível de qualquer lugar, mas o progresso do tracker continua local ao navegador. Use <strong>Exportar progresso</strong> para levar sua sprint em JSON e <strong>Importar progresso</strong> para continuar em outro dispositivo.</div>
+    <div class="tracker-note">Salvo no navegador. Use exportar/importar se quiser levar a sprint para outro dispositivo.</div>
 
-    <div class="week-grid tracker-grid">
-      <div class="week-card week-purple tracker-week-card" data-tracker-week="1">
-        <div class="week-head">Semana 1 — Mapa + baseline <span class="tracker-week-count" data-tracker-week-count="1">0/4</span></div>
-        <div class="week-body">
-          <div class="progress-bar tracker-week-progress">
-            <div class="progress-fill tracker-fill tracker-fill-purple" data-tracker-week-fill="1"></div>
-          </div>
-          <div class="tracker-week-status" data-tracker-week-status="1">Planejamento da sprint</div>
-          <label class="tracker-check-item"><input type="checkbox" data-tracker-check="w1-define-skill">Definir a habilidade em linguagem concreta</label>
-          <label class="tracker-check-item"><input type="checkbox" data-tracker-check="w1-select-sources">Escolher 3 referências fortes</label>
-          <label class="tracker-check-item"><input type="checkbox" data-tracker-check="w1-run-baseline">Executar um baseline simples</label>
-          <label class="tracker-check-item"><input type="checkbox" data-tracker-check="w1-map-gaps">Mapear as principais lacunas</label>
-        </div>
-      </div>
+    <div class="tracker-weeks" data-tracker-weeks></div>
 
-      <div class="week-card week-teal tracker-week-card" data-tracker-week="2">
-        <div class="week-head">Semana 2 — Prática direta <span class="tracker-week-count" data-tracker-week-count="2">0/4</span></div>
-        <div class="week-body">
-          <div class="progress-bar tracker-week-progress">
-            <div class="progress-fill tracker-fill tracker-fill-teal" data-tracker-week-fill="2"></div>
-          </div>
-          <div class="tracker-week-status" data-tracker-week-status="2">Execução real</div>
-          <label class="tracker-check-item"><input type="checkbox" data-tracker-check="w2-build-core">Construir a tarefa central da sprint</label>
-          <label class="tracker-check-item"><input type="checkbox" data-tracker-check="w2-apply-theory">Aplicar a teoria imediatamente no projeto</label>
-          <label class="tracker-check-item"><input type="checkbox" data-tracker-check="w2-log-errors">Registrar erros, hipóteses e correções</label>
-          <label class="tracker-check-item"><input type="checkbox" data-tracker-check="w2-functional-v1">Chegar a uma versão funcional</label>
-        </div>
-      </div>
-
-      <div class="week-card week-amber tracker-week-card" data-tracker-week="3">
-        <div class="week-head">Semana 3 — Repetição + retorno <span class="tracker-week-count" data-tracker-week-count="3">0/4</span></div>
-        <div class="week-body">
-          <div class="progress-bar tracker-week-progress">
-            <div class="progress-fill tracker-fill tracker-fill-amber" data-tracker-week-fill="3"></div>
-          </div>
-          <div class="tracker-week-status" data-tracker-week-status="3">Correção de gargalos</div>
-          <label class="tracker-check-item"><input type="checkbox" data-tracker-check="w3-isolate-bottlenecks">Isolar os gargalos mais caros</label>
-          <label class="tracker-check-item"><input type="checkbox" data-tracker-check="w3-deliberate-drills">Fazer drills deliberados</label>
-          <label class="tracker-check-item"><input type="checkbox" data-tracker-check="w3-measure">Medir contra baseline, benchmark ou checklist</label>
-          <label class="tracker-check-item"><input type="checkbox" data-tracker-check="w3-feedback">Buscar feedback externo ou comparação forte</label>
-        </div>
-      </div>
-
-      <div class="week-card week-coral tracker-week-card" data-tracker-week="4">
-        <div class="week-head">Semana 4 — Integração + prova <span class="tracker-week-count" data-tracker-week-count="4">0/4</span></div>
-        <div class="week-body">
-          <div class="progress-bar tracker-week-progress">
-            <div class="progress-fill tracker-fill tracker-fill-coral" data-tracker-week-fill="4"></div>
-          </div>
-          <div class="tracker-week-status" data-tracker-week-status="4">Fechamento da sprint</div>
-          <label class="tracker-check-item"><input type="checkbox" data-tracker-check="w4-refactor">Refatorar e documentar o projeto</label>
-          <label class="tracker-check-item"><input type="checkbox" data-tracker-check="w4-experiment">Executar um experimento fora do tutorial</label>
-          <label class="tracker-check-item"><input type="checkbox" data-tracker-check="w4-publish">Publicar demo, repositório, vídeo ou post</label>
-          <label class="tracker-check-item"><input type="checkbox" data-tracker-check="w4-retrospective">Escrever uma retrospectiva curta</label>
-        </div>
-      </div>
-    </div>
-
-    <div class="alert alert-amber">Se uma sprint acabar sem artefato observável, trate como sinal de estudo excessivamente passivo. Ajuste o escopo, não aumente o consumo de conteúdo.</div>
+    <div class="tracker-tip">Se uma sprint acabar sem artefato observável, reduza escopo e aumente prática direta.</div>
   </div>
 
   <div class="card">
