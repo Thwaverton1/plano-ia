@@ -1,0 +1,249 @@
+<div id="ultra-aprendizado" class="section">
+  <div class="phase-header phase-pink">
+    <div class="phase-title">🧭 Método — Ultra-aprendizado</div>
+    <div class="phase-sub">A camada do plano que transforma estudo em habilidade observável · usar em paralelo com qualquer trilha · foco em prática direta, feedback e projetos reais</div>
+  </div>
+
+  <div class="alert alert-teal">Esta seção existe para evitar o erro mais comum: estudar muito e evoluir pouco. A regra aqui é simples: cada bloco de estudo precisa se converter em execução, teste, correção e prova pública de competência.</div>
+
+  <div class="card">
+    <h2>Como esta seção entra no seu plano</h2>
+    <div class="two-col">
+      <div>
+        <h3>O que muda na prática</h3>
+        <ul>
+          <li>Você para de consumir trilhas como currículo e passa a tratá-las como projetos de habilidade</li>
+          <li>Cada tema vira um sprint com objetivo, métrica, artefato e prazo</li>
+          <li>O critério de progresso deixa de ser "assisti/terminei" e vira "construí/testei/publiquei"</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Regra operacional do plano</h3>
+        <ul>
+          <li><strong>Meta-aprendizagem:</strong> mapear o campo antes de mergulhar</li>
+          <li><strong>Prática direta:</strong> gastar a maior parte do tempo fazendo a tarefa real</li>
+          <li><strong>Prova concreta:</strong> fechar cada sprint com demo, relatório, vídeo, repositório ou post técnico</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat">
+        <div class="number-big">50%+</div>
+        <div class="number-label">do tempo em prática direta</div>
+      </div>
+      <div class="stat">
+        <div class="number-big">1</div>
+        <div class="number-label">artefato público por sprint</div>
+      </div>
+      <div class="stat">
+        <div class="number-big">1</div>
+        <div class="number-label">loop de feedback por semana</div>
+      </div>
+      <div class="stat">
+        <div class="number-big">1</div>
+        <div class="number-label">retrospectiva curta toda sexta</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Os 9 princípios aplicados às trilhas de IA</h2>
+    <table>
+      <tr><th>Princípio</th><th>Tradução operacional</th><th>Como usar no seu plano</th></tr>
+      <tr><td>Meta-aprendizagem</td><td>Fazer o mapa antes de estudar</td><td>Antes de começar uma trilha, identificar sub-habilidades, ferramentas, benchmarks e exemplos de profissionais fortes</td></tr>
+      <tr><td>Foco</td><td>Proteger blocos de trabalho profundo</td><td>Nos blocos de conteúdo e projeto, eliminar celular, abas irrelevantes e multitarefa; estudar com objetivo definido para o dia</td></tr>
+      <tr><td>Prática direta</td><td>Treinar no formato do mundo real</td><td>Em vez de só assistir aula de Visão Computacional, treinar modelo, fazer inferência, analisar erro e entregar demo</td></tr>
+      <tr><td>Repetição</td><td>Atacar o ponto fraco isoladamente</td><td>Se o gargalo é CUDA, tuning ou leitura de paper, criar microdrills só para isso até reduzir atrito</td></tr>
+      <tr><td>Recuperação</td><td>Lembrar sem cola</td><td>Usar Anki, flashcards técnicos, explicar de memória e reescrever pipelines sem copiar tutorial</td></tr>
+      <tr><td>Retorno</td><td>Buscar feedback cedo</td><td>Rodar benchmark, pedir revisão, comparar com baseline e expor falhas em vez de esconder resultado ruim</td></tr>
+      <tr><td>Retenção</td><td>Evitar esquecer o que já dominou</td><td>Manter revisão leve semanal de comandos, conceitos, erros comuns e padrões de arquitetura</td></tr>
+      <tr><td>Intuição</td><td>Entender o porquê, não só a receita</td><td>Parar para explicar gradientes, overfitting, exploração, atenção ou SLAM com suas palavras antes de seguir</td></tr>
+      <tr><td>Experimentação</td><td>Sair do script padrão</td><td>Depois de reproduzir o básico, trocar dataset, arquitetura, métrica, domínio ou restrição computacional</td></tr>
+    </table>
+  </div>
+
+  <div class="card" id="ultra-tracker">
+    <div class="tracker-head">
+      <div>
+        <h2>Tracker de sprint (4 semanas)</h2>
+        <p class="tracker-sub">Marque o que foi realmente entregue. Este tracker fica salvo no navegador.</p>
+      </div>
+      <div class="tracker-actions">
+        <button class="tracker-btn" type="button" data-tracker-export>Exportar progresso</button>
+        <button class="tracker-btn" type="button" data-tracker-import-trigger>Importar progresso</button>
+        <button class="tracker-btn tracker-btn-danger" type="button" data-tracker-reset>Limpar tracker</button>
+      </div>
+    </div>
+    <input type="file" id="ultra-tracker-import" data-tracker-import-file accept="application/json" hidden>
+
+    <datalist id="ultra-track-list">
+      <option value="Visão Computacional"></option>
+      <option value="Robótica"></option>
+      <option value="Drone"></option>
+      <option value="Automação"></option>
+      <option value="Aprendizado por Reforço"></option>
+      <option value="Treinamento de Modelos"></option>
+    </datalist>
+
+    <div class="tracker-meta-grid">
+      <label class="tracker-field">
+        <span>Sprint / habilidade</span>
+        <input type="text" data-tracker-field="sprintFocus" placeholder="Ex.: Fine-tuning com QLoRA em um modelo 7B">
+      </label>
+      <label class="tracker-field">
+        <span>Trilha principal</span>
+        <input type="text" list="ultra-track-list" data-tracker-field="track" placeholder="Escolha ou digite uma trilha">
+      </label>
+      <label class="tracker-field">
+        <span>Entrega final</span>
+        <input type="text" data-tracker-field="artifact" placeholder="Ex.: modelo publicado + README + demo">
+      </label>
+      <label class="tracker-field">
+        <span>Início da sprint</span>
+        <input type="date" data-tracker-field="sprintStart">
+      </label>
+    </div>
+
+    <div class="tracker-stats">
+      <div class="tracker-stat">
+        <div class="tracker-stat-top">
+          <span class="tracker-stat-label">Progresso da sprint</span>
+          <strong data-tracker-sprint-percent>0%</strong>
+        </div>
+        <div class="progress-bar tracker-progress">
+          <div class="progress-fill tracker-fill tracker-fill-pink" data-tracker-sprint-fill></div>
+        </div>
+        <div class="tracker-stat-meta">
+          <span data-tracker-sprint-count>0/16 tarefas</span>
+          <span>Meta: terminar com artefato público</span>
+        </div>
+      </div>
+
+      <div class="tracker-stat">
+        <div class="tracker-stat-top">
+          <span class="tracker-stat-label">Semana ativa</span>
+          <strong data-tracker-active-week-label>Defina a data</strong>
+        </div>
+        <div class="progress-bar tracker-progress">
+          <div class="progress-fill tracker-fill tracker-fill-teal" data-tracker-active-week-fill></div>
+        </div>
+        <div class="tracker-stat-meta">
+          <span data-tracker-active-week-count>0/4 tarefas</span>
+          <span data-tracker-active-week-status>Sem data de início</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-teal">GitHub Pages deixa o site acessível de qualquer lugar, mas o progresso do tracker continua local ao navegador. Use <strong>Exportar progresso</strong> para levar sua sprint em JSON e <strong>Importar progresso</strong> para continuar em outro dispositivo.</div>
+
+    <div class="week-grid tracker-grid">
+      <div class="week-card week-purple tracker-week-card" data-tracker-week="1">
+        <div class="week-head">Semana 1 — Mapa + baseline <span class="tracker-week-count" data-tracker-week-count="1">0/4</span></div>
+        <div class="week-body">
+          <div class="progress-bar tracker-week-progress">
+            <div class="progress-fill tracker-fill tracker-fill-purple" data-tracker-week-fill="1"></div>
+          </div>
+          <div class="tracker-week-status" data-tracker-week-status="1">Planejamento da sprint</div>
+          <label class="tracker-check-item"><input type="checkbox" data-tracker-check="w1-define-skill">Definir a habilidade em linguagem concreta</label>
+          <label class="tracker-check-item"><input type="checkbox" data-tracker-check="w1-select-sources">Escolher 3 referências fortes</label>
+          <label class="tracker-check-item"><input type="checkbox" data-tracker-check="w1-run-baseline">Executar um baseline simples</label>
+          <label class="tracker-check-item"><input type="checkbox" data-tracker-check="w1-map-gaps">Mapear as principais lacunas</label>
+        </div>
+      </div>
+
+      <div class="week-card week-teal tracker-week-card" data-tracker-week="2">
+        <div class="week-head">Semana 2 — Prática direta <span class="tracker-week-count" data-tracker-week-count="2">0/4</span></div>
+        <div class="week-body">
+          <div class="progress-bar tracker-week-progress">
+            <div class="progress-fill tracker-fill tracker-fill-teal" data-tracker-week-fill="2"></div>
+          </div>
+          <div class="tracker-week-status" data-tracker-week-status="2">Execução real</div>
+          <label class="tracker-check-item"><input type="checkbox" data-tracker-check="w2-build-core">Construir a tarefa central da sprint</label>
+          <label class="tracker-check-item"><input type="checkbox" data-tracker-check="w2-apply-theory">Aplicar a teoria imediatamente no projeto</label>
+          <label class="tracker-check-item"><input type="checkbox" data-tracker-check="w2-log-errors">Registrar erros, hipóteses e correções</label>
+          <label class="tracker-check-item"><input type="checkbox" data-tracker-check="w2-functional-v1">Chegar a uma versão funcional</label>
+        </div>
+      </div>
+
+      <div class="week-card week-amber tracker-week-card" data-tracker-week="3">
+        <div class="week-head">Semana 3 — Repetição + retorno <span class="tracker-week-count" data-tracker-week-count="3">0/4</span></div>
+        <div class="week-body">
+          <div class="progress-bar tracker-week-progress">
+            <div class="progress-fill tracker-fill tracker-fill-amber" data-tracker-week-fill="3"></div>
+          </div>
+          <div class="tracker-week-status" data-tracker-week-status="3">Correção de gargalos</div>
+          <label class="tracker-check-item"><input type="checkbox" data-tracker-check="w3-isolate-bottlenecks">Isolar os gargalos mais caros</label>
+          <label class="tracker-check-item"><input type="checkbox" data-tracker-check="w3-deliberate-drills">Fazer drills deliberados</label>
+          <label class="tracker-check-item"><input type="checkbox" data-tracker-check="w3-measure">Medir contra baseline, benchmark ou checklist</label>
+          <label class="tracker-check-item"><input type="checkbox" data-tracker-check="w3-feedback">Buscar feedback externo ou comparação forte</label>
+        </div>
+      </div>
+
+      <div class="week-card week-coral tracker-week-card" data-tracker-week="4">
+        <div class="week-head">Semana 4 — Integração + prova <span class="tracker-week-count" data-tracker-week-count="4">0/4</span></div>
+        <div class="week-body">
+          <div class="progress-bar tracker-week-progress">
+            <div class="progress-fill tracker-fill tracker-fill-coral" data-tracker-week-fill="4"></div>
+          </div>
+          <div class="tracker-week-status" data-tracker-week-status="4">Fechamento da sprint</div>
+          <label class="tracker-check-item"><input type="checkbox" data-tracker-check="w4-refactor">Refatorar e documentar o projeto</label>
+          <label class="tracker-check-item"><input type="checkbox" data-tracker-check="w4-experiment">Executar um experimento fora do tutorial</label>
+          <label class="tracker-check-item"><input type="checkbox" data-tracker-check="w4-publish">Publicar demo, repositório, vídeo ou post</label>
+          <label class="tracker-check-item"><input type="checkbox" data-tracker-check="w4-retrospective">Escrever uma retrospectiva curta</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-amber">Se uma sprint acabar sem artefato observável, trate como sinal de estudo excessivamente passivo. Ajuste o escopo, não aumente o consumo de conteúdo.</div>
+  </div>
+
+  <div class="card">
+    <h2>Como adaptar os blocos da sua rotina atual</h2>
+    <table>
+      <tr><th>Bloco atual</th><th>Uso tradicional</th><th>Uso em ultra-aprendizado</th></tr>
+      <tr><td>Conteúdo técnico (60 min)</td><td>Assistir ou ler</td><td>20 min de mapa ou teoria + 40 min aplicando imediatamente no projeto ativo</td></tr>
+      <tr><td>Projeto (45 min)</td><td>Codar o que sobrar</td><td>Virar o bloco principal de prática direta, sempre ligado ao output final da sprint</td></tr>
+      <tr><td>LeetCode / fundamentos</td><td>Resolver exercício</td><td>Usar para drills de raciocínio, debugging e fluência de implementação</td></tr>
+      <tr><td>Inglês técnico</td><td>Exposição geral</td><td>Focar vocabulário do projeto da semana, leitura de docs e explicação oral do que foi construído</td></tr>
+      <tr><td>Sábado</td><td>Revisão ampla</td><td>Fechar entrega semanal, limpar repositório, gravar demo e revisar erros acumulados</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Projetos de ultra-aprendizado por trilha</h2>
+    <table>
+      <tr><th>Trilha</th><th>Projeto ideal</th><th>Prova concreta de habilidade</th></tr>
+      <tr><td>Visão Computacional</td><td>Treinar e avaliar um detector ou segmentador em dataset real com análise de erro</td><td>Notebook reproduzível, métricas, visualizações e demo rodando</td></tr>
+      <tr><td>Robótica</td><td>Montar pipeline em simulação com percepção + planejamento + controle</td><td>Vídeo da simulação, README técnico e parâmetros explicados</td></tr>
+      <tr><td>Drone</td><td>Executar missão em PX4/ArduPilot com sensor, navegação e regra de segurança</td><td>Logs de voo/simulação, vídeo e relatório de falhas</td></tr>
+      <tr><td>Automação</td><td>Substituir um processo manual por um pipeline confiável com logs e monitoramento</td><td>Ferramenta funcionando em produção pessoal e documentação de ROI</td></tr>
+      <tr><td>Aprendizado por Reforço</td><td>Treinar agente com baseline reprodutível, avaliação e comparação entre abordagens</td><td>Curvas de treinamento, vídeo do agente e análise do que realmente melhorou</td></tr>
+      <tr><td>Treinamento de Modelos</td><td>Fine-tuning ou treinamento controlado com tracking, ablação e model card</td><td>Repositório, pesos publicados, métricas e relatório de experimentos</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Checklist antes de começar qualquer habilidade</h2>
+    <ul class="checklist">
+      <li><span class="check-box"></span>Consigo descrever exatamente o que uma pessoa competente faz no mundo real?</li>
+      <li><span class="check-box"></span>Escolhi um projeto que me obriga a executar essa habilidade de verdade?</li>
+      <li><span class="check-box"></span>Defini uma métrica ou evidência concreta de progresso?</li>
+      <li><span class="check-box"></span>Sei de onde virá feedback confiável nas próximas 2 semanas?</li>
+      <li><span class="check-box"></span>Separei quais partes exigem revisão ativa para não esquecer?</li>
+      <li><span class="check-box"></span>Decidi onde vou publicar ou mostrar o resultado final?</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Perguntas de retrospectiva semanal</h2>
+    <ul>
+      <li>O que eu realmente passei a conseguir fazer esta semana que não conseguia antes?</li>
+      <li>Quanto tempo foi para prática direta versus consumo passivo?</li>
+      <li>Qual foi o gargalo técnico dominante?</li>
+      <li>Que feedback recebi e o que ele mudou no projeto?</li>
+      <li>Qual será a prova concreta de habilidade da próxima semana?</li>
+    </ul>
+    <div class="alert alert-teal">Use esta seção como motor transversal do plano inteiro. As trilhas dizem <strong>o que estudar</strong>. O ultra-aprendizado define <strong>como virar competente</strong>.</div>
+  </div>
+</div>
