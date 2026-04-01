@@ -19,7 +19,7 @@ const MAIN_SECTION_IDS = [
 ];
 
 const EXTRA_SECTION_IDS = ['mapa'];
-const APP_ASSET_VERSION = '20260401-13';
+const APP_ASSET_VERSION = '20260401-14';
 const ULTRA_TRACKER_STORAGE_KEY = 'plano.ultraTracker.v1';
 const DAILY_PLANNER_STORAGE_KEY = 'plano.dailyPlanner.v1';
 const DAILY_PLANNER_MAX_FILE_BYTES = 1500000;
@@ -91,6 +91,15 @@ function refreshDataViews() {
   refreshSection('painel');
 }
 
+const ULTRA_TRACKER_BASE_TRACKS = [
+  'Visão Computacional',
+  'Robótica',
+  'Drone',
+  'Automação',
+  'Aprendizado por Reforço',
+  'Treinamento de Modelos',
+];
+
 function createUltraTrackerItem(id, text) {
   return {
     id,
@@ -147,8 +156,13 @@ function getUltraTrackerDefaultWeeks() {
   }));
 }
 
-function getUltraTrackerDefaultState() {
-  return { fields: {}, weeks: getUltraTrackerDefaultWeeks() };
+function createUltraTrackerFields(seed = {}) {
+  return {
+    sprintFocus: typeof seed?.sprintFocus === 'string' ? seed.sprintFocus : '',
+    track: typeof seed?.track === 'string' ? seed.track : '',
+    artifact: typeof seed?.artifact === 'string' ? seed.artifact : '',
+    sprintStart: typeof seed?.sprintStart === 'string' ? seed.sprintStart : '',
+  };
 }
 
 function normalizeUltraTrackerItem(item, fallbackId, legacyChecks = {}) {
@@ -176,14 +190,49 @@ function normalizeUltraTrackerWeek(week, index, legacyChecks = {}) {
   };
 }
 
+function normalizeUltraTrackerSprint(candidate, index = 0, legacyChecks = {}) {
+  const weeksSource = Array.isArray(candidate?.weeks) ? candidate.weeks : [];
+  return {
+    id: typeof candidate?.id === 'string' ? candidate.id : createPlannerId(`uts${index + 1}`),
+    fields: createUltraTrackerFields(candidate?.fields || candidate),
+    weeks: getUltraTrackerDefaultWeeks().map((week, weekIndex) => (
+      normalizeUltraTrackerWeek(weeksSource[weekIndex] ?? week, weekIndex, legacyChecks)
+    )),
+  };
+}
+
+function createUltraTrackerSprint(seed = {}) {
+  return normalizeUltraTrackerSprint(seed);
+}
+
+function getUltraTrackerDefaultState() {
+  const sprint = createUltraTrackerSprint();
+  return {
+    sprints: [sprint],
+    activeSprintId: sprint.id,
+    filterTrack: 'all',
+  };
+}
+
 function normalizeUltraTrackerState(candidate) {
-  const legacyChecks = candidate && typeof candidate.checks === 'object' ? candidate.checks : {};
-  const defaultWeeks = getUltraTrackerDefaultWeeks();
-  const sourceWeeks = Array.isArray(candidate?.weeks) ? candidate.weeks : [];
+  const explicitSprints = Array.isArray(candidate?.sprints);
+  let sprints = [];
+
+  if (explicitSprints) {
+    sprints = candidate.sprints.map((sprint, index) => normalizeUltraTrackerSprint(sprint, index));
+  } else if (candidate && (candidate.fields || candidate.weeks || candidate.checks)) {
+    sprints = [normalizeUltraTrackerSprint(candidate, 0, candidate.checks || {})];
+  } else {
+    sprints = getUltraTrackerDefaultState().sprints;
+  }
+
+  const activeSprintId = typeof candidate?.activeSprintId === 'string' ? candidate.activeSprintId : (sprints[0]?.id || '');
+  const filterTrack = typeof candidate?.filterTrack === 'string' ? candidate.filterTrack : 'all';
 
   return {
-    fields: candidate && typeof candidate.fields === 'object' ? candidate.fields : {},
-    weeks: defaultWeeks.map((week, index) => normalizeUltraTrackerWeek(sourceWeeks[index] ?? week, index, legacyChecks)),
+    sprints,
+    activeSprintId: sprints.some((sprint) => sprint.id === activeSprintId) ? activeSprintId : (sprints[0]?.id || ''),
+    filterTrack,
   };
 }
 
@@ -208,13 +257,124 @@ function saveUltraTrackerState(state) {
   }
 }
 
-function getUltraTrackerClearedState(state) {
+function getUltraTrackerClearedSprint(sprint) {
   return {
-    fields: {},
-    weeks: state.weeks.map((week) => ({
+    ...sprint,
+    fields: createUltraTrackerFields(),
+    weeks: sprint.weeks.map((week) => ({
       ...week,
       items: week.items.map((item) => ({ ...item, done: false })),
     })),
+  };
+}
+
+function getUltraTrackerBaseSprint(sprint) {
+  return {
+    ...sprint,
+    weeks: getUltraTrackerDefaultWeeks(),
+  };
+}
+
+function normalizeUltraTrackerTrack(track) {
+  return String(track || '').trim().replace(/\s+/g, ' ');
+}
+
+function getUltraTrackerTrackKey(track) {
+  const normalized = normalizeUltraTrackerTrack(track);
+  return normalized || '__empty__';
+}
+
+function getUltraTrackerTrackLabel(track) {
+  const normalized = normalizeUltraTrackerTrack(track);
+  return normalized || 'Sem trilha';
+}
+
+function getUltraTrackerFilterOptions(state) {
+  const counts = new Map();
+
+  state.sprints.forEach((sprint) => {
+    const key = getUltraTrackerTrackKey(sprint.fields.track);
+    counts.set(key, (counts.get(key) || 0) + 1);
+  });
+
+  if (state.filterTrack !== 'all' && !counts.has(state.filterTrack)) {
+    counts.set(state.filterTrack, 0);
+  }
+
+  return [
+    { value: 'all', label: 'Todas', count: state.sprints.length },
+    ...Array.from(counts.entries())
+      .map(([value, count]) => ({
+        value,
+        label: value === '__empty__' ? 'Sem trilha' : value,
+        count,
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR')),
+  ];
+}
+
+function sprintMatchesUltraTrackerFilter(sprint, filterTrack) {
+  if (filterTrack === 'all') {
+    return true;
+  }
+  return getUltraTrackerTrackKey(sprint.fields.track) === filterTrack;
+}
+
+function getFilteredUltraTrackerSprints(state) {
+  return state.sprints.filter((sprint) => sprintMatchesUltraTrackerFilter(sprint, state.filterTrack));
+}
+
+function findUltraTrackerSprint(state, sprintId) {
+  return state.sprints.find((sprint) => sprint.id === sprintId) || null;
+}
+
+function getActiveUltraTrackerSprint(state) {
+  const filteredSprints = getFilteredUltraTrackerSprints(state);
+  const selectedSprint = findUltraTrackerSprint(state, state.activeSprintId);
+  if (selectedSprint && filteredSprints.some((sprint) => sprint.id === selectedSprint.id)) {
+    return selectedSprint;
+  }
+  return filteredSprints[0] || null;
+}
+
+function syncUltraTrackerActiveSprint(state) {
+  const activeSprint = getActiveUltraTrackerSprint(state);
+  state.activeSprintId = activeSprint ? activeSprint.id : '';
+  return activeSprint;
+}
+
+function findUltraTrackerWeek(sprint, weekId) {
+  if (!sprint) {
+    return null;
+  }
+  return sprint.weeks.find((week) => week.id === weekId) || null;
+}
+
+function parseTrackerItemKey(key) {
+  const [weekId, itemId] = String(key || '').split('::');
+  return { weekId, itemId };
+}
+
+function findUltraTrackerItem(sprint, weekId, itemId) {
+  const week = findUltraTrackerWeek(sprint, weekId);
+  if (!week) {
+    return { week: null, item: null };
+  }
+
+  const item = week.items.find((entry) => entry.id === itemId) || null;
+  return { week, item };
+}
+
+function getUltraTrackerSprintProgress(sprint) {
+  const total = sprint.weeks.reduce((sum, week) => sum + week.items.length, 0);
+  const done = sprint.weeks.reduce(
+    (sum, week) => sum + week.items.filter((item) => item.done).length,
+    0,
+  );
+  return {
+    total,
+    done,
+    percent: total ? Math.round((done / total) * 100) : 0,
   };
 }
 
@@ -249,25 +409,6 @@ function getTrackerSchedule(startValue) {
   return { activeWeek, status: `Semana ${activeWeek} em andamento` };
 }
 
-function findUltraTrackerWeek(state, weekId) {
-  return state.weeks.find((week) => week.id === weekId) || null;
-}
-
-function parseTrackerItemKey(key) {
-  const [weekId, itemId] = String(key || '').split('::');
-  return { weekId, itemId };
-}
-
-function findUltraTrackerItem(state, weekId, itemId) {
-  const week = findUltraTrackerWeek(state, weekId);
-  if (!week) {
-    return { week: null, item: null };
-  }
-
-  const item = week.items.find((entry) => entry.id === itemId) || null;
-  return { week, item };
-}
-
 function renderUltraTrackerTrashIcon() {
   return `
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -294,126 +435,212 @@ function getTrackerWeekStatusLabel(weekNumber, schedule, weekDone, weekTotal) {
 }
 
 function renderUltraTracker(root, state, focusItemKey = '') {
-  const totalTasks = state.weeks.reduce((sum, week) => sum + week.items.length, 0);
-  const completedTasks = state.weeks.reduce(
-    (sum, week) => sum + week.items.filter((item) => item.done).length,
-    0,
-  );
-  const sprintPercent = totalTasks ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  const activeSprint = syncUltraTrackerActiveSprint(state);
+
+  const filteredSprints = getFilteredUltraTrackerSprints(state);
+  const progress = activeSprint ? getUltraTrackerSprintProgress(activeSprint) : { total: 0, done: 0, percent: 0 };
+  const schedule = getTrackerSchedule(activeSprint?.fields?.sprintStart);
+  const datalist = root.querySelector('#ultra-track-list');
+  const allTracks = Array.from(new Set([
+    ...ULTRA_TRACKER_BASE_TRACKS,
+    ...state.sprints
+      .map((sprint) => normalizeUltraTrackerTrack(sprint.fields.track))
+      .filter(Boolean),
+  ])).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+
+  if (datalist) {
+    datalist.innerHTML = allTracks.map((track) => `<option value="${escapeHtml(track)}"></option>`).join('');
+  }
+
+  root.querySelectorAll('[data-tracker-field]').forEach((input) => {
+    const key = input.dataset.trackerField;
+    input.value = activeSprint ? (activeSprint.fields[key] || '') : '';
+    input.disabled = !activeSprint;
+  });
+
+  const filterList = root.querySelector('[data-tracker-filter-list]');
+  if (filterList) {
+    filterList.innerHTML = getUltraTrackerFilterOptions(state)
+      .map((option) => `
+        <button
+          class="tracker-filter-chip ${state.filterTrack === option.value ? 'is-active' : ''}"
+          type="button"
+          data-tracker-filter="${escapeHtml(option.value)}"
+        >
+          <span>${escapeHtml(option.label)}</span>
+          <span class="tracker-filter-chip-count">${option.count}</span>
+        </button>
+      `)
+      .join('');
+  }
+
+  const filterMeta = root.querySelector('[data-tracker-filter-meta]');
+  if (filterMeta) {
+    filterMeta.textContent = filteredSprints.length
+      ? `${filteredSprints.length} sprint(s) visível(is).`
+      : 'Nenhuma sprint nesta trilha.';
+  }
+
+  const sprintList = root.querySelector('[data-tracker-sprint-list]');
+  if (sprintList) {
+    sprintList.innerHTML = filteredSprints.length
+      ? filteredSprints
+          .map((sprint) => {
+            const sprintProgress = getUltraTrackerSprintProgress(sprint);
+            const isActive = activeSprint && sprint.id === activeSprint.id;
+            const sprintTitle = normalizeUltraTrackerTrack(sprint.fields.sprintFocus) || 'Nova sprint';
+            const sprintTrack = getUltraTrackerTrackLabel(sprint.fields.track);
+            const sprintStart = sprint.fields.sprintStart ? formatPlannerDate(sprint.fields.sprintStart) : 'Sem data';
+            return `
+              <div class="tracker-sprint-card ${isActive ? 'is-active' : ''}">
+                <button class="tracker-sprint-main" type="button" data-tracker-select-sprint="${escapeHtml(sprint.id)}">
+                  <span class="tracker-sprint-track">${escapeHtml(sprintTrack)}</span>
+                  <strong class="tracker-sprint-title">${escapeHtml(sprintTitle)}</strong>
+                  <span class="tracker-sprint-meta">${sprintProgress.done}/${sprintProgress.total} · ${sprintProgress.percent}% · ${escapeHtml(sprintStart)}</span>
+                </button>
+                <button
+                  class="tracker-icon-btn"
+                  type="button"
+                  data-tracker-delete-sprint="${escapeHtml(sprint.id)}"
+                  aria-label="Excluir sprint"
+                  title="Excluir sprint"
+                >
+                  ${renderUltraTrackerTrashIcon()}
+                </button>
+              </div>
+            `;
+          })
+          .join('')
+      : `
+        <div class="tracker-empty-state">
+          <div class="tracker-empty-title">Nenhuma sprint nesta trilha</div>
+          <div class="tracker-empty-sub">Crie uma sprint nova para começar esse ciclo de 4 semanas.</div>
+          <button class="tracker-btn" type="button" data-tracker-add-sprint>Nova sprint</button>
+        </div>
+      `;
+  }
 
   const sprintCountEl = root.querySelector('[data-tracker-sprint-count]');
   const sprintPercentEl = root.querySelector('[data-tracker-sprint-percent]');
   const sprintFillEl = root.querySelector('[data-tracker-sprint-fill]');
-  if (sprintCountEl) sprintCountEl.textContent = `${completedTasks}/${totalTasks} tarefas`;
-  if (sprintPercentEl) sprintPercentEl.textContent = `${sprintPercent}%`;
-  if (sprintFillEl) sprintFillEl.style.width = `${sprintPercent}%`;
+  if (sprintCountEl) sprintCountEl.textContent = `${progress.done}/${progress.total} tarefas`;
+  if (sprintPercentEl) sprintPercentEl.textContent = `${progress.percent}%`;
+  if (sprintFillEl) sprintFillEl.style.width = `${progress.percent}%`;
 
-  const schedule = getTrackerSchedule(state.fields.sprintStart);
-  const weekStats = {};
-  const weeksRoot = root.querySelector('[data-tracker-weeks]');
+  const activeWeekStats = activeSprint && schedule.activeWeek
+    ? (() => {
+        const week = activeSprint.weeks[schedule.activeWeek - 1];
+        const total = week ? week.items.length : 0;
+        const done = week ? week.items.filter((item) => item.done).length : 0;
+        const percent = total ? Math.round((done / total) * 100) : 0;
+        return { total, done, percent };
+      })()
+    : null;
 
-  if (weeksRoot) {
-    weeksRoot.innerHTML = state.weeks
-      .map((week, index) => {
-        const weekNumber = index + 1;
-        const weekDone = week.items.filter((item) => item.done).length;
-        const weekTotal = week.items.length;
-        const weekPercent = weekTotal ? Math.round((weekDone / weekTotal) * 100) : 0;
-        const isCurrent = schedule.activeWeek === weekNumber;
-        const isComplete = weekTotal > 0 && weekDone === weekTotal;
-        const tone = getTrackerWeekTone(index);
-        const statusLabel = getTrackerWeekStatusLabel(weekNumber, schedule, weekDone, weekTotal);
-
-        weekStats[weekNumber] = { total: weekTotal, done: weekDone, percent: weekPercent };
-
-        return `
-          <div class="tracker-week-card tracker-week-${tone} ${isCurrent ? 'is-current' : ''} ${isComplete ? 'is-complete' : ''}">
-            <div class="tracker-week-head">
-              <div class="tracker-week-top">
-                <span class="tracker-week-kicker">Semana ${weekNumber}</span>
-                <span class="tracker-week-count">${weekDone}/${weekTotal}</span>
-              </div>
-              <div class="tracker-week-title-row">
-                <input
-                  class="tracker-week-title-input"
-                  type="text"
-                  data-tracker-week-title="${escapeHtml(week.id)}"
-                  value="${escapeHtml(week.title)}"
-                  placeholder="Nome da semana"
-                >
-                <button class="tracker-mini-btn" type="button" data-tracker-add-item="${escapeHtml(week.id)}">+ Item</button>
-              </div>
-              <div class="progress-bar tracker-week-progress">
-                <div class="progress-fill tracker-fill tracker-fill-${tone}" style="width:${weekPercent}%"></div>
-              </div>
-              <div class="tracker-week-status-row">
-                <span class="tracker-week-status">${statusLabel}</span>
-                <span class="tracker-week-percent">${weekPercent}%</span>
-              </div>
-            </div>
-            <div class="tracker-item-list">
-              ${
-                week.items.length
-                  ? week.items
-                      .map((item) => {
-                        const compositeKey = `${week.id}::${item.id}`;
-                        return `
-                          <div class="tracker-item-row ${item.done ? 'is-done' : ''}">
-                            <input
-                              class="tracker-item-check"
-                              type="checkbox"
-                              data-tracker-item-check="${escapeHtml(compositeKey)}"
-                              ${item.done ? 'checked' : ''}
-                            >
-                            <input
-                              class="tracker-item-input"
-                              type="text"
-                              data-tracker-item-text="${escapeHtml(compositeKey)}"
-                              value="${escapeHtml(item.text)}"
-                              placeholder="Novo item"
-                            >
-                            <button
-                              class="tracker-icon-btn"
-                              type="button"
-                              data-tracker-delete-item="${escapeHtml(compositeKey)}"
-                              aria-label="Excluir item"
-                              title="Excluir item"
-                            >
-                              ${renderUltraTrackerTrashIcon()}
-                            </button>
-                          </div>
-                        `;
-                      })
-                      .join('')
-                  : '<div class="tracker-empty-list">Sem itens nesta semana. Use + Item.</div>'
-              }
-            </div>
-          </div>
-        `;
-      })
-      .join('');
-  }
-
-  const activeWeek = schedule.activeWeek;
-  const activeWeekStats = activeWeek ? weekStats[activeWeek] : null;
   const activeWeekLabelEl = root.querySelector('[data-tracker-active-week-label]');
   const activeWeekCountEl = root.querySelector('[data-tracker-active-week-count]');
   const activeWeekStatusEl = root.querySelector('[data-tracker-active-week-status]');
   const activeWeekFillEl = root.querySelector('[data-tracker-active-week-fill]');
-
   if (activeWeekLabelEl) {
-    activeWeekLabelEl.textContent = activeWeek ? `Semana ${activeWeek}` : 'Defina a data';
+    activeWeekLabelEl.textContent = activeSprint && schedule.activeWeek ? `Semana ${schedule.activeWeek}` : 'Sem sprint ativa';
   }
   if (activeWeekCountEl) {
-    activeWeekCountEl.textContent = activeWeekStats
-      ? `${activeWeekStats.done}/${activeWeekStats.total} tarefas`
-      : '0/0 tarefas';
+    activeWeekCountEl.textContent = activeWeekStats ? `${activeWeekStats.done}/${activeWeekStats.total} tarefas` : '0/0 tarefas';
   }
   if (activeWeekStatusEl) {
-    activeWeekStatusEl.textContent = schedule.status;
+    activeWeekStatusEl.textContent = activeSprint ? schedule.status : 'Selecione ou crie uma sprint';
   }
   if (activeWeekFillEl) {
     activeWeekFillEl.style.width = `${activeWeekStats ? activeWeekStats.percent : 0}%`;
+  }
+
+  const weeksRoot = root.querySelector('[data-tracker-weeks]');
+  if (weeksRoot) {
+    weeksRoot.innerHTML = activeSprint
+      ? activeSprint.weeks
+          .map((week, index) => {
+            const weekNumber = index + 1;
+            const weekDone = week.items.filter((item) => item.done).length;
+            const weekTotal = week.items.length;
+            const weekPercent = weekTotal ? Math.round((weekDone / weekTotal) * 100) : 0;
+            const isCurrent = schedule.activeWeek === weekNumber;
+            const isComplete = weekTotal > 0 && weekDone === weekTotal;
+            const tone = getTrackerWeekTone(index);
+            const statusLabel = getTrackerWeekStatusLabel(weekNumber, schedule, weekDone, weekTotal);
+
+            return `
+              <div class="tracker-week-card tracker-week-${tone} ${isCurrent ? 'is-current' : ''} ${isComplete ? 'is-complete' : ''}">
+                <div class="tracker-week-head">
+                  <div class="tracker-week-top">
+                    <span class="tracker-week-kicker">Semana ${weekNumber}</span>
+                    <span class="tracker-week-count">${weekDone}/${weekTotal}</span>
+                  </div>
+                  <div class="tracker-week-title-row">
+                    <input
+                      class="tracker-week-title-input"
+                      type="text"
+                      data-tracker-week-title="${escapeHtml(week.id)}"
+                      value="${escapeHtml(week.title)}"
+                      placeholder="Nome da semana"
+                    >
+                    <button class="tracker-mini-btn" type="button" data-tracker-add-item="${escapeHtml(week.id)}">+ Item</button>
+                  </div>
+                  <div class="progress-bar tracker-week-progress">
+                    <div class="progress-fill tracker-fill tracker-fill-${tone}" style="width:${weekPercent}%"></div>
+                  </div>
+                  <div class="tracker-week-status-row">
+                    <span class="tracker-week-status">${statusLabel}</span>
+                    <span class="tracker-week-percent">${weekPercent}%</span>
+                  </div>
+                </div>
+                <div class="tracker-item-list">
+                  ${
+                    week.items.length
+                      ? week.items
+                          .map((item) => {
+                            const compositeKey = `${week.id}::${item.id}`;
+                            return `
+                              <div class="tracker-item-row ${item.done ? 'is-done' : ''}">
+                                <input
+                                  class="tracker-item-check"
+                                  type="checkbox"
+                                  data-tracker-item-check="${escapeHtml(compositeKey)}"
+                                  ${item.done ? 'checked' : ''}
+                                >
+                                <input
+                                  class="tracker-item-input"
+                                  type="text"
+                                  data-tracker-item-text="${escapeHtml(compositeKey)}"
+                                  value="${escapeHtml(item.text)}"
+                                  placeholder="Novo item"
+                                >
+                                <button
+                                  class="tracker-icon-btn"
+                                  type="button"
+                                  data-tracker-delete-item="${escapeHtml(compositeKey)}"
+                                  aria-label="Excluir item"
+                                  title="Excluir item"
+                                >
+                                  ${renderUltraTrackerTrashIcon()}
+                                </button>
+                              </div>
+                            `;
+                          })
+                          .join('')
+                      : '<div class="tracker-empty-list">Sem itens nesta semana. Use + Item.</div>'
+                  }
+                </div>
+              </div>
+            `;
+          })
+          .join('')
+      : `
+        <div class="tracker-empty-state">
+          <div class="tracker-empty-title">Nada para mostrar</div>
+          <div class="tracker-empty-sub">Crie uma sprint nova ou troque o filtro de trilha.</div>
+          <button class="tracker-btn" type="button" data-tracker-add-sprint>Nova sprint</button>
+        </div>
+      `;
   }
 
   if (focusItemKey) {
@@ -436,78 +663,146 @@ function initUltraTracker() {
   const fieldEls = Array.from(root.querySelectorAll('[data-tracker-field]'));
   const syncUltraTrackerFromStorage = () => {
     state = loadUltraTrackerState();
-
-    fieldEls.forEach((el) => {
-      const key = el.dataset.trackerField;
-      el.value = typeof state.fields[key] === 'string' ? state.fields[key] : '';
-    });
-
     renderUltraTracker(root, state, pendingFocusItemKey);
     pendingFocusItemKey = '';
   };
 
   fieldEls.forEach((el) => {
-    const key = el.dataset.trackerField;
-    if (typeof state.fields[key] === 'string') {
-      el.value = state.fields[key];
-    }
-
     el.addEventListener('input', () => {
-      state.fields[key] = el.value;
+      const activeSprint = getActiveUltraTrackerSprint(state);
+      if (!activeSprint) {
+        return;
+      }
+
+      const key = el.dataset.trackerField;
+      activeSprint.fields[key] = el.value;
+
+      if (key === 'track' && state.filterTrack !== 'all') {
+        state.filterTrack = getUltraTrackerTrackKey(activeSprint.fields.track);
+      }
+
+      syncUltraTrackerActiveSprint(state);
       saveUltraTrackerState(state);
       renderUltraTracker(root, state);
+      refreshSection('painel');
     });
   });
 
   const resetButton = root.querySelector('[data-tracker-reset]');
   const restoreButton = root.querySelector('[data-tracker-restore]');
+  const addSprintButton = root.querySelector('[data-tracker-add-sprint]');
   const exportButton = root.querySelector('[data-tracker-export]');
   const importTriggerButton = root.querySelector('[data-tracker-import-trigger]');
   const importFileInput = root.querySelector('[data-tracker-import-file]');
 
   root.addEventListener('input', (event) => {
+    const activeSprint = getActiveUltraTrackerSprint(state);
+    if (!activeSprint) {
+      return;
+    }
+
     if (event.target.matches('[data-tracker-week-title]')) {
-      const week = findUltraTrackerWeek(state, event.target.dataset.trackerWeekTitle);
+      const week = findUltraTrackerWeek(activeSprint, event.target.dataset.trackerWeekTitle);
       if (!week) {
         return;
       }
       week.title = event.target.value;
       saveUltraTrackerState(state);
+      refreshSection('painel');
       return;
     }
 
     if (event.target.matches('[data-tracker-item-text]')) {
       const { weekId, itemId } = parseTrackerItemKey(event.target.dataset.trackerItemText);
-      const { item } = findUltraTrackerItem(state, weekId, itemId);
+      const { item } = findUltraTrackerItem(activeSprint, weekId, itemId);
       if (!item) {
         return;
       }
       item.text = event.target.value;
       saveUltraTrackerState(state);
+      refreshSection('painel');
     }
   });
 
   root.addEventListener('change', (event) => {
-    if (!event.target.matches('[data-tracker-item-check]')) {
-      return;
-    }
+    if (event.target.matches('[data-tracker-item-check]')) {
+      const activeSprint = getActiveUltraTrackerSprint(state);
+      if (!activeSprint) {
+        return;
+      }
 
-    const { weekId, itemId } = parseTrackerItemKey(event.target.dataset.trackerItemCheck);
-    const { item } = findUltraTrackerItem(state, weekId, itemId);
-    if (!item) {
-      return;
-    }
+      const { weekId, itemId } = parseTrackerItemKey(event.target.dataset.trackerItemCheck);
+      const { item } = findUltraTrackerItem(activeSprint, weekId, itemId);
+      if (!item) {
+        return;
+      }
 
-    item.done = event.target.checked;
-    saveUltraTrackerState(state);
-    renderUltraTracker(root, state);
-    refreshSection('painel');
+      item.done = event.target.checked;
+      saveUltraTrackerState(state);
+      renderUltraTracker(root, state);
+      refreshSection('painel');
+    }
   });
 
   root.addEventListener('click', (event) => {
+    const filterButton = event.target.closest('[data-tracker-filter]');
+    if (filterButton) {
+      state.filterTrack = filterButton.dataset.trackerFilter;
+      syncUltraTrackerActiveSprint(state);
+      saveUltraTrackerState(state);
+      renderUltraTracker(root, state);
+      return;
+    }
+
+    const selectSprintButton = event.target.closest('[data-tracker-select-sprint]');
+    if (selectSprintButton) {
+      state.activeSprintId = selectSprintButton.dataset.trackerSelectSprint;
+      saveUltraTrackerState(state);
+      renderUltraTracker(root, state);
+      return;
+    }
+
+    const createSprint = () => {
+      const presetTrack = state.filterTrack !== 'all' && state.filterTrack !== '__empty__' ? state.filterTrack : '';
+      const sprint = createUltraTrackerSprint({ fields: { track: presetTrack } });
+      state.sprints.unshift(sprint);
+      state.activeSprintId = sprint.id;
+      if (presetTrack) {
+        state.filterTrack = presetTrack;
+      }
+      syncUltraTrackerActiveSprint(state);
+      saveUltraTrackerState(state);
+      renderUltraTracker(root, state);
+      refreshSection('painel');
+      const focusEl = root.querySelector('[data-tracker-field="sprintFocus"]');
+      if (focusEl) {
+        focusEl.focus();
+        focusEl.select();
+      }
+      showToast('Nova sprint criada.', 'success');
+    };
+
+    if (addSprintButton && event.target.closest('[data-tracker-add-sprint]')) {
+      createSprint();
+      return;
+    }
+
+    const deleteSprintButton = event.target.closest('[data-tracker-delete-sprint]');
+    if (deleteSprintButton) {
+      const sprintId = deleteSprintButton.dataset.trackerDeleteSprint;
+      state.sprints = state.sprints.filter((sprint) => sprint.id !== sprintId);
+      syncUltraTrackerActiveSprint(state);
+      saveUltraTrackerState(state);
+      renderUltraTracker(root, state);
+      refreshSection('painel');
+      showToast('Sprint excluída.', 'neutral');
+      return;
+    }
+
     const addItemButton = event.target.closest('[data-tracker-add-item]');
     if (addItemButton) {
-      const week = findUltraTrackerWeek(state, addItemButton.dataset.trackerAddItem);
+      const activeSprint = getActiveUltraTrackerSprint(state);
+      const week = findUltraTrackerWeek(activeSprint, addItemButton.dataset.trackerAddItem);
       if (!week) {
         return;
       }
@@ -524,8 +819,9 @@ function initUltraTracker() {
 
     const deleteItemButton = event.target.closest('[data-tracker-delete-item]');
     if (deleteItemButton) {
+      const activeSprint = getActiveUltraTrackerSprint(state);
       const { weekId, itemId } = parseTrackerItemKey(deleteItemButton.dataset.trackerDeleteItem);
-      const week = findUltraTrackerWeek(state, weekId);
+      const week = findUltraTrackerWeek(activeSprint, weekId);
       if (!week) {
         return;
       }
@@ -540,11 +836,18 @@ function initUltraTracker() {
 
   if (exportButton) {
     exportButton.addEventListener('click', () => {
-      const normalized = normalizeUltraTrackerState(state);
-      const focus = normalized.fields.sprintFocus || 'sprint';
-      const safeFocus = focus.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'sprint';
+      const activeSprint = getActiveUltraTrackerSprint(state);
+      if (!activeSprint) {
+        showToast('Nenhuma sprint para exportar.', 'error');
+        return;
+      }
 
-      downloadJsonFile(`ultra-tracker-${safeFocus}.json`, normalized);
+      const focus = activeSprint.fields.sprintFocus || 'sprint';
+      const safeFocus = focus.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'sprint';
+      downloadJsonFile(`ultra-tracker-${safeFocus}.json`, {
+        fields: activeSprint.fields,
+        weeks: activeSprint.weeks,
+      });
     });
   }
 
@@ -562,19 +865,24 @@ function initUltraTracker() {
       try {
         const text = await file.text();
         const parsed = JSON.parse(text);
-        state = normalizeUltraTrackerState(parsed);
 
-        fieldEls.forEach((el) => {
-          const key = el.dataset.trackerField;
-          el.value = typeof state.fields[key] === 'string' ? state.fields[key] : '';
-        });
+        if (Array.isArray(parsed?.sprints)) {
+          state = normalizeUltraTrackerState(parsed);
+        } else {
+          const importedSprint = normalizeUltraTrackerSprint(parsed, state.sprints.length, parsed?.checks || {});
+          importedSprint.id = createPlannerId('uts');
+          state.sprints.unshift(importedSprint);
+          state.activeSprintId = importedSprint.id;
+          state.filterTrack = normalizeUltraTrackerTrack(importedSprint.fields.track) ? getUltraTrackerTrackKey(importedSprint.fields.track) : 'all';
+        }
 
+        syncUltraTrackerActiveSprint(state);
         saveUltraTrackerState(state);
         renderUltraTracker(root, state);
         refreshSection('painel');
-        showToast('Tracker importado.', 'success');
+        showToast('Sprint importada.', 'success');
       } catch (err) {
-        showToast('Arquivo invalido do tracker.', 'error');
+        showToast('Arquivo inválido do tracker.', 'error');
         console.warn('Falha ao importar o tracker de ultra-aprendizado.', err);
       } finally {
         importFileInput.value = '';
@@ -584,11 +892,16 @@ function initUltraTracker() {
 
   if (restoreButton) {
     restoreButton.addEventListener('click', () => {
-      state = getUltraTrackerDefaultState();
-      fieldEls.forEach((el) => {
-        const key = el.dataset.trackerField;
-        el.value = typeof state.fields[key] === 'string' ? state.fields[key] : '';
-      });
+      const activeSprint = getActiveUltraTrackerSprint(state);
+      if (!activeSprint) {
+        return;
+      }
+
+      const restored = getUltraTrackerBaseSprint(activeSprint);
+      const index = state.sprints.findIndex((sprint) => sprint.id === activeSprint.id);
+      if (index >= 0) {
+        state.sprints[index] = restored;
+      }
 
       saveUltraTrackerState(state);
       renderUltraTracker(root, state);
@@ -599,15 +912,22 @@ function initUltraTracker() {
 
   if (resetButton) {
     resetButton.addEventListener('click', () => {
-      state = getUltraTrackerClearedState(state);
-      fieldEls.forEach((el) => {
-        el.value = '';
-      });
+      const activeSprint = getActiveUltraTrackerSprint(state);
+      if (!activeSprint) {
+        return;
+      }
 
+      const cleared = getUltraTrackerClearedSprint(activeSprint);
+      const index = state.sprints.findIndex((sprint) => sprint.id === activeSprint.id);
+      if (index >= 0) {
+        state.sprints[index] = cleared;
+      }
+      state.filterTrack = 'all';
+      syncUltraTrackerActiveSprint(state);
       saveUltraTrackerState(state);
       renderUltraTracker(root, state);
       refreshSection('painel');
-      showToast('Tracker limpo.', 'neutral');
+      showToast('Sprint limpa.', 'neutral');
     });
   }
 
@@ -1745,14 +2065,14 @@ function initDataPanel() {
     const editor = root.querySelector('[data-panel-editor]');
     const deleteButton = root.querySelector('[data-panel-delete-record]');
     let payload = trackerState;
-    let exportName = 'ultra-tracker-db.json';
+    let exportName = 'ultra-trackers-db.json';
 
     if (uiState.dataset === 'tracker') {
-      if (editorTitle) editorTitle.textContent = 'Ultra tracker';
-      if (editorSub) editorSub.textContent = 'Campos e checks do ultra-aprendizado salvos neste navegador.';
-      if (editorLabel) editorLabel.textContent = 'JSON do tracker';
+      if (editorTitle) editorTitle.textContent = 'Ultra trackers';
+      if (editorSub) editorSub.textContent = 'Coleção de sprints do ultra-aprendizado salva neste navegador.';
+      if (editorLabel) editorLabel.textContent = 'JSON dos trackers';
       if (deleteButton) {
-        deleteButton.textContent = 'Limpar tracker';
+        deleteButton.textContent = 'Limpar trackers';
         deleteButton.disabled = false;
       }
     } else {
@@ -1853,7 +2173,7 @@ function initDataPanel() {
 
         if (uiState.dataset === 'tracker') {
           saveUltraTrackerState(normalizeUltraTrackerState(parsed));
-          showToast('Tracker salvo pelo painel.', 'success');
+          showToast('Trackers salvos pelo painel.', 'success');
         } else {
           const plannerState = loadDailyPlannerState();
           const targetDate = uiState.selectedDay || root.querySelector('[data-panel-new-day-date]')?.value || getTodayIsoDate();

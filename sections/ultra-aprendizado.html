@@ -70,10 +70,11 @@
         <p class="tracker-sub">Edite as semanas, crie seus próprios itens e marque o que foi realmente entregue.</p>
       </div>
       <div class="tracker-actions">
+        <button class="tracker-btn" type="button" data-tracker-add-sprint>Nova sprint</button>
         <button class="tracker-btn" type="button" data-tracker-export>Exportar progresso</button>
         <button class="tracker-btn" type="button" data-tracker-import-trigger>Importar progresso</button>
         <button class="tracker-btn" type="button" data-tracker-restore>Modelo base</button>
-        <button class="tracker-btn tracker-btn-danger" type="button" data-tracker-reset>Limpar tracker</button>
+        <button class="tracker-btn tracker-btn-danger" type="button" data-tracker-reset>Limpar sprint</button>
       </div>
     </div>
     <input type="file" id="ultra-tracker-import" data-tracker-import-file accept="application/json" hidden>
@@ -136,7 +137,17 @@
       </div>
     </div>
 
-    <div class="tracker-note">Salvo no navegador. Use exportar/importar se quiser levar a sprint para outro dispositivo.</div>
+    <div class="tracker-note">Salvo no navegador. Você pode ter várias sprints de 4 semanas, filtrar por trilha e continuar cada uma separadamente.</div>
+
+    <div class="tracker-toolbar">
+      <div class="tracker-filter-group" role="group" aria-label="Filtro de trilha">
+        <span class="tracker-filter-label">Trilha</span>
+        <div class="tracker-filter-list" data-tracker-filter-list></div>
+      </div>
+      <div class="tracker-filter-meta" data-tracker-filter-meta>1 sprint visível.</div>
+    </div>
+
+    <div class="tracker-sprint-list" data-tracker-sprint-list></div>
 
     <div class="tracker-weeks" data-tracker-weeks></div>
 
