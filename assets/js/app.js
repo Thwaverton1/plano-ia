@@ -18,7 +18,7 @@ const MAIN_SECTION_IDS = [
 ];
 
 const EXTRA_SECTION_IDS = ['mapa'];
-const APP_ASSET_VERSION = '20260401-9';
+const APP_ASSET_VERSION = '20260401-10';
 const ULTRA_TRACKER_STORAGE_KEY = 'plano.ultraTracker.v1';
 const DAILY_PLANNER_STORAGE_KEY = 'plano.dailyPlanner.v1';
 const DAILY_PLANNER_MAX_FILE_BYTES = 1500000;
@@ -655,6 +655,17 @@ function renderPlannerStatusOptions(selectedValue) {
     .join('');
 }
 
+function renderPlannerTrashIcon() {
+  return `
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M9 3h6l1 2h4v2H4V5h4l1-2z"></path>
+      <path d="M7 8h10l-1 11H8L7 8z"></path>
+      <path d="M10 11v5"></path>
+      <path d="M14 11v5"></path>
+    </svg>
+  `;
+}
+
 function countPlannerDeliveries(task) {
   return task.subtasks.filter((subtask) => subtask.deliveryText.trim() || subtask.attachment).length;
 }
@@ -829,7 +840,15 @@ function renderDailyPlanner(root, state) {
                                 </details>
                               </div>
                               <div class="planner-subtask-actions">
-                                <button class="planner-mini-btn planner-mini-btn-danger" type="button" data-planner-delete-subtask="${escapeHtml(compositeKey)}">Remover</button>
+                                <button
+                                  class="planner-mini-btn planner-mini-btn-danger planner-icon-btn"
+                                  type="button"
+                                  data-planner-delete-subtask="${escapeHtml(compositeKey)}"
+                                  aria-label="Excluir subtarefa"
+                                  title="Excluir subtarefa"
+                                >
+                                  ${renderPlannerTrashIcon()}
+                                </button>
                               </div>
                             </div>
                           `;
@@ -863,7 +882,15 @@ function renderDailyPlanner(root, state) {
                 </div>
                 <div class="planner-col planner-col-actions">
                   <button class="planner-mini-btn" type="button" data-planner-add-subtask="${escapeHtml(task.id)}">+ Sub</button>
-                  <button class="planner-mini-btn planner-mini-btn-danger" type="button" data-planner-delete-task="${escapeHtml(task.id)}">Excluir</button>
+                  <button
+                    class="planner-mini-btn planner-mini-btn-danger planner-icon-btn"
+                    type="button"
+                    data-planner-delete-task="${escapeHtml(task.id)}"
+                    aria-label="Excluir tarefa"
+                    title="Excluir tarefa"
+                  >
+                    ${renderPlannerTrashIcon()}
+                  </button>
                 </div>
               </div>
               <div class="planner-row-meta">${deliveryCount} entrega(s) registradas</div>

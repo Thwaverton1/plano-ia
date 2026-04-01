@@ -459,6 +459,12 @@
   }
   .planner-mini-btn:hover { border-color:var(--blue); color:var(--blue); background:var(--blue-bg); }
   .planner-mini-btn-danger:hover { border-color:var(--coral); color:var(--coral); background:var(--coral-bg); }
+  .planner-icon-btn {
+    width:26px; min-width:26px; padding:0; border-radius:8px; display:inline-flex; align-items:center; justify-content:center;
+  }
+  .planner-icon-btn svg {
+    width:12px; height:12px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;
+  }
   .planner-subtask-list { display:flex; flex-direction:column; gap:10px; }
   .planner-subtask-card {
     border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg); padding:12px;
