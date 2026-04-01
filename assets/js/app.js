@@ -18,10 +18,11 @@ const MAIN_SECTION_IDS = [
 ];
 
 const EXTRA_SECTION_IDS = ['mapa'];
+const APP_ASSET_VERSION = '20260401-2';
 const ULTRA_TRACKER_STORAGE_KEY = 'plano.ultraTracker.v1';
 
 async function loadSectionHtml(id) {
-  const resp = await fetch(`sections/${id}.html`);
+  const resp = await fetch(`sections/${id}.html?v=${APP_ASSET_VERSION}`);
   if (!resp.ok) {
     throw new Error(`Falha ao carregar seção "${id}" (${resp.status})`);
   }
@@ -318,6 +319,10 @@ function show(id, tabEl) {
   const tab = tabEl || getTabBySection(id);
   if (tab) {
     tab.classList.add('active');
+  }
+
+  if (window.location.hash !== `#${id}`) {
+    window.history.replaceState(null, '', `#${id}`);
   }
 
   document.body.classList.toggle('mapa-mode', id === 'mapa');
