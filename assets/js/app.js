@@ -694,17 +694,19 @@ function renderDailyPlanner(root, state) {
     return;
   }
 
-  if (!day.tasks.length) {
-    listRoot.innerHTML = `
-      <div class="planner-empty">
-        Nenhuma tarefa criada para este dia ainda. Clique em <strong>Nova tarefa</strong> e comece pelo que realmente precisa ser entregue.
-      </div>
-    `;
-    syncDailyPlannerReportBox(root, state);
-    return;
-  }
+  const hasAnyTasks = day.tasks.length > 0;
 
-  listRoot.innerHTML = PLANNER_STATUS_ORDER
+  listRoot.innerHTML = `
+    ${
+      hasAnyTasks
+        ? ''
+        : `
+          <div class="planner-empty">
+            Nenhuma tarefa criada para este dia ainda. Use <strong>Nova tarefa</strong> ou <strong>Adicionar tarefa</strong> em um status abaixo.
+          </div>
+        `
+    }
+    ${PLANNER_STATUS_ORDER
     .map((status) => {
       const statusMeta = getPlannerStatusMeta(status);
       const tasksInGroup = day.tasks.filter((task) => task.status === status);
@@ -863,7 +865,8 @@ function renderDailyPlanner(root, state) {
         </div>
       `;
     })
-    .join('');
+    .join('')}
+  `;
 
   syncDailyPlannerReportBox(root, state);
 }
