@@ -280,18 +280,29 @@
   .planner-stat-row { margin-top:0; }
   .planner-toolbar {
     display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin:8px 0 14px;
+    padding:8px 10px; border:1px solid var(--border); border-radius:12px; background:var(--bg2);
   }
   .planner-filter-group { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
   .planner-filter-label {
     font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--text2);
   }
   .planner-filter-chip {
-    height:30px; border:1px solid var(--border2); border-radius:999px; background:var(--bg); color:var(--text2);
-    padding:0 10px; height:28px; font-size:10px; font-weight:600; cursor:pointer; transition:all .15s;
+    height:28px; border:1px solid var(--border2); border-radius:999px; background:var(--bg); color:var(--text2);
+    padding:0 10px; font-size:10px; font-weight:600; cursor:pointer; transition:all .15s;
+    display:inline-flex; align-items:center; gap:6px;
   }
   .planner-filter-chip:hover { border-color:var(--blue); color:var(--blue); background:var(--blue-bg); }
   .planner-filter-chip.is-active { border-color:var(--blue); color:var(--blue); background:var(--blue-bg); }
-  .planner-filter-meta { font-size:11px; color:var(--text2); }
+  .planner-filter-chip-count {
+    min-width:16px; height:16px; border-radius:999px; background:var(--bg2); color:var(--text2);
+    display:inline-flex; align-items:center; justify-content:center; padding:0 5px; font-size:9px; font-weight:700;
+  }
+  .planner-filter-chip.is-active .planner-filter-chip-count {
+    background:rgba(24,95,165,.12); color:var(--blue);
+  }
+  .planner-filter-meta {
+    font-size:11px; color:var(--text2); white-space:nowrap;
+  }
   .planner-report-box {
     border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg2); padding:12px 14px; margin-bottom:14px;
   }

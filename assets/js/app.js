@@ -18,7 +18,7 @@ const MAIN_SECTION_IDS = [
 ];
 
 const EXTRA_SECTION_IDS = ['mapa'];
-const APP_ASSET_VERSION = '20260401-8';
+const APP_ASSET_VERSION = '20260401-9';
 const ULTRA_TRACKER_STORAGE_KEY = 'plano.ultraTracker.v1';
 const DAILY_PLANNER_STORAGE_KEY = 'plano.dailyPlanner.v1';
 const DAILY_PLANNER_MAX_FILE_BYTES = 1500000;
@@ -358,9 +358,9 @@ function createPlannerTask(status = 'pending') {
     title: 'Nova tarefa',
     priority: 'medium',
     status,
-    expanded: true,
+    expanded: false,
     done: false,
-    subtasks: [createPlannerSubtask()],
+    subtasks: [],
   };
 }
 
@@ -508,11 +508,26 @@ function getPlannerStatusMeta(status) {
   return map[status] || map.pending;
 }
 
-function getPlannerFilterMeta(filterStatus) {
+function isPlannerTaskDone(task) {
+  return task.status === 'done';
+}
+
+function getPlannerFilterCounts(day) {
+  return {
+    all: day.tasks.length,
+    pending: day.tasks.filter((task) => !isPlannerTaskDone(task)).length,
+    done: day.tasks.filter((task) => isPlannerTaskDone(task)).length,
+  };
+}
+
+function getPlannerFilterMeta(filterStatus, counts) {
+  const total = counts?.all ?? 0;
+  const pending = counts?.pending ?? 0;
+  const done = counts?.done ?? 0;
   const map = {
-    all: 'Mostrando todas as subtarefas.',
-    pending: 'Mostrando apenas subtarefas pendentes.',
-    done: 'Mostrando apenas subtarefas concluídas.',
+    all: `${total} tarefa(s) neste dia.`,
+    pending: `${pending} tarefa(s) pendente(s).`,
+    done: `${done} tarefa(s) concluída(s).`,
   };
   return map[filterStatus] || map.all;
 }
@@ -523,6 +538,16 @@ function shouldShowPlannerSubtask(subtask, filterStatus) {
   }
   if (filterStatus === 'done') {
     return subtask.done;
+  }
+  return true;
+}
+
+function shouldShowPlannerTask(task, filterStatus) {
+  if (filterStatus === 'pending') {
+    return !isPlannerTaskDone(task);
+  }
+  if (filterStatus === 'done') {
+    return isPlannerTaskDone(task);
   }
   return true;
 }
@@ -677,18 +702,24 @@ function renderDailyPlanner(root, state) {
     dateInput.value = state.selectedDate;
   }
 
+  const day = getPlannerDay(state);
+  const filterCounts = getPlannerFilterCounts(day);
+
   root.querySelectorAll('[data-planner-filter]').forEach((button) => {
     button.classList.toggle('is-active', button.dataset.plannerFilter === state.filterStatus);
+    const countEl = button.querySelector('[data-planner-filter-count]');
+    if (countEl) {
+      countEl.textContent = String(filterCounts[button.dataset.plannerFilter] ?? 0);
+    }
   });
 
   const filterMetaEl = root.querySelector('[data-planner-filter-meta]');
   if (filterMetaEl) {
-    filterMetaEl.textContent = getPlannerFilterMeta(state.filterStatus);
+    filterMetaEl.textContent = getPlannerFilterMeta(state.filterStatus, filterCounts);
   }
 
   renderDailyPlannerStats(root, state);
 
-  const day = getPlannerDay(state);
   const listRoot = root.querySelector('[data-planner-list]');
   if (!listRoot) {
     return;
@@ -718,16 +749,7 @@ function renderDailyPlanner(root, state) {
     .map((status) => {
       const statusMeta = getPlannerStatusMeta(status);
       const tasksInGroup = day.tasks.filter((task) => task.status === status);
-      const visibleTasks = tasksInGroup
-        .map((task) => {
-          const visibleSubtasks = task.subtasks.filter((subtask) => shouldShowPlannerSubtask(subtask, state.filterStatus));
-          return {
-            task,
-            visibleSubtasks,
-            hiddenCount: task.subtasks.length - visibleSubtasks.length,
-          };
-        })
-        .filter(({ visibleSubtasks }) => visibleSubtasks.length > 0 || state.filterStatus === 'all');
+      const visibleTasks = tasksInGroup.filter((task) => shouldShowPlannerTask(task, state.filterStatus));
 
       const shouldRenderGroup = state.filterStatus === 'all'
         ? tasksInGroup.length > 0
@@ -738,7 +760,7 @@ function renderDailyPlanner(root, state) {
       }
 
       const bodyHtml = visibleTasks
-        .map(({ task, visibleSubtasks, hiddenCount }) => {
+        .map((task) => {
           const completedSubtasks = task.subtasks.filter((subtask) => subtask.done).length;
           const totalSubtasks = task.subtasks.length;
           const deliveryCount = countPlannerDeliveries(task);
@@ -748,19 +770,15 @@ function renderDailyPlanner(root, state) {
             ? `
               <div class="planner-task-detail">
                 ${
-                  hiddenCount > 0
-                    ? `<div class="planner-detail-note">${hiddenCount} subtarefa(s) ocultas pelo filtro atual.</div>`
-                    : ''
-                }
-                <div class="planner-subtask-head-row">
-                  <span>Subtarefa</span>
-                  <span>Hora</span>
-                  <span>Entrega</span>
-                  <span>Ações</span>
-                </div>
-                ${
-                  visibleSubtasks.length
-                    ? visibleSubtasks
+                  task.subtasks.length
+                    ? `
+                      <div class="planner-subtask-head-row">
+                        <span>Subtarefa</span>
+                        <span>Hora</span>
+                        <span>Entrega</span>
+                        <span>Ações</span>
+                      </div>
+                      ${task.subtasks
                         .map((subtask) => {
                           const compositeKey = `${task.id}::${subtask.id}`;
                           const attachment = subtask.attachment
@@ -816,8 +834,9 @@ function renderDailyPlanner(root, state) {
                             </div>
                           `;
                         })
-                        .join('')
-                    : '<div class="planner-group-empty">Nenhuma subtarefa visível com o filtro atual.</div>'
+                        .join('')}
+                    `
+                    : '<div class="planner-group-empty">Nenhuma subtarefa criada. Use + Sub.</div>'
                 }
               </div>
             `
