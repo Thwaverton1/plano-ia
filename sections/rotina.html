@@ -2,6 +2,57 @@
   <div class="sec-title">Rotina diária — o sistema que sustenta os 730 dias</div>
   <div class="sec-sub">A rotina é a mesma todos os dias. O conteúdo muda conforme a fase. Dois tipos de dia: dia de semana e fim de semana.</div>
 
+  <div class="card" id="daily-planner">
+    <div class="planner-head">
+      <div>
+        <h2>Planejador do dia</h2>
+        <p class="planner-sub">Crie tarefas, quebre em subtarefas e registre a entrega de cada uma com mensagem ou arquivo pequeno.</p>
+      </div>
+      <div class="planner-actions">
+        <button class="planner-btn" type="button" data-planner-add-task>Nova tarefa</button>
+        <button class="planner-btn" type="button" data-planner-export>Exportar dia</button>
+        <button class="planner-btn" type="button" data-planner-import-trigger>Importar dia</button>
+        <button class="planner-btn planner-btn-danger" type="button" data-planner-clear-day>Limpar dia</button>
+      </div>
+    </div>
+
+    <input type="file" data-planner-import-file accept="application/json" hidden>
+
+    <div class="planner-meta-grid">
+      <label class="planner-field">
+        <span>Dia</span>
+        <input type="date" data-planner-date>
+      </label>
+      <div class="planner-file-note">
+        <strong>Entrega por subtarefa</strong>
+        <p>Use texto para resumo, link ou mensagem curta. Se precisar anexar algo, prefira arquivo pequeno para não estourar o limite do navegador.</p>
+      </div>
+    </div>
+
+    <div class="stat-row planner-stat-row">
+      <div class="stat">
+        <div class="number-big" data-planner-task-total>0</div>
+        <div class="number-label">tarefas no dia</div>
+      </div>
+      <div class="stat">
+        <div class="number-big" data-planner-subtask-total>0</div>
+        <div class="number-label">subtarefas no dia</div>
+      </div>
+      <div class="stat">
+        <div class="number-big" data-planner-done-total>0</div>
+        <div class="number-label">subtarefas concluídas</div>
+      </div>
+      <div class="stat">
+        <div class="number-big" data-planner-delivery-total>0</div>
+        <div class="number-label">entregas registradas</div>
+      </div>
+    </div>
+
+    <div class="alert alert-teal">Tudo fica salvo no navegador. Para continuar em outro dispositivo, exporte o dia e depois importe o JSON.</div>
+
+    <div class="planner-list" data-planner-list></div>
+  </div>
+
   <div class="card">
     <h2>Dia de semana (Segunda a Sexta) — 2h30 distribuídas</h2>
     <div class="day-grid">
@@ -81,4 +132,3 @@
     <div class="alert alert-amber">Se 3 ou mais respostas forem "não": é sinal de que a semana foi excepcionalmente difícil (ok, acontece) ou que há um problema de sistema que precisa ser corrigido (mude a rotina, não desista do plano).</div>
   </div>
 </div>
-
