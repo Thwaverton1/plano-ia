@@ -12,15 +12,20 @@
       </div>
       <div class="dbpanel-actions">
         <button class="dbpanel-btn" type="button" data-panel-export-db>Exportar banco</button>
-        <button class="dbpanel-btn" type="button" data-panel-import-db-trigger>Importar banco</button>
-        <button class="dbpanel-btn dbpanel-btn-danger" type="button" data-panel-clear-db>Limpar banco</button>
+        <details class="action-menu">
+          <summary class="dbpanel-btn action-menu-summary">Mais ações</summary>
+          <div class="action-menu-list">
+            <button class="dbpanel-btn" type="button" data-panel-import-db-trigger>Importar banco</button>
+            <button class="dbpanel-btn dbpanel-btn-danger" type="button" data-panel-clear-db>Limpar banco</button>
+          </div>
+        </details>
       </div>
       <input type="file" data-panel-import-db-file accept="application/json" hidden>
     </div>
 
     <div class="dbpanel-stats">
       <div class="dbpanel-stat">
-        <div class="dbpanel-stat-value" data-panel-stat="collections">2</div>
+        <div class="dbpanel-stat-value" data-panel-stat="collections">3</div>
         <div class="dbpanel-stat-label">coleções</div>
       </div>
       <div class="dbpanel-stat">
@@ -50,6 +55,7 @@
           </div>
           <div class="dbpanel-collection-list">
             <button class="dbpanel-collection-btn is-active" type="button" data-panel-dataset="tracker">Ultra trackers</button>
+            <button class="dbpanel-collection-btn" type="button" data-panel-dataset="pomodo">Pomodo</button>
             <button class="dbpanel-collection-btn" type="button" data-panel-dataset="planner">Planejador diário</button>
           </div>
         </div>
@@ -74,9 +80,14 @@
             <p class="dbpanel-editor-sub" data-panel-editor-sub>Edite o JSON salvo no navegador.</p>
           </div>
           <div class="dbpanel-actions">
-            <button class="dbpanel-btn" type="button" data-panel-export-record>Exportar registro</button>
             <button class="dbpanel-btn" type="button" data-panel-save-record>Salvar</button>
-            <button class="dbpanel-btn dbpanel-btn-danger" type="button" data-panel-delete-record>Excluir registro</button>
+            <details class="action-menu">
+              <summary class="dbpanel-btn action-menu-summary">Mais ações</summary>
+              <div class="action-menu-list">
+                <button class="dbpanel-btn" type="button" data-panel-export-record>Exportar registro</button>
+                <button class="dbpanel-btn dbpanel-btn-danger" type="button" data-panel-delete-record>Excluir registro</button>
+              </div>
+            </details>
           </div>
         </div>
 

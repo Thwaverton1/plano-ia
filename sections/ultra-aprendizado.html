@@ -71,10 +71,15 @@
       </div>
       <div class="tracker-actions">
         <button class="tracker-btn tracker-btn-primary" type="button" data-tracker-add-sprint>+ Sprint</button>
-        <button class="tracker-btn" type="button" data-tracker-export>Exportar progresso</button>
-        <button class="tracker-btn" type="button" data-tracker-import-trigger>Importar progresso</button>
-        <button class="tracker-btn" type="button" data-tracker-restore>Modelo base</button>
-        <button class="tracker-btn tracker-btn-danger" type="button" data-tracker-reset>Limpar sprint</button>
+        <details class="action-menu">
+          <summary class="tracker-btn action-menu-summary">Mais ações</summary>
+          <div class="action-menu-list">
+            <button class="tracker-btn" type="button" data-tracker-export>Exportar progresso</button>
+            <button class="tracker-btn" type="button" data-tracker-import-trigger>Importar progresso</button>
+            <button class="tracker-btn" type="button" data-tracker-restore>Modelo base</button>
+            <button class="tracker-btn tracker-btn-danger" type="button" data-tracker-reset>Limpar sprint</button>
+          </div>
+        </details>
       </div>
     </div>
     <input type="file" id="ultra-tracker-import" data-tracker-import-file accept="application/json" hidden>

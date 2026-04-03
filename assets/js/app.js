@@ -6,6 +6,7 @@ const MAIN_SECTION_IDS = [
   'fase2',
   'fase3',
   'rotina',
+  'pomodo',
   'ultra-aprendizado',
   'painel',
   'recursos',
@@ -19,12 +20,84 @@ const MAIN_SECTION_IDS = [
 ];
 
 const EXTRA_SECTION_IDS = ['mapa'];
-const APP_ASSET_VERSION = '20260401-16';
+const APP_ASSET_VERSION = '20260403-ux6';
 const ULTRA_TRACKER_STORAGE_KEY = 'plano.ultraTracker.v1';
 const DAILY_PLANNER_STORAGE_KEY = 'plano.dailyPlanner.v1';
+const POMODO_STORAGE_KEY = 'plano.pomodo.v1';
 const DAILY_PLANNER_MAX_FILE_BYTES = 1500000;
 const PLANNER_STATUS_ORDER = ['backlog', 'pending', 'progress', 'review', 'done'];
+const POMODO_DURATION_OPTIONS = [25, 45, 60, 90];
+const POMODO_DEFAULT_DURATION_MINUTES = 25;
+const POMODO_TIMER_STATES = ['idle', 'running', 'paused', 'complete'];
 const APP_SECTION_SYNC = {};
+const SECTION_GROUPS = [
+  {
+    id: 'guia',
+    kicker: 'Base do plano',
+    title: 'Guia principal',
+    description: 'Visão geral, recursos e marcos no mesmo fluxo para reduzir troca de contexto.',
+    stats: ['3 blocos reunidos', 'ponto de partida', 'revisão rápida'],
+    mode: 'stack',
+    sections: [
+      { id: 'visao', label: 'Visão geral' },
+      { id: 'recursos', label: 'Recursos' },
+      { id: 'marcos', label: 'Marcos' },
+    ],
+  },
+  {
+    id: 'plano',
+    kicker: 'Linha do tempo',
+    title: 'Plano em fases',
+    description: 'As três fases do roadmap agora ficam em uma área única, com troca direta por etapa.',
+    stats: ['3 fases', '24 meses', 'ordem sequencial'],
+    mode: 'tabs',
+    sections: [
+      { id: 'fase1', label: 'Fase 1' },
+      { id: 'fase2', label: 'Fase 2' },
+      { id: 'fase3', label: 'Fase 3' },
+    ],
+  },
+  {
+    id: 'execucao',
+    kicker: 'Operação diária',
+    title: 'Workspace de execução',
+    description: 'Rotina, pomodo, tracker e painel de dados reunidos no mesmo espaço para evitar navegação dispersa.',
+    stats: ['rotina + foco + tracker + dados', 'salvo no navegador', 'menos cliques'],
+    mode: 'tabs',
+    sections: [
+      { id: 'rotina', label: 'Rotina' },
+      { id: 'pomodo', label: 'Pomodo' },
+      { id: 'ultra-aprendizado', label: 'Ultra-aprendizado' },
+      { id: 'painel', label: 'Painel' },
+    ],
+  },
+  {
+    id: 'trilhas',
+    kicker: 'Especializações',
+    title: 'Hub de trilhas',
+    description: 'Todas as especializações ficam em uma única área para comparar caminhos sem abrir várias páginas.',
+    stats: ['6 trilhas', 'comparação rápida', 'escolha por foco'],
+    mode: 'tabs',
+    sections: [
+      { id: 'visao-comp', label: 'Visão Computacional' },
+      { id: 'robotica', label: 'Robótica' },
+      { id: 'drone', label: 'Drone' },
+      { id: 'automacao', label: 'Automação' },
+      { id: 'rl', label: 'Reforço' },
+      { id: 'treinamento', label: 'Treinamento' },
+    ],
+  },
+];
+const SECTION_GROUP_BY_ID = Object.fromEntries(SECTION_GROUPS.map((group) => [group.id, group]));
+const SECTION_TO_GROUP = SECTION_GROUPS.reduce((acc, group) => {
+  group.sections.forEach((section) => {
+    acc[section.id] = group.id;
+  });
+  return acc;
+}, {});
+const GROUP_ACTIVE_PANELS = Object.fromEntries(
+  SECTION_GROUPS.map((group) => [group.id, group.sections[0]?.id || ''])
+);
 
 async function loadSectionHtml(id) {
   const resp = await fetch(`sections/${id}.html?v=${APP_ASSET_VERSION}`);
@@ -78,6 +151,265 @@ function showToast(message, tone = 'neutral') {
   }, 2400);
 }
 
+function getSectionGroup(id) {
+  return SECTION_GROUP_BY_ID[id] || null;
+}
+
+function resolveTopLevelSectionId(id) {
+  return SECTION_TO_GROUP[id] || id;
+}
+
+function getActiveGroupPanelId(groupId) {
+  const group = getSectionGroup(groupId);
+  if (!group) {
+    return null;
+  }
+  return GROUP_ACTIVE_PANELS[groupId] || group.sections[0]?.id || null;
+}
+
+function renderSectionGroupShell(group) {
+  const statsHtml = group.stats?.length
+    ? `
+      <div class="page-intro-stats">
+        ${group.stats.map((item) => `<div class="page-intro-stat">${item}</div>`).join('')}
+      </div>
+    `
+    : '';
+
+  const controlsHtml = group.mode === 'stack'
+    ? `
+      <div class="group-jump-row" role="navigation" aria-label="${group.title}">
+        ${group.sections.map((section) => `
+          <button
+            class="group-jump-link"
+            type="button"
+            data-group-parent="${group.id}"
+            data-group-jump="${section.id}"
+          >
+            ${section.label}
+          </button>
+        `).join('')}
+      </div>
+    `
+    : `
+      <div class="group-tab-row" role="tablist" aria-label="${group.title}">
+        ${group.sections.map((section, index) => `
+          <button
+            class="group-tab${index === 0 ? ' is-active' : ''}"
+            type="button"
+            role="tab"
+            aria-selected="${index === 0 ? 'true' : 'false'}"
+            data-group-parent="${group.id}"
+            data-group-tab="${section.id}"
+          >
+            ${section.label}
+          </button>
+        `).join('')}
+      </div>
+    `;
+
+  return `
+    <div class="page-intro">
+      <div>
+        <div class="page-intro-kicker">${group.kicker}</div>
+        <h2 class="page-intro-title">${group.title}</h2>
+        <p class="page-intro-sub">${group.description}</p>
+      </div>
+      ${statsHtml}
+    </div>
+    ${controlsHtml}
+    <div class="group-body${group.mode === 'stack' ? ' group-body-stack' : ''}" data-group-body="${group.id}"></div>
+  `;
+}
+
+function buildSectionGroups() {
+  const mainRoot = document.getElementById('sections-main');
+  if (!mainRoot) {
+    return;
+  }
+
+  const sectionById = new Map(
+    Array.from(mainRoot.children)
+      .filter((child) => child.classList?.contains('section'))
+      .map((child) => [child.id, child])
+  );
+
+  mainRoot.innerHTML = '';
+
+  SECTION_GROUPS.forEach((group) => {
+    const groupSection = document.createElement('section');
+    groupSection.id = group.id;
+    groupSection.className = 'section page-shell';
+    groupSection.dataset.groupRoot = group.id;
+    groupSection.innerHTML = renderSectionGroupShell(group);
+
+    const body = groupSection.querySelector(`[data-group-body="${group.id}"]`);
+    if (!body) {
+      return;
+    }
+
+    group.sections.forEach((entry, index) => {
+      const section = sectionById.get(entry.id);
+      if (!section) {
+        return;
+      }
+
+      section.classList.remove('section', 'active');
+      section.classList.add('group-panel');
+
+      const wrap = document.createElement('div');
+      wrap.className = 'group-panel-wrap';
+      wrap.dataset.groupPanel = entry.id;
+      if (group.mode === 'stack' || index === 0) {
+        wrap.classList.add('is-active');
+      }
+
+      wrap.appendChild(section);
+      body.appendChild(wrap);
+    });
+
+    mainRoot.appendChild(groupSection);
+  });
+}
+
+function activateGroupPanel(groupId, panelId, options = {}) {
+  const group = getSectionGroup(groupId);
+  if (!group) {
+    return;
+  }
+
+  const validPanelId = group.sections.some((section) => section.id === panelId)
+    ? panelId
+    : getActiveGroupPanelId(groupId);
+
+  if (!validPanelId) {
+    return;
+  }
+
+  GROUP_ACTIVE_PANELS[groupId] = validPanelId;
+
+  const root = document.getElementById(groupId);
+  if (!root) {
+    return;
+  }
+
+  root.querySelectorAll('[data-group-panel]').forEach((panel) => {
+    const isActive = group.mode === 'stack' || panel.dataset.groupPanel === validPanelId;
+    panel.classList.toggle('is-active', isActive);
+  });
+
+  root.querySelectorAll('[data-group-tab]').forEach((tab) => {
+    const isActive = tab.dataset.groupTab === validPanelId;
+    tab.classList.toggle('is-active', isActive);
+    tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+  });
+
+  if (options.updateHash && window.location.hash !== `#${validPanelId}`) {
+    window.history.replaceState(null, '', `#${validPanelId}`);
+  }
+
+  if (options.refresh !== false) {
+    refreshSection(validPanelId);
+  }
+
+  if (options.scrollIntoView) {
+    const target = root.querySelector(`[data-group-panel="${validPanelId}"]`);
+    target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function initSectionGroupInteractions() {
+  const mainRoot = document.getElementById('sections-main');
+  if (!mainRoot || mainRoot.dataset.groupEventsBound === 'true') {
+    return;
+  }
+
+  mainRoot.dataset.groupEventsBound = 'true';
+  mainRoot.addEventListener('click', (event) => {
+    const tab = event.target.closest('[data-group-tab]');
+    if (tab) {
+      event.preventDefault();
+      const groupId = tab.dataset.groupParent;
+      const panelId = tab.dataset.groupTab;
+      if (!groupId || !panelId) {
+        return;
+      }
+
+      if (!document.getElementById(groupId)?.classList.contains('active')) {
+        show(groupId, getTabBySection(groupId), {
+          hashId: panelId,
+          skipScroll: true,
+          childPanelId: panelId,
+        });
+        return;
+      }
+
+      activateGroupPanel(groupId, panelId, { updateHash: true, refresh: true });
+      return;
+    }
+
+    const jump = event.target.closest('[data-group-jump]');
+    if (!jump) {
+      return;
+    }
+
+    event.preventDefault();
+    const groupId = jump.dataset.groupParent;
+    const panelId = jump.dataset.groupJump;
+    if (!groupId || !panelId) {
+      return;
+    }
+
+    if (!document.getElementById(groupId)?.classList.contains('active')) {
+      show(groupId, getTabBySection(groupId), {
+        hashId: panelId,
+        skipScroll: true,
+        childPanelId: panelId,
+      });
+      window.requestAnimationFrame(() => {
+        activateGroupPanel(groupId, panelId, {
+          updateHash: false,
+          refresh: false,
+          scrollIntoView: true,
+        });
+      });
+      return;
+    }
+
+    activateGroupPanel(groupId, panelId, {
+      updateHash: true,
+      refresh: true,
+      scrollIntoView: true,
+    });
+  });
+}
+
+function initActionMenus() {
+  if (document.body.dataset.actionMenusBound === 'true') {
+    return;
+  }
+
+  document.body.dataset.actionMenusBound = 'true';
+  document.addEventListener('click', (event) => {
+    const currentMenu = event.target.closest('.action-menu');
+
+    document.querySelectorAll('.action-menu[open]').forEach((menu) => {
+      if (menu !== currentMenu) {
+        menu.removeAttribute('open');
+      }
+    });
+
+    if (!event.target.closest('.action-menu-list button')) {
+      return;
+    }
+
+    const parentMenu = event.target.closest('.action-menu');
+    window.requestAnimationFrame(() => {
+      parentMenu?.removeAttribute('open');
+    });
+  });
+}
+
 function refreshSection(sectionId) {
   const sync = APP_SECTION_SYNC[sectionId];
   if (typeof sync === 'function') {
@@ -88,6 +420,7 @@ function refreshSection(sectionId) {
 function refreshDataViews() {
   refreshSection('ultra-aprendizado');
   refreshSection('rotina');
+  refreshSection('pomodo');
   refreshSection('painel');
 }
 
@@ -1978,6 +2311,540 @@ function initDailyPlanner() {
   syncDailyPlannerFromStorage();
 }
 
+function getPomodoDefaultTimer(durationMinutes = POMODO_DEFAULT_DURATION_MINUTES) {
+  const safeMinutes = POMODO_DURATION_OPTIONS.includes(durationMinutes)
+    ? durationMinutes
+    : POMODO_DEFAULT_DURATION_MINUTES;
+
+  return {
+    status: 'idle',
+    durationSeconds: safeMinutes * 60,
+    elapsedSeconds: 0,
+    lastStartedAt: null,
+  };
+}
+
+function getPomodoDefaultState() {
+  return {
+    selectedMinutes: POMODO_DEFAULT_DURATION_MINUTES,
+    history: {},
+    timer: getPomodoDefaultTimer(),
+  };
+}
+
+function normalizePomodoHistoryEntry(entry) {
+  return {
+    id: typeof entry?.id === 'string' ? entry.id : createPlannerId('pmd'),
+    startedAt: typeof entry?.startedAt === 'string' ? entry.startedAt : '',
+    endedAt: typeof entry?.endedAt === 'string' ? entry.endedAt : '',
+    seconds: Math.max(0, Math.round(Number(entry?.seconds) || 0)),
+    durationSeconds: Math.max(
+      60,
+      Math.round(Number(entry?.durationSeconds) || (POMODO_DEFAULT_DURATION_MINUTES * 60))
+    ),
+  };
+}
+
+function normalizePomodoTimer(candidate, fallbackMinutes = POMODO_DEFAULT_DURATION_MINUTES) {
+  const durationSeconds = Number.isFinite(candidate?.durationSeconds)
+    ? Math.max(60, Math.round(candidate.durationSeconds))
+    : fallbackMinutes * 60;
+  const elapsedSeconds = Number.isFinite(candidate?.elapsedSeconds)
+    ? Math.max(0, Math.min(durationSeconds, Math.round(candidate.elapsedSeconds)))
+    : 0;
+  const status = POMODO_TIMER_STATES.includes(candidate?.status) ? candidate.status : 'idle';
+  const lastStartedAt = Number.isFinite(candidate?.lastStartedAt) ? candidate.lastStartedAt : null;
+
+  return {
+    status: status === 'running' && !lastStartedAt ? 'paused' : status,
+    durationSeconds,
+    elapsedSeconds,
+    lastStartedAt,
+  };
+}
+
+function normalizePomodoState(candidate) {
+  const fallbackMinutes = POMODO_DURATION_OPTIONS.includes(candidate?.selectedMinutes)
+    ? candidate.selectedMinutes
+    : POMODO_DEFAULT_DURATION_MINUTES;
+  const timer = normalizePomodoTimer(candidate?.timer, fallbackMinutes);
+  const timerMinutes = Math.round(timer.durationSeconds / 60);
+  const selectedMinutes = POMODO_DURATION_OPTIONS.includes(timerMinutes) ? timerMinutes : fallbackMinutes;
+  const history = {};
+
+  if (candidate?.history && typeof candidate.history === 'object') {
+    Object.entries(candidate.history).forEach(([date, entries]) => {
+      if (!Array.isArray(entries)) {
+        return;
+      }
+
+      history[date] = entries
+        .map(normalizePomodoHistoryEntry)
+        .filter((entry) => entry.seconds > 0);
+    });
+  }
+
+  return {
+    selectedMinutes,
+    history,
+    timer,
+  };
+}
+
+function loadPomodoState() {
+  try {
+    const raw = window.localStorage.getItem(POMODO_STORAGE_KEY);
+    if (!raw) {
+      return getPomodoDefaultState();
+    }
+    return normalizePomodoState(JSON.parse(raw));
+  } catch (err) {
+    console.warn('Falha ao carregar o pomodo.', err);
+    return getPomodoDefaultState();
+  }
+}
+
+function savePomodoState(state, quiet = false) {
+  try {
+    window.localStorage.setItem(POMODO_STORAGE_KEY, JSON.stringify(state));
+    return true;
+  } catch (err) {
+    console.warn('Falha ao salvar o pomodo.', err);
+    if (!quiet) {
+      showToast('Nao foi possivel salvar o pomodo.', 'error');
+    }
+    return false;
+  }
+}
+
+function padPomodoNumber(value) {
+  return String(Math.max(0, Math.floor(Number(value) || 0))).padStart(2, '0');
+}
+
+function getIsoDateFromLocalDate(date) {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
+    return '';
+  }
+
+  return [
+    date.getFullYear(),
+    padPomodoNumber(date.getMonth() + 1),
+    padPomodoNumber(date.getDate()),
+  ].join('-');
+}
+
+function getIsoDateFromMs(ms) {
+  return getIsoDateFromLocalDate(new Date(ms));
+}
+
+function getStartOfIsoDateMs(isoDate) {
+  const [year = '', month = '', day = ''] = String(isoDate || '').split('-');
+  if (!year || !month || !day) {
+    return Date.now();
+  }
+
+  return new Date(Number(year), Number(month) - 1, Number(day), 0, 0, 0, 0).getTime();
+}
+
+function formatPomodoRangeTime(value) {
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return '--:--';
+  }
+
+  return `${padPomodoNumber(date.getHours())}:${padPomodoNumber(date.getMinutes())}`;
+}
+
+function formatPomodoDigital(seconds) {
+  const totalSeconds = Math.max(0, Math.floor(Number(seconds) || 0));
+  const minutes = Math.floor(totalSeconds / 60);
+  const secs = totalSeconds % 60;
+  return `${padPomodoNumber(minutes)}:${padPomodoNumber(secs)}`;
+}
+
+function formatPomodoDuration(seconds) {
+  const totalSeconds = Math.max(0, Math.floor(Number(seconds) || 0));
+  const totalMinutes = Math.floor(totalSeconds / 60);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  if (totalSeconds > 0 && totalSeconds < 60) {
+    return `${totalSeconds}s`;
+  }
+
+  if (hours > 0) {
+    return `${hours}h ${padPomodoNumber(minutes)}m`;
+  }
+
+  return `${totalMinutes}m`;
+}
+
+function getPomodoEntriesForDate(state, isoDate = getTodayIsoDate()) {
+  return Array.isArray(state.history?.[isoDate]) ? state.history[isoDate] : [];
+}
+
+function getPomodoCommittedTodaySeconds(state, isoDate = getTodayIsoDate()) {
+  return getPomodoEntriesForDate(state, isoDate).reduce((sum, entry) => sum + entry.seconds, 0);
+}
+
+function getPomodoLiveSliceSeconds(state, nowMs = Date.now(), isoDate = getTodayIsoDate()) {
+  const timer = state.timer;
+  if (timer.status !== 'running' || !Number.isFinite(timer.lastStartedAt)) {
+    return 0;
+  }
+
+  const remainingSeconds = Math.max(0, timer.durationSeconds - timer.elapsedSeconds);
+  if (!remainingSeconds) {
+    return 0;
+  }
+
+  const effectiveStart = getIsoDateFromMs(timer.lastStartedAt) === isoDate
+    ? timer.lastStartedAt
+    : getStartOfIsoDateMs(isoDate);
+
+  if (effectiveStart > nowMs) {
+    return 0;
+  }
+
+  return Math.min(remainingSeconds, Math.max(0, Math.floor((nowMs - effectiveStart) / 1000)));
+}
+
+function getPomodoTodayTotalSeconds(state, isoDate = getTodayIsoDate(), nowMs = Date.now()) {
+  return getPomodoCommittedTodaySeconds(state, isoDate) + getPomodoLiveSliceSeconds(state, nowMs, isoDate);
+}
+
+function getPomodoLiveElapsedSeconds(state, nowMs = Date.now()) {
+  const timer = state.timer;
+  const elapsedSeconds = Math.max(0, Number(timer.elapsedSeconds) || 0);
+
+  if (timer.status !== 'running' || !Number.isFinite(timer.lastStartedAt)) {
+    return Math.min(timer.durationSeconds, elapsedSeconds);
+  }
+
+  const liveDelta = Math.max(0, Math.floor((nowMs - timer.lastStartedAt) / 1000));
+  return Math.min(timer.durationSeconds, elapsedSeconds + liveDelta);
+}
+
+function addPomodoHistoryEntry(state, startMs, endMs, seconds, durationSeconds) {
+  if (!Number.isFinite(startMs) || !Number.isFinite(endMs) || seconds <= 0) {
+    return;
+  }
+
+  const dayKey = getIsoDateFromMs(endMs);
+  if (!dayKey) {
+    return;
+  }
+
+  if (!Array.isArray(state.history[dayKey])) {
+    state.history[dayKey] = [];
+  }
+
+  state.history[dayKey].unshift({
+    id: createPlannerId('pmd'),
+    startedAt: new Date(startMs).toISOString(),
+    endedAt: new Date(endMs).toISOString(),
+    seconds,
+    durationSeconds,
+  });
+}
+
+function commitPomodoRunningSlice(state, nowMs = Date.now()) {
+  const timer = state.timer;
+  if (timer.status !== 'running' || !Number.isFinite(timer.lastStartedAt)) {
+    return 0;
+  }
+
+  const remainingSeconds = Math.max(0, timer.durationSeconds - timer.elapsedSeconds);
+  const rawSliceSeconds = Math.max(0, Math.floor((nowMs - timer.lastStartedAt) / 1000));
+  const sliceSeconds = Math.min(remainingSeconds, rawSliceSeconds);
+  const endMs = timer.lastStartedAt + (sliceSeconds * 1000);
+
+  if (sliceSeconds > 0) {
+    addPomodoHistoryEntry(state, timer.lastStartedAt, endMs, sliceSeconds, timer.durationSeconds);
+  }
+
+  timer.elapsedSeconds = Math.min(timer.durationSeconds, timer.elapsedSeconds + sliceSeconds);
+  timer.lastStartedAt = null;
+  return sliceSeconds;
+}
+
+function completePomodoIfNeeded(state, nowMs = Date.now()) {
+  const timer = state.timer;
+  if (timer.status !== 'running') {
+    return false;
+  }
+
+  if (getPomodoLiveElapsedSeconds(state, nowMs) < timer.durationSeconds) {
+    return false;
+  }
+
+  commitPomodoRunningSlice(state, nowMs);
+  timer.elapsedSeconds = timer.durationSeconds;
+  timer.status = 'complete';
+  return true;
+}
+
+function getPomodoStatusText(status) {
+  if (status === 'running') return 'Foco em andamento';
+  if (status === 'paused') return 'Foco pausado';
+  if (status === 'complete') return 'Bloco concluido';
+  return 'Pronto para iniciar';
+}
+
+function getPomodoPrimaryLabel(status) {
+  if (status === 'running') return 'Pausar';
+  if (status === 'paused') return 'Retomar';
+  if (status === 'complete') return 'Novo foco';
+  return 'Iniciar foco';
+}
+
+function getPomodoNoteText(status) {
+  if (status === 'running') {
+    return 'O total de hoje ja considera o bloco atual. Pause quando precisar respirar ou trocar de contexto.';
+  }
+  if (status === 'paused') {
+    return 'O tempo estudado ate aqui ja entrou no historico. Voce pode retomar de onde parou ou reiniciar.';
+  }
+  if (status === 'complete') {
+    return 'Bloco concluido e salvo no historico do dia. Use "Novo foco" para iniciar outro ciclo.';
+  }
+  return 'Escolha a duracao e use o relogio como ancora visual. O historico do dia fica em um clique.';
+}
+
+function renderPomodo(root, state, uiState) {
+  const now = new Date();
+  const nowMs = now.getTime();
+
+  if (completePomodoIfNeeded(state, nowMs)) {
+    savePomodoState(state, true);
+    refreshSection('painel');
+    showToast('Bloco de foco concluido.', 'success');
+  }
+
+  const timer = state.timer;
+  const elapsedSeconds = getPomodoLiveElapsedSeconds(state, nowMs);
+  const remainingSeconds = Math.max(0, timer.durationSeconds - elapsedSeconds);
+  const progress = timer.durationSeconds ? elapsedSeconds / timer.durationSeconds : 0;
+  const todayKey = getTodayIsoDate();
+  const todayEntries = getPomodoEntriesForDate(state, todayKey);
+  const liveSliceSeconds = getPomodoLiveSliceSeconds(state, nowMs, todayKey);
+  const todayTotalSeconds = getPomodoTodayTotalSeconds(state, todayKey, nowMs);
+  const todaySessions = todayEntries.length + (liveSliceSeconds > 0 ? 1 : 0);
+  const progressValue = String(Math.max(0, Math.min(1, progress)).toFixed(4));
+
+  const analog = root.querySelector('[data-pomodo-analog]');
+  if (analog) {
+    analog.style.setProperty('--pomodo-progress', progressValue);
+  }
+
+  const hourHand = root.querySelector('[data-pomodo-hand="hour"]');
+  const minuteHand = root.querySelector('[data-pomodo-hand="minute"]');
+  const secondHand = root.querySelector('[data-pomodo-hand="second"]');
+  const seconds = now.getSeconds() + (now.getMilliseconds() / 1000);
+  const minutes = now.getMinutes() + (seconds / 60);
+  const hours = (now.getHours() % 12) + (minutes / 60);
+
+  if (hourHand) {
+    hourHand.style.transform = `translateX(-50%) rotate(${(hours / 12) * 360}deg)`;
+  }
+  if (minuteHand) {
+    minuteHand.style.transform = `translateX(-50%) rotate(${(minutes / 60) * 360}deg)`;
+  }
+  if (secondHand) {
+    secondHand.style.transform = `translateX(-50%) rotate(${(seconds / 60) * 360}deg)`;
+  }
+
+  const remainingEl = root.querySelector('[data-pomodo-remaining]');
+  if (remainingEl) remainingEl.textContent = formatPomodoDigital(remainingSeconds);
+
+  const statusEl = root.querySelector('[data-pomodo-status]');
+  if (statusEl) statusEl.textContent = getPomodoStatusText(timer.status);
+
+  const totalEl = root.querySelector('[data-pomodo-total]');
+  if (totalEl) totalEl.textContent = formatPomodoDuration(todayTotalSeconds);
+
+  const sessionsEl = root.querySelector('[data-pomodo-sessions]');
+  if (sessionsEl) sessionsEl.textContent = String(todaySessions);
+
+  const durationEl = root.querySelector('[data-pomodo-duration]');
+  if (durationEl) {
+    durationEl.value = String(state.selectedMinutes);
+    durationEl.disabled = timer.status === 'running';
+  }
+
+  const toggleEl = root.querySelector('[data-pomodo-toggle]');
+  if (toggleEl) toggleEl.textContent = getPomodoPrimaryLabel(timer.status);
+
+  const resetEl = root.querySelector('[data-pomodo-reset]');
+  if (resetEl) resetEl.hidden = timer.status !== 'paused';
+
+  const noteEl = root.querySelector('[data-pomodo-note]');
+  if (noteEl) noteEl.textContent = getPomodoNoteText(timer.status);
+
+  const historyButton = root.querySelector('[data-pomodo-history-toggle]');
+  if (historyButton) {
+    historyButton.textContent = uiState.historyOpen ? 'Ocultar historico' : 'Historico do dia';
+  }
+
+  const historyPanel = root.querySelector('[data-pomodo-history]');
+  if (historyPanel) {
+    historyPanel.hidden = !uiState.historyOpen;
+  }
+
+  const historySummary = root.querySelector('[data-pomodo-history-summary]');
+  if (historySummary) {
+    historySummary.textContent = `${formatPomodoDuration(todayTotalSeconds)} estudados hoje em ${todaySessions} bloco${todaySessions === 1 ? '' : 's'}.`;
+  }
+
+  const historyDate = root.querySelector('[data-pomodo-history-date]');
+  if (historyDate) {
+    historyDate.textContent = formatPlannerDate(todayKey);
+  }
+
+  const historyList = root.querySelector('[data-pomodo-history-list]');
+  if (!historyList) {
+    return;
+  }
+
+  const liveRange = timer.status === 'running' && Number.isFinite(timer.lastStartedAt)
+    ? `${formatPomodoRangeTime(timer.lastStartedAt)} - agora`
+    : '';
+  const historyItems = [];
+
+  if (liveSliceSeconds > 0 && liveRange) {
+    historyItems.push({
+      isLive: true,
+      range: liveRange,
+      meta: 'Bloco em andamento',
+      seconds: liveSliceSeconds,
+    });
+  }
+
+  todayEntries.forEach((entry) => {
+    historyItems.push({
+      isLive: false,
+      range: `${formatPomodoRangeTime(entry.startedAt)} - ${formatPomodoRangeTime(entry.endedAt)}`,
+      meta: entry.seconds >= entry.durationSeconds ? 'Bloco concluido' : 'Bloco parcial',
+      seconds: entry.seconds,
+    });
+  });
+
+  if (!historyItems.length) {
+    historyList.innerHTML = '<div class="pomodo-history-empty">Nenhum bloco registrado hoje.</div>';
+    return;
+  }
+
+  historyList.innerHTML = historyItems.map((item) => `
+    <div class="pomodo-history-item${item.isLive ? ' is-live' : ''}">
+      <span class="pomodo-history-dot"></span>
+      <div>
+        <div class="pomodo-history-time">${item.range}</div>
+        <div class="pomodo-history-meta">${item.meta}</div>
+      </div>
+      <div class="pomodo-history-pill">${formatPomodoDuration(item.seconds)}</div>
+    </div>
+  `).join('');
+}
+
+function initPomodo() {
+  const root = document.getElementById('pomodo-app');
+  if (!root || root.dataset.pomodoBound === 'true') {
+    return;
+  }
+
+  root.dataset.pomodoBound = 'true';
+
+  let state = loadPomodoState();
+  const uiState = {
+    historyOpen: false,
+    tickId: null,
+  };
+
+  const render = () => renderPomodo(root, state, uiState);
+  const syncPomodoFromStorage = () => {
+    state = loadPomodoState();
+    render();
+  };
+
+  root.addEventListener('click', (event) => {
+    const toggleButton = event.target.closest('[data-pomodo-toggle]');
+    if (toggleButton) {
+      const nowMs = Date.now();
+
+      if (state.timer.status === 'running') {
+        commitPomodoRunningSlice(state, nowMs);
+        state.timer.status = state.timer.elapsedSeconds >= state.timer.durationSeconds ? 'complete' : 'paused';
+        savePomodoState(state);
+        render();
+        refreshSection('painel');
+        return;
+      }
+
+      if (state.timer.status === 'complete') {
+        state.timer = getPomodoDefaultTimer(state.selectedMinutes);
+      }
+
+      state.timer.status = 'running';
+      state.timer.lastStartedAt = nowMs;
+      savePomodoState(state, true);
+      render();
+      return;
+    }
+
+    const resetButton = event.target.closest('[data-pomodo-reset]');
+    if (resetButton) {
+      state.timer = getPomodoDefaultTimer(state.selectedMinutes);
+      savePomodoState(state);
+      render();
+      return;
+    }
+
+    const historyButton = event.target.closest('[data-pomodo-history-toggle]');
+    if (historyButton) {
+      uiState.historyOpen = !uiState.historyOpen;
+      render();
+    }
+  });
+
+  root.addEventListener('change', (event) => {
+    if (!event.target.matches('[data-pomodo-duration]')) {
+      return;
+    }
+
+    const nextMinutes = Number(event.target.value);
+    if (!POMODO_DURATION_OPTIONS.includes(nextMinutes)) {
+      event.target.value = String(state.selectedMinutes);
+      return;
+    }
+
+    if (state.timer.status === 'running') {
+      event.target.value = String(state.selectedMinutes);
+      showToast('Pause o foco antes de trocar a duracao.', 'error');
+      return;
+    }
+
+    const shouldNotifyReset = state.timer.status === 'paused' || state.timer.status === 'complete';
+    state.selectedMinutes = nextMinutes;
+    state.timer = getPomodoDefaultTimer(nextMinutes);
+    savePomodoState(state);
+    render();
+
+    if (shouldNotifyReset) {
+      showToast('Duracao atualizada e cronometro reiniciado.', 'neutral');
+    }
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      render();
+    }
+  });
+
+  uiState.tickId = window.setInterval(render, 250);
+  APP_SECTION_SYNC.pomodo = syncPomodoFromStorage;
+  syncPomodoFromStorage();
+}
+
 function downloadJsonFile(filename, payload) {
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -2018,11 +2885,13 @@ function initDataPanel() {
   const renderDataPanel = () => {
     const trackerState = loadUltraTrackerState();
     const plannerState = loadDailyPlannerState();
+    const pomodoState = loadPomodoState();
     const dayKeys = getPlannerDayKeys(plannerState);
     const totals = getPlannerTotals(plannerState);
     const snapshot = {
       ultraTracker: trackerState,
       dailyPlanner: plannerState,
+      pomodo: pomodoState,
     };
 
     if (uiState.dataset === 'planner' && (!uiState.selectedDay || !plannerState.days[uiState.selectedDay])) {
@@ -2031,7 +2900,7 @@ function initDataPanel() {
 
     root.querySelectorAll('[data-panel-stat]').forEach((el) => {
       const key = el.dataset.panelStat;
-      if (key === 'collections') el.textContent = '2';
+      if (key === 'collections') el.textContent = '3';
       if (key === 'days') el.textContent = String(totals.days);
       if (key === 'tasks') el.textContent = String(totals.tasks);
       if (key === 'subtasks') el.textContent = String(totals.subtasks);
@@ -2085,6 +2954,17 @@ function initDataPanel() {
       if (editorLabel) editorLabel.textContent = 'JSON dos trackers';
       if (deleteButton) {
         deleteButton.textContent = 'Limpar trackers';
+        deleteButton.disabled = false;
+      }
+    } else if (uiState.dataset === 'pomodo') {
+      payload = pomodoState;
+      exportName = 'pomodo-db.json';
+
+      if (editorTitle) editorTitle.textContent = 'Pomodo';
+      if (editorSub) editorSub.textContent = 'Timer e historico de estudo salvos neste navegador.';
+      if (editorLabel) editorLabel.textContent = 'JSON do pomodo';
+      if (deleteButton) {
+        deleteButton.textContent = 'Limpar pomodo';
         deleteButton.disabled = false;
       }
     } else {
@@ -2151,6 +3031,7 @@ function initDataPanel() {
       downloadJsonFile('plano-banco-local.json', {
         ultraTracker: loadUltraTrackerState(),
         dailyPlanner: loadDailyPlannerState(),
+        pomodo: loadPomodoState(),
       });
       showToast('Banco exportado.', 'success');
       return;
@@ -2186,6 +3067,9 @@ function initDataPanel() {
         if (uiState.dataset === 'tracker') {
           saveUltraTrackerState(normalizeUltraTrackerState(parsed));
           showToast('Trackers salvos pelo painel.', 'success');
+        } else if (uiState.dataset === 'pomodo') {
+          savePomodoState(normalizePomodoState(parsed));
+          showToast('Pomodo salvo pelo painel.', 'success');
         } else {
           const plannerState = loadDailyPlannerState();
           const targetDate = uiState.selectedDay || root.querySelector('[data-panel-new-day-date]')?.value || getTodayIsoDate();
@@ -2208,6 +3092,9 @@ function initDataPanel() {
       if (uiState.dataset === 'tracker') {
         saveUltraTrackerState(getUltraTrackerDefaultState());
         showToast('Tracker removido do banco local.', 'neutral');
+      } else if (uiState.dataset === 'pomodo') {
+        savePomodoState(getPomodoDefaultState());
+        showToast('Pomodo removido do banco local.', 'neutral');
       } else if (uiState.selectedDay) {
         const plannerState = loadDailyPlannerState();
         delete plannerState.days[uiState.selectedDay];
@@ -2235,6 +3122,7 @@ function initDataPanel() {
     if (clearDbButton) {
       window.localStorage.removeItem(ULTRA_TRACKER_STORAGE_KEY);
       window.localStorage.removeItem(DAILY_PLANNER_STORAGE_KEY);
+      window.localStorage.removeItem(POMODO_STORAGE_KEY);
       uiState.dataset = 'tracker';
       uiState.selectedDay = '';
       refreshDataViews();
@@ -2257,8 +3145,10 @@ function initDataPanel() {
       const parsed = JSON.parse(text);
       const trackerState = normalizeUltraTrackerState(parsed?.ultraTracker);
       const plannerState = normalizeDailyPlannerState(parsed?.dailyPlanner);
+      const pomodoState = normalizePomodoState(parsed?.pomodo);
       saveUltraTrackerState(trackerState);
       saveDailyPlannerState(plannerState);
+      savePomodoState(pomodoState);
       uiState.dataset = 'planner';
       uiState.selectedDay = getPlannerDayKeys(plannerState)[0] || '';
       refreshDataViews();
@@ -2279,33 +3169,63 @@ function getTabBySection(id) {
   return document.querySelector(`.nav-tab[data-section="${id}"]`);
 }
 
-function show(id, tabEl) {
-  const section = document.getElementById(id);
+function show(id, tabEl, options = {}) {
+  const topLevelId = resolveTopLevelSectionId(id);
+  const section = document.getElementById(topLevelId);
   if (!section) {
     return;
   }
+
+  const group = getSectionGroup(topLevelId);
+  const requestedChildId = group?.sections.some((entry) => entry.id === id) ? id : null;
+  const explicitChildId = group?.sections.some((entry) => entry.id === options.childPanelId)
+    ? options.childPanelId
+    : null;
+  const childPanelId = group
+    ? (explicitChildId || requestedChildId || getActiveGroupPanelId(topLevelId))
+    : null;
+  const hashId = options.hashId
+    || requestedChildId
+    || (group && id === topLevelId ? topLevelId : childPanelId)
+    || topLevelId;
 
   document.querySelectorAll('.section').forEach((s) => s.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach((t) => t.classList.remove('active'));
 
   section.classList.add('active');
 
-  const tab = tabEl || getTabBySection(id);
+  const tab = tabEl || getTabBySection(topLevelId);
   if (tab) {
     tab.classList.add('active');
   }
 
-  if (window.location.hash !== `#${id}`) {
-    window.history.replaceState(null, '', `#${id}`);
+  if (window.location.hash !== `#${hashId}`) {
+    window.history.replaceState(null, '', `#${hashId}`);
   }
 
-  document.body.classList.toggle('mapa-mode', id === 'mapa');
-  refreshSection(id);
+  document.body.classList.toggle('mapa-mode', topLevelId === 'mapa');
+  if (topLevelId !== 'mapa' && typeof window.exitMapaImmersive === 'function') {
+    window.exitMapaImmersive();
+  }
 
-  if (id === 'mapa') {
-    setTimeout(initMapa, 30);
+  if (group) {
+    activateGroupPanel(topLevelId, childPanelId, { updateHash: false, refresh: true });
   } else {
+    refreshSection(topLevelId);
+  }
+
+  if (topLevelId === 'mapa') {
+    setTimeout(initMapa, 30);
+  } else if (!options.skipScroll) {
     window.scrollTo(0, 0);
+  }
+
+  if (group && options.scrollToChild) {
+    activateGroupPanel(topLevelId, childPanelId, {
+      updateHash: false,
+      refresh: false,
+      scrollIntoView: true,
+    });
   }
 }
 
@@ -2316,7 +3236,7 @@ function renderLoadError(message) {
   }
 
   mainRoot.innerHTML = `
-    <div class="section active" id="visao">
+    <div class="section active" id="guia">
       <div class="card">
         <h2>Erro ao carregar seções</h2>
         <p>${message}</p>
@@ -2332,15 +3252,26 @@ function renderLoadError(message) {
 async function boot() {
   try {
     await loadSections();
+    buildSectionGroups();
+    initSectionGroupInteractions();
+    initActionMenus();
     initUltraTracker();
     initDailyPlanner();
+    initPomodo();
     initDataPanel();
 
     const hashId = window.location.hash.replace('#', '').trim();
-    const initialId = hashId || 'visao';
-    const fallbackId = document.getElementById(initialId) ? initialId : 'visao';
+    const requestedId = hashId || 'guia';
+    const initialId = resolveTopLevelSectionId(requestedId);
+    const fallbackId = document.getElementById(initialId) ? initialId : 'guia';
+    const initialGroup = getSectionGroup(fallbackId);
 
-    show(fallbackId, getTabBySection(fallbackId));
+    show(fallbackId, getTabBySection(fallbackId), {
+      hashId: SECTION_TO_GROUP[hashId] ? hashId : undefined,
+      childPanelId: SECTION_TO_GROUP[hashId] ? hashId : undefined,
+      skipScroll: initialGroup?.mode === 'stack' && Boolean(SECTION_TO_GROUP[hashId]),
+      scrollToChild: initialGroup?.mode === 'stack' && Boolean(SECTION_TO_GROUP[hashId]),
+    });
   } catch (err) {
     console.error(err);
     renderLoadError(err.message);

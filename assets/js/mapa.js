@@ -54,6 +54,8 @@ const _mapCtx = {
   suppressClickUntil: 0,
   resizeObs: null,
   theme: 'dark',
+  immersive: false,
+  panelOpen: false,
 };
 
 function _clamp(v, min, max) {
@@ -134,6 +136,73 @@ function _applyMapTheme(theme, { persist = true, redraw = false } = {}) {
       }
     }
   }
+}
+
+function _renderEmptyMapaPanel() {
+  const pnl = document.getElementById('mapa-pnl');
+  if (!pnl) return;
+
+  pnl.innerHTML = `
+    <div class="mapa-pnl-empty">
+      <div style="font-size:38px">🧠</div>
+      <div style="font-size:12px;line-height:1.6">Clique em qualquer nó<br>para ver detalhes,<br>materiais e comandos</div>
+    </div>
+  `;
+}
+
+function _syncMapUiState() {
+  if (!_mapCtx.root) return;
+
+  const hasSelection = Boolean(_selNode);
+  const showPanel = _mapCtx.immersive ? (_mapCtx.panelOpen && hasSelection) : true;
+
+  _mapCtx.root.classList.toggle('is-immersive', _mapCtx.immersive);
+  _mapCtx.root.classList.toggle('is-panel-open', showPanel);
+  _mapCtx.root.classList.toggle('has-selection', hasSelection);
+  document.body.classList.toggle('mapa-immersive', _mapCtx.immersive);
+
+  _mapCtx.root.querySelectorAll('[data-mapa-action="toggle-panel"]').forEach((button) => {
+    if (!(button instanceof HTMLButtonElement)) return;
+    button.disabled = !hasSelection;
+    button.textContent = _mapCtx.immersive && showPanel ? 'Ocultar detalhes' : 'Detalhes';
+    button.setAttribute('aria-pressed', _mapCtx.immersive && showPanel ? 'true' : 'false');
+  });
+
+  _mapCtx.root.querySelectorAll('[data-mapa-action="toggle-immersive"]').forEach((button) => {
+    button.textContent = _mapCtx.immersive ? 'Fechar expansão' : 'Expandir mapa';
+    button.setAttribute('aria-pressed', _mapCtx.immersive ? 'true' : 'false');
+  });
+}
+
+function _refreshMapViewport() {
+  if (!_mapCtx.cvs || !_mapCtx.svg) return;
+  _updateViewport();
+  _applyCam();
+}
+
+function _setMapImmersive(next) {
+  const target = Boolean(next);
+  if (_mapCtx.immersive === target) return;
+
+  _mapCtx.immersive = target;
+  _mapCtx.panelOpen = false;
+  _syncMapUiState();
+
+  window.requestAnimationFrame(() => {
+    _refreshMapViewport();
+  });
+}
+
+function _setPanelOpen(next) {
+  _mapCtx.panelOpen = Boolean(next) && Boolean(_selNode);
+  _syncMapUiState();
+}
+
+function _clearSelectedNode() {
+  _selNode = null;
+  _applyHighlights();
+  _setPanelOpen(false);
+  _renderEmptyMapaPanel();
 }
 
 function _truncateText(value, max = 96) {
@@ -505,6 +574,15 @@ function _drawScene() {
   });
 
   svg.appendChild(world);
+
+  svg.addEventListener('click', (e) => {
+    if (Date.now() < _mapCtx.suppressClickUntil) return;
+    const nodeGroup = typeof e.target.closest === 'function' ? e.target.closest('.nn') : null;
+    if (!nodeGroup) {
+      _clearSelectedNode();
+    }
+  });
+
   _applyHighlights();
 }
 
@@ -761,6 +839,7 @@ function _selectNode(nodeId) {
   _selNode = nodeId;
   _applyHighlights();
   _renderMapaPanel(n);
+  _setPanelOpen(true);
 }
 
 function _updateStats() {
@@ -904,10 +983,6 @@ function _bindPointerPanZoom() {
 }
 
 function _wireToolbar() {
-  const zi = document.getElementById('mapa-zoom-in');
-  const zo = document.getElementById('mapa-zoom-out');
-  const reset = document.getElementById('mapa-reset');
-  const fit = document.getElementById('mapa-fit');
   const themeButtons = _mapCtx.root ? Array.from(_mapCtx.root.querySelectorAll('[data-mapa-theme]')) : [];
   const search = document.getElementById('mapa-search');
   const clearSearch = document.getElementById('mapa-search-clear');
@@ -921,29 +996,63 @@ function _wireToolbar() {
     });
   });
 
-  if (zi) {
-    zi.addEventListener('click', () => {
-      _zoomAt(_mapCtx.viewport.w * 0.5, _mapCtx.viewport.h * 0.5, 1.17);
+  if (_mapCtx.root) {
+    _mapCtx.root.querySelectorAll('[data-mapa-action="zoom-in"]').forEach((button) => {
+      button.addEventListener('click', () => {
+        _zoomAt(_mapCtx.viewport.w * 0.5, _mapCtx.viewport.h * 0.5, 1.17);
+      });
+    });
+
+    _mapCtx.root.querySelectorAll('[data-mapa-action="zoom-out"]').forEach((button) => {
+      button.addEventListener('click', () => {
+        _zoomAt(_mapCtx.viewport.w * 0.5, _mapCtx.viewport.h * 0.5, 0.85);
+      });
+    });
+
+    _mapCtx.root.querySelectorAll('[data-mapa-action="focus-root"]').forEach((button) => {
+      button.addEventListener('click', () => {
+        _focusRoot();
+      });
+    });
+
+    _mapCtx.root.querySelectorAll('[data-mapa-action="fit"]').forEach((button) => {
+      button.addEventListener('click', () => {
+        _fitMap();
+      });
+    });
+
+    _mapCtx.root.querySelectorAll('[data-mapa-action="toggle-immersive"]').forEach((button) => {
+      button.addEventListener('click', () => {
+        _setMapImmersive(!_mapCtx.immersive);
+      });
+    });
+
+    _mapCtx.root.querySelectorAll('[data-mapa-action="exit-immersive"]').forEach((button) => {
+      button.addEventListener('click', () => {
+        _setMapImmersive(false);
+      });
+    });
+
+    _mapCtx.root.querySelectorAll('[data-mapa-action="toggle-panel"]').forEach((button) => {
+      button.addEventListener('click', () => {
+        if (!_selNode) return;
+        _setPanelOpen(!_mapCtx.panelOpen);
+      });
+    });
+
+    _mapCtx.root.addEventListener('click', (e) => {
+      const closePanelButton = e.target.closest('[data-mapa-action="close-panel"]');
+      if (closePanelButton) {
+        _setPanelOpen(false);
+      }
     });
   }
 
-  if (zo) {
-    zo.addEventListener('click', () => {
-      _zoomAt(_mapCtx.viewport.w * 0.5, _mapCtx.viewport.h * 0.5, 0.85);
-    });
-  }
-
-  if (reset) {
-    reset.addEventListener('click', () => {
-      _focusRoot();
-    });
-  }
-
-  if (fit) {
-    fit.addEventListener('click', () => {
-      _fitMap();
-    });
-  }
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && _mapCtx.immersive) {
+      _setMapImmersive(false);
+    }
+  });
 
   if (search) {
     search.addEventListener('focus', () => {
@@ -1062,9 +1171,15 @@ function initMapa() {
   _observeResize();
 
   _updateStats();
+  _renderEmptyMapaPanel();
+  _syncMapUiState();
   _focusRoot();
   _runSearch('');
 }
+
+window.exitMapaImmersive = function exitMapaImmersive() {
+  _setMapImmersive(false);
+};
 
 function _formatNodeLabel(label) {
   return label.replace(/\n/g, ' ');
@@ -1123,9 +1238,18 @@ function _renderMapaPanel(n) {
     n.cmds,
   ].some((items) => items && items.length);
 
+  const closeButton = _mapCtx.immersive
+    ? '<button class="mapa-panel-close" type="button" data-mapa-action="close-panel">Fechar</button>'
+    : '';
+
   let h = `<div class="mapa-pnl-inner">
-    <h3>${_formatNodeLabel(n.lbl)}</h3>
-    <span class="mapa-badge" style="background:${n.bg};color:${n.c}">${_getLayerName(n.ly)}</span>
+    <div class="mapa-panel-head">
+      <div class="mapa-panel-main">
+        <h3>${_formatNodeLabel(n.lbl)}</h3>
+        <span class="mapa-badge" style="background:${n.bg};color:${n.c}">${_getLayerName(n.ly)}</span>
+      </div>
+      ${closeButton}
+    </div>
     <p class="mapa-pdesc">${n.desc}</p>
     <div class="mapa-sec">🔗 Sinapses conectadas</div>
     <p class="mapa-pdesc" style="margin-bottom:6px">${(_mapCtx.adjacency.get(n.id) || []).size} conexões diretas</p>`;

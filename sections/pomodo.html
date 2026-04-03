@@ -1,0 +1,88 @@
+<div id="pomodo" class="section">
+  <div class="sec-title">Pomodo</div>
+  <div class="sec-sub">Relogio analogico para o bloco atual e historico enxuto do tempo estudado no dia.</div>
+
+  <div class="pomodo-card" id="pomodo-app">
+    <div class="pomodo-layout">
+      <div class="pomodo-clock-wrap">
+        <div class="pomodo-clock-shell">
+          <div class="pomodo-clock-aura"></div>
+
+          <div class="pomodo-analog" data-pomodo-analog>
+            <div class="pomodo-clock-face">
+              <span class="pomodo-digit pomodo-digit-12">12</span>
+              <span class="pomodo-digit pomodo-digit-3">3</span>
+              <span class="pomodo-digit pomodo-digit-6">6</span>
+              <span class="pomodo-digit pomodo-digit-9">9</span>
+
+              <div class="pomodo-hand pomodo-hand-hour" data-pomodo-hand="hour"></div>
+              <div class="pomodo-hand pomodo-hand-minute" data-pomodo-hand="minute"></div>
+              <div class="pomodo-hand pomodo-hand-second" data-pomodo-hand="second"></div>
+              <div class="pomodo-center"></div>
+
+              <div class="pomodo-digital" aria-live="polite">
+                <span class="pomodo-digital-kicker">Foco restante</span>
+                <strong data-pomodo-remaining>25:00</strong>
+                <span data-pomodo-status>Pronto para iniciar</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pomodo-aside">
+        <span class="pomodo-chip">Foco visual</span>
+        <h2>Um bloco por vez</h2>
+        <p class="pomodo-copy">Escolha a duracao, inicie o foco e acompanhe o total do dia sem espalhar mais ferramentas pela interface.</p>
+
+        <div class="pomodo-stat-grid">
+          <div class="pomodo-stat-card">
+            <div class="pomodo-stat-kicker">Hoje</div>
+            <div class="pomodo-stat-value" data-pomodo-total>0m</div>
+            <div class="pomodo-stat-label">tempo estudado</div>
+          </div>
+
+          <div class="pomodo-stat-card">
+            <div class="pomodo-stat-kicker">Blocos</div>
+            <div class="pomodo-stat-value" data-pomodo-sessions>0</div>
+            <div class="pomodo-stat-label">registros no dia</div>
+          </div>
+        </div>
+
+        <div class="pomodo-controls">
+          <label class="pomodo-field">
+            <span>Duracao do bloco</span>
+            <select data-pomodo-duration>
+              <option value="25">25 min</option>
+              <option value="45">45 min</option>
+              <option value="60">60 min</option>
+              <option value="90">90 min</option>
+            </select>
+          </label>
+
+          <div class="pomodo-actions">
+            <button class="planner-btn planner-btn-primary pomodo-primary-btn" type="button" data-pomodo-toggle>Iniciar foco</button>
+            <button class="planner-btn pomodo-secondary-btn" type="button" data-pomodo-history-toggle>Historico do dia</button>
+            <button class="planner-btn pomodo-reset-btn" type="button" data-pomodo-reset hidden>Reiniciar</button>
+          </div>
+        </div>
+
+        <p class="pomodo-note" data-pomodo-note>Escolha a duracao e use o relogio como ancora visual. O historico do dia fica em um clique.</p>
+      </div>
+    </div>
+
+    <div class="pomodo-history" data-pomodo-history hidden>
+      <div class="pomodo-history-head">
+        <div>
+          <h3>Historico do dia</h3>
+          <p data-pomodo-history-summary>0m estudados hoje.</p>
+        </div>
+        <span class="pomodo-history-date" data-pomodo-history-date></span>
+      </div>
+
+      <div class="pomodo-history-list" data-pomodo-history-list>
+        <div class="pomodo-history-empty">Nenhum bloco registrado hoje.</div>
+      </div>
+    </div>
+  </div>
+</div>

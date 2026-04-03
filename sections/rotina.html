@@ -9,11 +9,16 @@
         <p class="planner-sub">Crie tarefas, quebre em subtarefas e registre a entrega de cada uma com mensagem ou arquivo pequeno.</p>
       </div>
       <div class="planner-actions">
-        <button class="planner-btn" type="button" data-planner-add-task>Nova tarefa</button>
+        <button class="planner-btn planner-btn-primary" type="button" data-planner-add-task>Nova tarefa</button>
         <button class="planner-btn" type="button" data-planner-generate-report>Gerar relatório</button>
-        <button class="planner-btn" type="button" data-planner-export>Exportar dia</button>
-        <button class="planner-btn" type="button" data-planner-import-trigger>Importar dia</button>
-        <button class="planner-btn planner-btn-danger" type="button" data-planner-clear-day>Limpar dia</button>
+        <details class="action-menu">
+          <summary class="planner-btn action-menu-summary">Mais ações</summary>
+          <div class="action-menu-list">
+            <button class="planner-btn" type="button" data-planner-export>Exportar dia</button>
+            <button class="planner-btn" type="button" data-planner-import-trigger>Importar dia</button>
+            <button class="planner-btn planner-btn-danger" type="button" data-planner-clear-day>Limpar dia</button>
+          </div>
+        </details>
       </div>
     </div>
 
